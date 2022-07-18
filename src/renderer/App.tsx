@@ -6,7 +6,11 @@ import { FaHeart } from "react-icons/fa";
 import { MdAlbum } from "react-icons/md";
 import Footer from "./components/footer";
 import PageCover from "./pages/cover";
+import Player from "./plugins/player";
+import { getMusicFileList } from "./date-center";
 import "./App.less";
+
+export const player = new Player();
 
 function App() {
   const footerItems = [
@@ -45,6 +49,14 @@ function App() {
   ];
 
   const [itemKey, setItemKey] = React.useState("");
+
+  React.useEffect(() => {
+    (async() => {
+      const musicFileList = await getMusicFileList();
+      console.log(musicFileList);
+      player.load(musicFileList);
+    })();
+  }, [])
 
   return (
     <div className="my-app" style={{ textAlign: "center" }}>

@@ -6,7 +6,10 @@
  * @FilePath     : \react-electron-typescript\src\main\index.ts
  * @Description  :
  */
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
+import path from "path";
+import { readDir } from "./utils";
+import { IPC_CODE, AUDIO_EXTS } from "../constant";
 
 const isDev = process.env["NODE_ENV"] === "development";
 
@@ -50,3 +53,15 @@ app.on("window-all-closed", function () {
     app.quit();
   }
 });
+
+ipcMain.handle(IPC_CODE.getMusicFileList, async () => {
+  const p = "D:\\Music\\流行音乐\\好妹妹乐队\\实名制";
+  const fileList = [];
+  const musicFileList = await readDir(p, fileList);
+  return musicFileList.map((file) => {
+    const extname = path.extname(file).replace(".", "");
+    if (AUDIO_EXTS.includes(extname)) {
+      return {src: file};
+    }
+  });
+})
