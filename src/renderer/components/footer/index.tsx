@@ -1,4 +1,5 @@
 import React from "react";
+import "./style.less";
 
 export interface FooterItem {
   key: string | number;
@@ -24,7 +25,7 @@ export default function Footer(props: FooterProps) {
               item.onClick(item.key);
             }
           }}>
-            <span className={"item-icon"}>{item.icon}</span>
+            <div className={"item-icon"}>{item.icon}</div>
           </div>
         )
       })}
