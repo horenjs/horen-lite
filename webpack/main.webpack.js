@@ -8,6 +8,7 @@
  */
 const path = require('path');
 const { babelTsLoader } = require("./rules");
+const nodeExternals = require('webpack-node-externals');
 
 const srcMainPath = path.join(__dirname, "../src/main");
 
@@ -33,5 +34,6 @@ module.exports = {
     rules: [
       babelTsLoader(srcMainPath),
     ]
-  }
+  },
+  externals: [nodeExternals()]
 }

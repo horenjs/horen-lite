@@ -55,13 +55,15 @@ app.on("window-all-closed", function () {
 });
 
 ipcMain.handle(IPC_CODE.getMusicFileList, async () => {
-  const p = "D:\\Music\\流行音乐\\好妹妹乐队\\实名制";
+  const p = "C:\\Users\\wq\\Music";
   const fileList = [];
   const musicFileList = await readDir(p, fileList);
-  return musicFileList.map((file) => {
+  const results = [];
+  for (const file of musicFileList) {
     const extname = path.extname(file).replace(".", "");
     if (AUDIO_EXTS.includes(extname)) {
-      return {src: file};
+      results.push({src: file});
     }
-  });
+  }
+  return results;
 })
