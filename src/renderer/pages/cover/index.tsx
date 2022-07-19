@@ -44,7 +44,7 @@ export default function PageCover() {
     },
     {
       key: "play-or-pause",
-      icon: isPlaying ? <MdPlayArrow size={32} /> : <GiPauseButton size={24} />,
+      icon: isPlaying ? <GiPauseButton size={24} /> : <MdPlayArrow size={32} />,
       onClick(key: string | number) {
         console.log("press: ", key);
         dispatch(setIsPlaying(!isPlaying));

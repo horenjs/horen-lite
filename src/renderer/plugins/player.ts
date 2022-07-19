@@ -20,20 +20,16 @@ type TrackType = {
 
 export type Track = Partial<TrackType>;
 
+export type PlayerConfig = {
+  autoPlay?: boolean;
+  formats?: string[];
+}
+
 if (typeof window === "undefined") {
   throw new Error("Howler Player can only run on the browser.");
 }
 
 export default class Player {
-  get seek(): number {
-    return this.__howler?.seek();
-  }
-
-  set seek(value: number) {
-    this._seek = value;
-    this.__howler?.seek(value);
-  }
-
   protected __howler?: Howl;
   private _format = ["flac", "mp3"];
   private _trackList: Track[];
@@ -42,7 +38,26 @@ export default class Player {
   private _volume = 0.5;
   private _seek = 0;
   private _playMode: PlayMode = "in-turn-loop";
-  private _isAutoPlay = true;
+  private _isAutoPlay = false;
+
+  constructor(private config?: PlayerConfig) {
+    if (config?.autoPlay) {
+      this._isAutoPlay = config.autoPlay;
+    }
+
+    if (config?.formats) {
+      this._format = config.formats;
+    }
+  }
+
+  get seek(): number {
+    return this.__howler?.seek();
+  }
+
+  set seek(value: number) {
+    this._seek = value;
+    this.__howler?.seek(value);
+  }
 
   get format(): string[] {
     return this._format;
@@ -67,6 +82,7 @@ export default class Player {
   set track(value: Track) {
     this._track = value;
     console.log("play: ", value.src);
+    console.log("auto play: ", this._isAutoPlay);
     if (value.src) this._playFromSource(value.src);
   }
 
@@ -212,6 +228,7 @@ export default class Player {
       format: this.format,
       html5: true,
       volume: this.volume,
+      autoplay: this._isAutoPlay,
     });
     if (this._isAutoPlay) {
       this.play();

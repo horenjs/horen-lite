@@ -20,7 +20,7 @@ import Player from "./plugins/player";
 import { getMusicFileList } from "./date-center";
 import "./App.less";
 
-export const player = new Player();
+export const player = new Player({autoPlay: false});
 
 function App() {
   const footerItems = [
