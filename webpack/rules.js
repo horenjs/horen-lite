@@ -79,9 +79,18 @@ function lessLoader(p) {
   }
 }
 
+function resourceLoader(p) {
+  return {
+    test: /\.png/i,
+    include: p,
+    type: "asset/resource",
+  }
+}
+
 module.exports = {
   jsRulesDev,
   jsRules,
   babelTsLoader,
   lessLoader,
+  resourceLoader,
 }

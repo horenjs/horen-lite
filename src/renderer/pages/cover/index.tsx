@@ -15,6 +15,7 @@ import {
   selectTrack,
   selectSeek,
 } from "../../store/slices/player-status.slice";
+import CoverFrame from "../../static/cover-frame.png";
 import "./style.less";
 
 export default function PageCover() {
@@ -73,7 +74,9 @@ export default function PageCover() {
 
   return (
     <div className={"page-cover"}>
-      <div className={"cover"}></div>
+      <div className={"cover"}>
+        <img alt={"cover-frame"} src={CoverFrame} />
+      </div>
       <div className={"title"}>
         <span>{track?.title}</span>
       </div>

@@ -7,7 +7,7 @@
  * @Description  : 
  */
 const path = require('path');
-const { lessLoader } = require('./rules');
+const { lessLoader, resourceLoader } = require('./rules');
 const { htmlPlugin } = require('./plugins');
 
 const srcPath = path.join(__dirname, '../src/renderer');
@@ -36,6 +36,7 @@ module.exports = {
   module: {
     rules: [
       lessLoader(srcPath),
+      resourceLoader(srcPath),
     ],
   },
   plugins: [
