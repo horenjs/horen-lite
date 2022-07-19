@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { IoIosPause } from "react-icons/io";
 import { RiMenuAddFill, RiShuffleLine } from "react-icons/ri";
 import { CgPlayTrackPrevO, CgPlayTrackNextO } from "react-icons/cg";
@@ -19,10 +20,15 @@ import CoverFrame from "../../static/cover-frame.png";
 import "./style.less";
 
 export default function PageCover() {
+  const { t } = useTranslation();
   const seek = useSelector(selectSeek);
   const track = useSelector(selectTrack);
   const isPlaying = useSelector(selectIsPlaying);
   const dispatch = useDispatch<AppDispatch>();
+
+  const percent = Number((track?.duration ? seek / track?.duration : 0).toFixed(3));
+  console.log("seek: ", seek);
+  console.log("percent: ", percent);
 
   const handlerItems: HandlerItem[] = [
     {
@@ -78,13 +84,13 @@ export default function PageCover() {
         <img alt={"cover-frame"} src={CoverFrame} />
       </div>
       <div className={"title"}>
-        <span>{track?.title  || "No Title"}</span>
+        <span>{track?.title  || t("No Title")}</span>
       </div>
       <div className={"handlers"}>
         <Handler items={items} />
       </div>
       <div className={"progress"}>
-        <Slider percent={track?.duration ? seek / track?.duration : 0} />
+        <Slider percent={percent} />
       </div>
     </div>
   );

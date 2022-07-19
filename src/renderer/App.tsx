@@ -1,4 +1,5 @@
 import React from "react";
+import "./i18n";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { BsMusicNoteList } from "react-icons/bs";
 import { CgMusic } from "react-icons/cg";
@@ -87,8 +88,8 @@ function App() {
 
   React.useEffect(() => {
     setInterval(() => {
-      dispatch(setSeek(player.seek))
-    }, 500);
+      dispatch(setSeek(player.seek));
+    }, 1000);
   }, []);
 
   React.useEffect(() => {
