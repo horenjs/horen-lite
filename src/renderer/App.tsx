@@ -75,7 +75,7 @@ function App() {
 
   React.useEffect(() => {
     (async () => {
-      const musicFileList = await getMusicFileList();
+      const musicFileList = await getMusicFileList("C:\\Users\\1310-wang\\Music");
       console.log(musicFileList);
       if (musicFileList.length > 0) {
         player.load(musicFileList);

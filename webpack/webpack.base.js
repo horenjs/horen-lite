@@ -25,6 +25,7 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
+      "@constant": path.resolve(__dirname, "../src/constant"),
       "@img": path.resolve(__dirname, '../src/assets/images'),
       "@svg": path.resolve(__dirname, '../src/assets/svg'),
       "@pages": path.resolve(__dirname, '../src/pages'),

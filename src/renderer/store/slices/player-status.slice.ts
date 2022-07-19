@@ -11,7 +11,7 @@ export const playerStatusSlice = createSlice({
     volume: 0,
     prev: 0,
     next: 0,
-    isPlaying: false,
+    isPlaying: true,
   },
   reducers: {
     setPrev: (state) => {

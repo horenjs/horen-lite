@@ -48,10 +48,9 @@ app.on("window-all-closed", function () {
   }
 });
 
-ipcMain.handle(IPC_CODE.getMusicFileList, async () => {
-  const p = "C:\\Users\\wq\\Music";
+ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
   const fileList = [];
-  const musicFileList = await readDir(p, fileList);
+  const musicFileList = await readDir(path.resolve(p), fileList);
   const results = [];
   for (const file of musicFileList) {
     const extname = path.extname(file).replace(".", "");

@@ -22,7 +22,10 @@
       "resolveJsonModule": true,  //是否允许把json文件当做模块进行解析
       "isolatedModules": true,
       "noEmit": true,
-      "jsx": "react-jsx"
+      "jsx": "react-jsx",
+      "paths": {
+          "@constant": ["./src/constant"]
+      }
   },
   "include": [
       "src/**/*",

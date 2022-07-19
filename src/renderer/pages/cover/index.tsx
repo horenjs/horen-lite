@@ -78,7 +78,7 @@ export default function PageCover() {
         <img alt={"cover-frame"} src={CoverFrame} />
       </div>
       <div className={"title"}>
-        <span>{track?.title}</span>
+        <span>{track?.title  || "No Title"}</span>
       </div>
       <div className={"handlers"}>
         <Handler items={items} />

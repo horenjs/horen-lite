@@ -8,13 +8,14 @@ export interface SliderProps {
 export default function Slider(props: SliderProps) {
   const { percent } = props;
   const ref: any = React.useRef();
+  const offsetWidth = ref?.current?.offsetWidth || 0;
 
   console.log(ref);
 
   return (
     <div className={"component-slider"}>
       <div className={"bg"} ref={ref}></div>
-      <div className={"slider"} style={{width: percent * ref?.current?.offsetWidth}}></div>
+      <div className={"slider"} style={{width: percent * offsetWidth}}></div>
     </div>
   )
 }
