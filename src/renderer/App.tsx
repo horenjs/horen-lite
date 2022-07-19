@@ -104,6 +104,7 @@ function App() {
   React.useEffect(() => {
     setInterval(() => {
       dispatch(setSeek(player.seek));
+      dispatch(setTrack(player.track));
     }, 1000);
   }, []);
 
