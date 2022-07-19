@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  MdSkipPrevious,
-  MdPlayArrow,
-  MdSkipNext,
-  MdRepeat,
-} from "react-icons/md";
-import { GiPauseButton } from "react-icons/gi";
-import { ImPlus } from "react-icons/im";
+import { IoIosPause } from "react-icons/io";
+import { RiMenuAddFill, RiShuffleLine } from "react-icons/ri";
+import { CgPlayTrackPrevO, CgPlayTrackNextO } from "react-icons/cg";
+import { FiPlay } from "react-icons/fi";
 import Handler, { HandlerItem } from "../../components/handler";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
@@ -29,14 +25,14 @@ export default function PageCover() {
   const handlerItems: HandlerItem[] = [
     {
       key: "more-action",
-      icon: <ImPlus size={20} />,
+      icon: <RiMenuAddFill size={22} />,
       onClick(key: string | number) {
         console.log("press: ", key);
       },
     },
     {
       key: "prev-track",
-      icon: <MdSkipPrevious size={32} />,
+      icon: <CgPlayTrackPrevO size={22} />,
       onClick(key: string | number) {
         console.log("press: ", key);
         dispatch(setPrev());
@@ -44,7 +40,7 @@ export default function PageCover() {
     },
     {
       key: "play-or-pause",
-      icon: isPlaying ? <GiPauseButton size={24} /> : <MdPlayArrow size={32} />,
+      icon: isPlaying ? <IoIosPause size={26} /> : <FiPlay size={22} />,
       onClick(key: string | number) {
         console.log("press: ", key);
         dispatch(setIsPlaying(!isPlaying));
@@ -52,15 +48,15 @@ export default function PageCover() {
     },
     {
       key: "next-track",
-      icon: <MdSkipNext size={32} />,
+      icon: <CgPlayTrackNextO size={22} />,
       onClick(key: string | number) {
         console.log("press: ", key);
-        dispatch(setNext())
+        dispatch(setNext());
       },
     },
     {
       key: "play-mode",
-      icon: <MdRepeat size={26} />,
+      icon: <RiShuffleLine size={20} />,
       onClick(key: string | number) {
         console.log("press: ", key);
         console.log(key);
@@ -78,8 +74,8 @@ export default function PageCover() {
     <div className={"page-cover"}>
       <div className={"cover"}></div>
       <div className={"title"}>
-        <span>{ track?.duration ? seek / track?.duration : 0 }</span>
-        <span>{ track?.title }</span>
+        <span>{track?.duration ? seek / track?.duration : 0}</span>
+        <span>{track?.title}</span>
       </div>
       <div className={"handlers"}>
         <Handler items={items} />

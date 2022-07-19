@@ -1,9 +1,10 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { BsListNested } from "react-icons/bs";
-import { BiPulse } from "react-icons/bi";
-import { FaHeart } from "react-icons/fa";
-import { MdAlbum } from "react-icons/md";
+import { BsMusicNoteList } from "react-icons/bs";
+import { CgMusic } from "react-icons/cg";
+import { BiAlbum } from "react-icons/bi";
+import { MdOutlineFavoriteBorder } from "react-icons/md";
+import { RiSettingsLine } from "react-icons/ri";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addTracks,
@@ -20,22 +21,14 @@ import Player from "./plugins/player";
 import { getMusicFileList } from "./date-center";
 import "./App.less";
 
-export const player = new Player({autoPlay: false});
+export const player = new Player({autoPlay: true});
 
 function App() {
   const footerItems = [
     {
       key: "playlist",
       title: "Play List",
-      icon: <BsListNested size={28} />,
-      onClick: function (key: string | number) {
-        console.log(key);
-      },
-    },
-    {
-      key: "playing",
-      title: "Playing",
-      icon: <BiPulse size={32} />,
+      icon: <BsMusicNoteList size={22} />,
       onClick: function (key: string | number) {
         console.log(key);
       },
@@ -43,7 +36,15 @@ function App() {
     {
       key: "albums",
       title: "Albums",
-      icon: <MdAlbum size={28} />,
+      icon: <BiAlbum size={25} />,
+      onClick: function (key: string | number) {
+        console.log(key);
+      },
+    },
+    {
+      key: "playing",
+      title: "Playing",
+      icon: <CgMusic size={23} />,
       onClick: function (key: string | number) {
         console.log(key);
       },
@@ -51,11 +52,19 @@ function App() {
     {
       key: "favorite",
       title: "Favorite",
-      icon: <FaHeart size={24} />,
+      icon: <MdOutlineFavoriteBorder size={26} />,
       onClick(key: string | number) {
         console.log(key);
       },
     },
+    {
+      key: "setting",
+      title: "Setting",
+      icon: <RiSettingsLine size={24} />,
+      onClick(key: string | number) {
+        console.log(key);
+      }
+    }
   ];
 
   const dispatch = useDispatch<AppDispatch>();
