@@ -1,6 +1,6 @@
 {
   "name": "horen-lite",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Kevin Jobs (me@kevinjobs.com)",
   "main": "./dist/main.js",
   "scripts": {
