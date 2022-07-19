@@ -5,6 +5,7 @@ const resources = {
   en: {
     translation: {
       "No Title": "No Title",
+      "No Artist": "No Artist",
       "Music Library Path": "Music Library Path",
       "Auto Play": "Auto Play",
     },
@@ -12,6 +13,7 @@ const resources = {
   cn: {
     translation: {
       "No Title": "没有标题",
+      "No Artist": "没有歌手",
       "Music Library Path": "音乐库路径",
       "Auto Play": "自动播放",
     },

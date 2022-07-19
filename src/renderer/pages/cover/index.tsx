@@ -109,6 +109,9 @@ export default function PageCover() {
       <div className={"title"}>
         <span>{track?.title || t("No Title")}</span>
       </div>
+      <div className={"artist"}>
+        <span>{track?.artist || track?.artists || t("No Artist")}</span>
+      </div>
       <div className={"handlers electron-no-drag"}>
         <Handler items={items} />
       </div>
