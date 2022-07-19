@@ -1,11 +1,3 @@
-/*
- * @Author       : Kevin Jobs
- * @Date         : 2022-06-08 21:05:19
- * @LastEditTime : 2022-06-08 21:43:27
- * @lastEditors  : Kevin Jobs
- * @FilePath     : \react-ts\src\store\slices\couter.slice.ts
- * @Description  :
- */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
 

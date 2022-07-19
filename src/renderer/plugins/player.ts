@@ -25,12 +25,22 @@ if (typeof window === "undefined") {
 }
 
 export default class Player {
+  get seek(): number {
+    return this.__howler?.seek();
+  }
+
+  set seek(value: number) {
+    this._seek = value;
+    this.__howler?.seek(value);
+  }
+
   protected __howler?: Howl;
   private _format = ["flac", "mp3"];
   private _trackList: Track[];
   private _track: Track;
   private _isPlaying: boolean;
   private _volume = 0.5;
+  private _seek = 0;
   private _playMode: PlayMode = "in-turn-loop";
   private _isAutoPlay = true;
 
@@ -56,6 +66,7 @@ export default class Player {
 
   set track(value: Track) {
     this._track = value;
+    console.log("play: ", value.src);
     if (value.src) this._playFromSource(value.src);
   }
 
@@ -89,32 +100,28 @@ export default class Player {
 
   public load(list: Track[]) {
     this._trackList = list;
-
-    const src = this._trackList[0].src;
-    this._track = this._trackList[0];
-
-    this._playFromSource(src);
+    this.track = this._trackList[0];
   }
 
   private play() {
     // if there is a howler, do nothing
-    if (this.__howler.playing()) return;
+    if (this.__howler?.playing()) return;
     // play current track, otherwise
-    this.__howler.play();
+    this.__howler?.play();
     // monitor the current track is ended
-    this.__howler.once("end", () => this._skip("next"));
+    this.__howler?.once("end", () => this._skip("next"));
   }
 
   public stop() {
-    this.__howler.stop();
+    this.__howler?.stop();
   }
 
   public pause() {
-    this.__howler.pause();
+    this.__howler?.pause();
   }
 
   public playOrPause() {
-    if (this.__howler.playing()) {
+    if (this.__howler?.playing()) {
       this.pause();
     } else {
       this.play();
@@ -139,11 +146,11 @@ export default class Player {
 
   private _skip(flag: "prev" | "next") {
     // if there is no track in the list, do nothing
-    if (!this._trackList.length) return;
+    if (!this._trackList?.length) return;
     // find the index of current playing track
-    const idx = this._trackList.indexOf(this._track);
+    const idx = this._trackList?.indexOf(this._track);
     // skip to the specific idx
-    this._skipTo(flag, idx, this._trackList.length);
+    this._skipTo(flag, idx, this._trackList?.length);
   }
 
   private _skipTo(flag: "prev" | "next", index: number, length: number) {
