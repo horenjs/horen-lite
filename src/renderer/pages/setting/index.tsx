@@ -26,7 +26,7 @@ export default function SettingPage() {
 
   return (
     <div className={"page page-setting"}>
-      <div className={"setting-item"}>
+      <div className={"setting-item electron-no-drag"}>
         <div className={"item-label"}>
           <span>{ t("Music Library Path")}</span>
         </div>

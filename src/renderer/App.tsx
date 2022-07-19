@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   addTracks,
   setTrack,
+  selectTrack,
   setSeek,
   selectPrev,
   selectNext,
@@ -26,6 +27,8 @@ import { getMusicFileList } from "./date-center";
 import "./App.less";
 // setting
 import { getSetting } from "./date-center";
+// static
+import DefaultCover from "./static/default-cover";
 
 export const player = new Player({ autoPlay: true });
 
@@ -77,7 +80,7 @@ function App() {
   ];
 
   const dispatch = useDispatch<AppDispatch>();
-  // const trackList = useSelector(selectTrackList);
+  const track = useSelector(selectTrack);
   const prev = useSelector(selectPrev);
   const next = useSelector(selectNext);
   const isPlaying = useSelector(selectIsPlaying);
@@ -120,6 +123,12 @@ function App() {
 
   return (
     <div className="my-app">
+      <div
+        className={"app-mask electron-drag"}
+        style={{
+          backgroundImage: `url(data:image/png;base64,${track?.picture || DefaultCover})`,
+        }}
+      ></div>
       <div className={"footer"}>
         <Footer items={footerItems} />
       </div>

@@ -19,7 +19,7 @@ export default function Footer(props: FooterProps) {
     <div className={"component-footer"}>
       {items.map((item, index) => {
         return (
-          <div className={"item"} key={item.key || index} onClick={e => {
+          <div className={"item electron-no-drag"} key={item.key || index} onClick={e => {
             e.preventDefault();
             if (item.onClick) {
               item.onClick(item.key);

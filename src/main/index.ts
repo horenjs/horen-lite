@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import * as mm from "music-metadata";
 import { readDir } from "./utils";
+import {arrayBufferToBase64} from "./utils/array-buf";
 import { IPC_CODE, AUDIO_EXTS } from "../constant";
 import Store from "./utils/store";
 
@@ -11,12 +12,12 @@ let mainWindow;
 
 function createWindow() {
   const w = new BrowserWindow({
-    width: 1000,
-    height: 600,
-    // frame: true,
+    width: 300,
+    height: 468,
+    frame: false,
     resizable: true,
-    // movable: true,
-    // transparent: true,
+    movable: true,
+    transparent: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false, // this config make react use electron.
@@ -51,49 +52,52 @@ app.on("window-all-closed", function () {
 });
 
 // ipc: save setting
-ipcMain.handle(IPC_CODE.saveSetting, async (evt, item: string, value: object | string | number | boolean) => {
-  const store = new Store();
-  try {
-    const data = store.save(item, value);
-    return {code: 1, msg: "save success.", data: data};
-  } catch (err) {
-    return {code: 0, msg: "save failed.", err: err};
+ipcMain.handle(
+  IPC_CODE.saveSetting,
+  async (evt, item: string, value: object | string | number | boolean) => {
+    const store = new Store();
+    try {
+      const data = store.save(item, value);
+      return { code: 1, msg: "save success.", data: data };
+    } catch (err) {
+      return { code: 0, msg: "save failed.", err: err };
+    }
   }
-})
+);
 
 // ipc: get setting
 ipcMain.handle(IPC_CODE.getSetting, async (evt, item: string) => {
   const store = new Store();
   try {
     const result = store.get(item);
-    return {code: 1, msg: "get setting success.", data: result};
+    return { code: 1, msg: "get setting success.", data: result };
   } catch (err) {
-    return {code: 0, msg: "get setting failed", err: err};
+    return { code: 0, msg: "get setting failed", err: err };
   }
-})
+});
 
 // ipc: get all setting item
 ipcMain.handle(IPC_CODE.getAllSetting, async () => {
   const store = new Store();
   try {
     const result = store.getAll();
-    return {code: 1, msg: "get all setting success.", data: result};
+    return { code: 1, msg: "get all setting success.", data: result };
   } catch (err) {
-    return {code: 0, msg: "get setting failed", err: err};
+    return { code: 0, msg: "get setting failed", err: err };
   }
-})
+});
 
 // ipc: open dir
 ipcMain.handle(IPC_CODE.openDir, async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ["openDirectory"]
+    properties: ["openDirectory"],
   });
   if (result) {
-    return {code: 1, msg: "open dir success.", data: result.filePaths};
+    return { code: 1, msg: "open dir success.", data: result.filePaths };
   } else {
-    return {code: 0, msg: "open dir failed."};
+    return { code: 0, msg: "open dir failed." };
   }
-})
+});
 
 // ipc: get music file list
 ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
@@ -118,9 +122,18 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
       meta = null;
     }
 
-    const { title, artist, artists, album, genre, date } = meta?.common || {};
+    const { title, artist, artists, album, genre, date, picture } =
+      meta?.common || {};
 
     const { duration } = meta?.format || {};
+
+    let finalPic;
+    if (picture) {
+      const data = picture[0]?.data;
+      finalPic = arrayBufferToBase64(data);
+    } else {
+      finalPic = null;
+    }
 
     if (AUDIO_EXTS.includes(extname)) {
       results.push({
@@ -132,8 +145,19 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
         genre,
         date,
         duration,
+        picture: finalPic,
       });
     }
   }
   return results;
 });
+
+export function arrayBufferToBuffer(ab: ArrayBuffer) {
+  const buf = new Buffer(ab.byteLength);
+  const view = new Uint8Array(ab);
+  for (let i = 0; i < buf.length; ++i) buf[i] = view[i];
+  return buf;
+}
+
+
+

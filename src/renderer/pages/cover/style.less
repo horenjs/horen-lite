@@ -10,9 +10,16 @@
   height: 60%;
   width: 60%;
   margin: 20px auto;
+  position: relative;
   img {
     width: 100%;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    &.cover-album {
+      border-radius: 50%;
+    }
   }
 }
 

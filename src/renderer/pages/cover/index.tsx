@@ -17,6 +17,7 @@ import {
   selectSeek,
 } from "../../store/slices/player-status.slice";
 import CoverFrame from "../../static/cover-frame.png";
+import DefaultCover from "../../static/default-cover";
 import "./style.less";
 
 export default function PageCover() {
@@ -75,20 +76,40 @@ export default function PageCover() {
   ];
 
   const [items, setItems] = React.useState(handlerItems);
+  const [w, setW] = React.useState(0);
+  const ref: any = React.useRef();
 
   React.useEffect(() => {
     setItems(handlerItems);
   }, [isPlaying]);
 
+  React.useEffect(() => {
+    if (ref.current) {
+      console.log(ref);
+      setW(ref.current.offsetWidth);
+    }
+  }, [ref?.current]);
+
   return (
     <div className={"page page-cover"}>
-      <div className={"cover"}>
-        <img alt={"cover-frame"} src={CoverFrame} />
+      <div className={"cover"} ref={ref} style={{ height: w }}>
+        <img
+          className={"cover-album"}
+          alt={"cover-album"}
+          src={`data:image/png;base64,${track?.picture || DefaultCover}`}
+          style={{ height: w }}
+        />
+        <img
+          className={"cover-frame"}
+          alt={"cover-frame"}
+          src={CoverFrame}
+          style={{ height: w }}
+        />
       </div>
       <div className={"title"}>
         <span>{track?.title || t("No Title")}</span>
       </div>
-      <div className={"handlers"}>
+      <div className={"handlers electron-no-drag"}>
         <Handler items={items} />
       </div>
       <div className={"progress"}>
