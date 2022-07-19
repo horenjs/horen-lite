@@ -106,7 +106,7 @@ function App() {
   }, [isPlaying]);
 
   return (
-    <div className="my-app" style={{ textAlign: "center" }}>
+    <div className="my-app">
       <div className={"footer"}>
         <Footer items={footerItems} />
       </div>

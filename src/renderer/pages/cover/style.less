@@ -3,20 +3,21 @@
   height: 300px;
   display: flex;
   justify-content: center;
-  align-items: center;
   flex-wrap: wrap;
-  background-color: #fff;
+  position: relative;
 }
 
 .cover {
-  height: 70%;
-  width: 70%;
+  height: 60%;
+  width: 60%;
+  margin: 20px auto;
   background-color: #71b15f;
   border-radius: 50%;
 }
 
 .title {
   width: 100%;
+  text-align: center;
 }
 
 .handlers {
@@ -25,4 +26,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  color: #f6f6f6 !important;
+}
+
+.progress {
+  width: 300px;
+  height: 4px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
 }

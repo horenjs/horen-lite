@@ -4,6 +4,7 @@ import { RiMenuAddFill, RiShuffleLine } from "react-icons/ri";
 import { CgPlayTrackPrevO, CgPlayTrackNextO } from "react-icons/cg";
 import { FiPlay } from "react-icons/fi";
 import Handler, { HandlerItem } from "../../components/handler";
+import Slider from "../../components/slider";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import {
@@ -74,11 +75,13 @@ export default function PageCover() {
     <div className={"page-cover"}>
       <div className={"cover"}></div>
       <div className={"title"}>
-        <span>{track?.duration ? seek / track?.duration : 0}</span>
         <span>{track?.title}</span>
       </div>
       <div className={"handlers"}>
         <Handler items={items} />
+      </div>
+      <div className={"progress"}>
+        <Slider percent={track?.duration ? seek / track?.duration : 0} />
       </div>
     </div>
   );
