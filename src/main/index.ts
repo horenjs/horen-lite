@@ -50,8 +50,16 @@ app.on("window-all-closed", function () {
 
 ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
   const fileList = [];
-  const musicFileList = await readDir(path.resolve(p), fileList);
+  let musicFileList = [];
+
+  try {
+    musicFileList = await readDir(path.resolve(p), fileList);
+  } catch (err) {
+    console.error(err);
+  }
+
   const results = [];
+
   for (const file of musicFileList) {
     const extname = path.extname(file).replace(".", "");
     let meta;
@@ -62,14 +70,7 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
       meta = null;
     }
 
-    const {
-      title,
-      artist,
-      artists,
-      album,
-      genre,
-      date
-    } = meta?.common || {};
+    const { title, artist, artists, album, genre, date } = meta?.common || {};
 
     const { duration } = meta?.format || {};
 
@@ -87,4 +88,4 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
     }
   }
   return results;
-})
+});
