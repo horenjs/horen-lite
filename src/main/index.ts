@@ -15,7 +15,7 @@ function createWindow() {
     width: 300,
     height: 468,
     frame: false,
-    resizable: true,
+    resizable: false,
     movable: true,
     transparent: true,
     webPreferences: {

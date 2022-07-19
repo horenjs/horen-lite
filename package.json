@@ -9,6 +9,13 @@
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
+  "keywords": [
+    "react",
+    "player",
+    "typescript",
+    "electron",
+    "howl"
+  ],
   "engines": {
     "node": "~12"
   },
