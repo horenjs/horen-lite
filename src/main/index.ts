@@ -1,13 +1,7 @@
-/*
- * @Author       : Kevin Jobs
- * @Date         : 2022-06-08 22:04:38
- * @LastEditTime : 2022-06-11 06:35:40
- * @lastEditors  : Kevin Jobs
- * @FilePath     : \react-electron-typescript\src\main\index.ts
- * @Description  :
- */
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
+import fs from "fs";
+import * as mm from "music-metadata";
 import { readDir } from "./utils";
 import { IPC_CODE, AUDIO_EXTS } from "../constant";
 
@@ -61,8 +55,36 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async () => {
   const results = [];
   for (const file of musicFileList) {
     const extname = path.extname(file).replace(".", "");
+    let meta;
+
+    try {
+      meta = await mm.parseFile(file);
+    } catch (err) {
+      meta = null;
+    }
+
+    const {
+      title,
+      artist,
+      artists,
+      album,
+      genre,
+      date
+    } = meta?.common || {};
+
+    const { duration } = meta?.format || {};
+
     if (AUDIO_EXTS.includes(extname)) {
-      results.push({src: file});
+      results.push({
+        src: file,
+        title,
+        artist,
+        artists,
+        album,
+        genre,
+        date,
+        duration,
+      });
     }
   }
   return results;

@@ -55,12 +55,15 @@ export default function PageCover() {
   const [items, setItems] = React.useState(handlerItems);
 
   React.useEffect(() => {
-    setItems(handlerItems)
+    setItems(handlerItems);
   }, [isPlaying]);
 
   return (
     <div className={"page-cover"}>
       <div className={"cover"}></div>
+      <div className={"title"}>
+        <span>{ player?.trackList }</span>
+      </div>
       <div className={"handlers"}>
         <Handler items={items} />
       </div>
