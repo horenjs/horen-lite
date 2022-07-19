@@ -26,7 +26,9 @@ export default function PageCover() {
   const isPlaying = useSelector(selectIsPlaying);
   const dispatch = useDispatch<AppDispatch>();
 
-  const percent = Number((track?.duration ? seek / track?.duration : 0).toFixed(3));
+  const percent = Number(
+    (track?.duration ? seek / track?.duration : 0).toFixed(3)
+  );
   console.log("seek: ", seek);
   console.log("percent: ", percent);
 
@@ -79,12 +81,12 @@ export default function PageCover() {
   }, [isPlaying]);
 
   return (
-    <div className={"page-cover"}>
+    <div className={"page page-cover"}>
       <div className={"cover"}>
         <img alt={"cover-frame"} src={CoverFrame} />
       </div>
       <div className={"title"}>
-        <span>{track?.title  || t("No Title")}</span>
+        <span>{track?.title || t("No Title")}</span>
       </div>
       <div className={"handlers"}>
         <Handler items={items} />

@@ -1,6 +1,6 @@
 import React from "react";
 import "./i18n";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { BsMusicNoteList } from "react-icons/bs";
 import { CgMusic } from "react-icons/cg";
 import { BiAlbum } from "react-icons/bi";
@@ -17,14 +17,21 @@ import {
 } from "./store/slices/player-status.slice";
 import { AppDispatch } from "./store";
 import Footer from "./components/footer";
+// pages
 import PageCover from "./pages/cover";
+import PageSetting from "./pages/setting";
+// plugins
 import Player from "./plugins/player";
 import { getMusicFileList } from "./date-center";
 import "./App.less";
+// setting
+import { getSetting } from "./date-center";
 
-export const player = new Player({autoPlay: true});
+export const player = new Player({ autoPlay: true });
 
 function App() {
+  const navi = useNavigate();
+
   const footerItems = [
     {
       key: "playlist",
@@ -47,7 +54,7 @@ function App() {
       title: "Playing",
       icon: <CgMusic size={23} />,
       onClick: function (key: string | number) {
-        console.log(key);
+        navi("/");
       },
     },
     {
@@ -64,8 +71,9 @@ function App() {
       icon: <RiSettingsLine size={24} />,
       onClick(key: string | number) {
         console.log(key);
-      }
-    }
+        navi("/setting");
+      },
+    },
   ];
 
   const dispatch = useDispatch<AppDispatch>();
@@ -76,12 +84,16 @@ function App() {
 
   React.useEffect(() => {
     (async () => {
-      const musicFileList = await getMusicFileList("C:\\Users\\1310-wang\\Music");
-      console.log(musicFileList);
-      if (musicFileList.length > 0) {
-        player.load(musicFileList);
-        dispatch(addTracks(musicFileList));
-        dispatch(setTrack(player.track));
+      const result = await getSetting("musicLibraryPath");
+      if (result.code === 1) {
+        console.log("music library path: ", result.data);
+        const musicFileList = await getMusicFileList(result.data);
+        console.log("music file list: ", musicFileList);
+        if (musicFileList.length > 0) {
+          player.load(musicFileList);
+          dispatch(addTracks(musicFileList));
+          dispatch(setTrack(player.track));
+        }
       }
     })();
   }, []);
@@ -112,11 +124,10 @@ function App() {
         <Footer items={footerItems} />
       </div>
       <div className={"main"}>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<PageCover />} index />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route element={<PageCover />} index />
+          <Route element={<PageSetting />} path={"/setting"} />
+        </Routes>
       </div>
     </div>
   );

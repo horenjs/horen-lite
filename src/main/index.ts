@@ -1,11 +1,13 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
-import fs from "fs";
 import * as mm from "music-metadata";
 import { readDir } from "./utils";
 import { IPC_CODE, AUDIO_EXTS } from "../constant";
+import Store from "./utils/store";
 
 const isDev = process.env["NODE_ENV"] === "development";
+
+let mainWindow;
 
 function createWindow() {
   const w = new BrowserWindow({
@@ -32,7 +34,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   // create main window
-  const mainWindow = createWindow();
+  mainWindow = createWindow();
 
   // only in macOS
   app.on("activate", function () {
@@ -48,6 +50,52 @@ app.on("window-all-closed", function () {
   }
 });
 
+// ipc: save setting
+ipcMain.handle(IPC_CODE.saveSetting, async (evt, item: string, value: object | string | number | boolean) => {
+  const store = new Store();
+  try {
+    const data = store.save(item, value);
+    return {code: 1, msg: "save success.", data: data};
+  } catch (err) {
+    return {code: 0, msg: "save failed.", err: err};
+  }
+})
+
+// ipc: get setting
+ipcMain.handle(IPC_CODE.getSetting, async (evt, item: string) => {
+  const store = new Store();
+  try {
+    const result = store.get(item);
+    return {code: 1, msg: "get setting success.", data: result};
+  } catch (err) {
+    return {code: 0, msg: "get setting failed", err: err};
+  }
+})
+
+// ipc: get all setting item
+ipcMain.handle(IPC_CODE.getAllSetting, async () => {
+  const store = new Store();
+  try {
+    const result = store.getAll();
+    return {code: 1, msg: "get all setting success.", data: result};
+  } catch (err) {
+    return {code: 0, msg: "get setting failed", err: err};
+  }
+})
+
+// ipc: open dir
+ipcMain.handle(IPC_CODE.openDir, async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ["openDirectory"]
+  });
+  if (result) {
+    return {code: 1, msg: "open dir success.", data: result.filePaths};
+  } else {
+    return {code: 0, msg: "open dir failed."};
+  }
+})
+
+// ipc: get music file list
 ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
   const fileList = [];
   let musicFileList = [];
