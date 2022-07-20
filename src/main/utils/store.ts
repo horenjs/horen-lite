@@ -3,31 +3,50 @@ import path from "path";
 import { DEFAULT_SETTING } from "../../constant";
 
 export default class Store {
-  private readonly p: string;
+  private readonly defaultSettingFileName = "setting.default.json";
+  private readonly userSettingFileName = "setting.user.json";
+  private readonly defaultSettingPath: string;
+  private readonly userSettingPath: string;
   private readonly encoding = "utf-8";
 
-  constructor(private _p?: string) {
+  constructor() {
     const appPath = path.join(process.env.APPDATA, "horen-lite");
-    this.p = this._p || path.join(appPath, "setting.json");
+
+    this.defaultSettingPath = path.join(appPath, this.defaultSettingFileName);
+    this.userSettingPath = path.join(appPath, this.userSettingFileName);
 
     if (!fs.existsSync(appPath)) {
       fs.mkdirSync(appPath);
     }
 
     try {
-      this.getAll();
+      fs.readFileSync(this.defaultSettingPath, { encoding: this.encoding });
     } catch (err) {
-      fs.writeFileSync(this.p, JSON.stringify(DEFAULT_SETTING, null, 2), {
-        encoding: this.encoding,
-      });
+      fs.writeFileSync(
+        this.defaultSettingPath,
+        JSON.stringify(DEFAULT_SETTING, null, 2),
+        {
+          encoding: this.encoding,
+        }
+      );
+    }
+
+    try {
+      fs.readFileSync(this.userSettingPath, { encoding: this.encoding });
+    } catch (err) {
+      fs.writeFileSync(
+        this.userSettingPath,
+        JSON.stringify(DEFAULT_SETTING, null, 2),
+        { encoding: this.encoding }
+      );
     }
   }
 
-  save(item: string, value: object | string | number | boolean) {
+  public save(item: string, value: object | string | number | boolean) {
     let data: object = {};
 
     try {
-      const str = fs.readFileSync(this.p, { encoding: this.encoding });
+      const str = fs.readFileSync(this.userSettingPath, { encoding: this.encoding });
       if (str) data = JSON.parse(str);
     } catch (err) {
       console.log("cannot read setting file");
@@ -37,7 +56,7 @@ export default class Store {
     data["updateAt"] = new Date().valueOf();
 
     try {
-      fs.writeFileSync(this.p, JSON.stringify(data, null, 2), {
+      fs.writeFileSync(this.userSettingPath, JSON.stringify(data, null, 2), {
         encoding: this.encoding,
       });
       return data;
@@ -46,36 +65,41 @@ export default class Store {
     }
   }
 
-  get(item: string) {
-    let str: string;
-    let data;
-
+  public get(item: string) {
+    let foundValue;
     try {
-      str = fs.readFileSync(this.p, { encoding: this.encoding });
+      foundValue = this.getCombineSetting()[item];
+      return foundValue;
     } catch (err) {
-      str = "";
-      throw new Error("setting file doesnt exist.");
+      throw new Error("cannot find the item: " + item);
     }
-
-    if (str !== "") {
-      try {
-        data = JSON.parse(str)[item];
-      } catch (err) {
-        throw new Error("get setting item failed.");
-      }
-    }
-
-    return data;
   }
 
-  getAll() {
+  public getAll() {
+    return this.getCombineSetting();
+  }
+
+  private getCombineSetting() {
+    let defaultStr: string;
+    let userStr: string;
+
+    let defaultJson: object;
+    let userJson: object;
+
     try {
-      const str = fs.readFileSync(this.p, { encoding: this.encoding });
-      if (str !== "") {
-        return JSON.parse(str);
-      }
+      defaultStr = fs.readFileSync(this.defaultSettingPath, { encoding: this.encoding });
+      defaultJson = JSON.parse(defaultStr);
     } catch (err) {
-      throw new Error("setting file doesnt exist.");
+      defaultJson = DEFAULT_SETTING;
     }
+
+    try {
+      userStr = fs.readFileSync(this.userSettingPath, {encoding: this.encoding});
+      userJson = JSON.parse(userStr);
+    } catch (err) {
+      userJson = {};
+    }
+
+    return {...defaultJson, ...userJson};
   }
 }
