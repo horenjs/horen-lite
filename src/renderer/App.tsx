@@ -5,10 +5,10 @@ import "@i18n";
 import { Routes, Route, useNavigate } from "react-router-dom";
 // icons
 import { BsMusicNoteList } from "react-icons/bs";
-import { CgMusic } from "react-icons/cg";
 import { BiAlbum } from "react-icons/bi";
-import { MdOutlineFavoriteBorder } from "react-icons/md";
+import { MdOutlineFavoriteBorder, MdOutlineTextFields } from "react-icons/md";
 import { RiSettingsLine } from "react-icons/ri";
+import { IoMdPulse } from "react-icons/io";
 // store
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "@store/index";
@@ -41,6 +41,14 @@ function App() {
 
   const footerItems = [
     {
+      key: "lyric",
+      title: "Lyric",
+      icon: <MdOutlineTextFields size={24} />,
+      onClick(key: string | number) {
+        console.log(key);
+      }
+    },
+    {
       key: "playlist",
       title: "Play List",
       icon: <BsMusicNoteList size={22} />,
@@ -59,7 +67,7 @@ function App() {
     {
       key: "playing",
       title: "Playing",
-      icon: <CgMusic size={23} />,
+      icon: <IoMdPulse size={24} />,
       onClick: function (key: string | number) {
         navi("/");
       },
@@ -99,7 +107,9 @@ function App() {
   React.useEffect(() => {
     const timer = setInterval(() => {
       dispatch(setSeek(player.seek));
-      dispatch(setTrack(player.track));
+      if (player.seek >= 0 && player.seek <= 1.5) {
+        dispatch(setTrack(player.track));
+      }
     }, 1000);
     return () => clearInterval(timer);
   }, []);
