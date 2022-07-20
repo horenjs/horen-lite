@@ -22,6 +22,7 @@ import CoverFrame from "@static/cover-frame.png";
 import DefaultCover from "@static/default-cover";
 import "./style.less";
 import {PlayMode} from "@plugins/player";
+import { saveSetting } from "../../data-transfer";
 
 export default function PageCover() {
   const { t } = useTranslation();
@@ -101,13 +102,16 @@ export default function PageCover() {
           "random",
         ];
         const idx = playModes.indexOf(playMode);
+        let newPlayMode: PlayMode;
         if (idx < playModes.length - 1) {
-          console.log("play mode: ", playMode, idx);
-          dispatch(setPlayMode(playModes[idx+1]));
+          newPlayMode = playModes[idx+1];
         } else {
-          console.log("play mode: ", playMode);
-          dispatch(setPlayMode(playModes[0]));
+          newPlayMode = playModes[0];
         }
+        dispatch(setPlayMode(newPlayMode));
+        (async () => {
+          await saveSetting("playMode", newPlayMode);
+        })();
       },
     },
   ];
