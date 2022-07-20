@@ -1,7 +1,8 @@
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
+import * as crypto from "crypto";
 import * as mm from "music-metadata";
-import { readDir } from "./utils";
+import { readDir, readFile, writeFile } from "./utils";
 import { arrayBufferToBase64 } from "./utils/array-buf";
 import { IPC_CODE, AUDIO_EXTS } from "../constant";
 import Store from "./utils/store";
@@ -101,6 +102,19 @@ ipcMain.handle(IPC_CODE.openDir, async () => {
 
 // ipc: get music file list
 ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
+  const hash = crypto.createHash("md5");
+  hash.update(p);
+
+  const appPath = path.join(process.env.APPDATA, "horen-lite");
+  const musicLibraryPath = path.join(appPath, `Library-${hash.digest("hex")}.json`)
+
+  try {
+    const musicLibraryJsonStr = await readFile(musicLibraryPath);
+    return {code: 1, msg: "success", data: {lists: JSON.parse(musicLibraryJsonStr)}};
+  } catch (err) {
+    console.log(err);
+  }
+
   const fileList = [];
   let musicFileList = [];
 
@@ -149,7 +163,15 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
       });
     }
   }
-  return results;
+
+
+  try {
+    await writeFile(musicLibraryPath, JSON.stringify(results, null, 2));
+  } catch (err) {
+    console.log("save music library failed.");
+  }
+
+  return {code: 1, msg: "success", data: {lists: results}};
 });
 
 ipcMain.handle(IPC_CODE.setTitle, async (evt, title: string) => {

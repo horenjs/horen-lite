@@ -1,6 +1,23 @@
 import fs from "fs";
 import path from "path";
 
+export async function readFile(p: string) :Promise<string> {
+  return new Promise((rev, rej) => {
+    fs.readFile(p, {encoding: "utf-8"}, (err, data) => {
+      if (err) rej(err);
+      else rev(data);
+    })
+  })
+}
+
+export async function writeFile(p: string, data: any) :Promise<string> {
+  return new Promise((rev, rej) => {
+    fs.writeFile(p, data, {encoding: "utf-8"}, (err) => {
+      if (err) rej(err);
+      else rev("success");
+    });
+  })
+}
 /**
  * 获取给定文件夹下的所有文件
  * @param p 文件夹地址

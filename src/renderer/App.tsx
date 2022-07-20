@@ -160,12 +160,18 @@ function App() {
     const result = await getSetting("musicLibraryPath");
     if (result.code === 1) {
       console.log("music library path: ", result.data);
-      const musicFileList = await getMusicFileList(result.data);
-      console.log("music file list: ", musicFileList);
-      if (musicFileList.length > 0) {
-        player.load(musicFileList);
-        dispatch(addTracks(musicFileList));
-        dispatch(setTrack(player.track));
+      const res = await getMusicFileList(result.data);
+      console.log(res);
+      if (res.code === 1) {
+        const musicFileList = res.data.lists;
+        console.log("music file list: ", musicFileList);
+        if (musicFileList.length > 0) {
+          player.load(musicFileList);
+          dispatch(addTracks(musicFileList));
+          dispatch(setTrack(player.track));
+        }
+      } else {
+        console.error(res.err);
       }
     }
   };
