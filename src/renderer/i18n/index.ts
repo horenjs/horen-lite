@@ -8,6 +8,7 @@ const resources = {
       "No Artist": "No Artist",
       "Music Library Path": "Music Library Path",
       "Auto Play": "Auto Play",
+      "Language": "Language",
     },
   },
   cn: {
@@ -16,16 +17,17 @@ const resources = {
       "No Artist": "没有歌手",
       "Music Library Path": "音乐库路径",
       "Auto Play": "自动播放",
+      "Language": "语言",
     },
   },
 };
 
-i18n.use(initReactI18next).init({
+const opts = {
   resources,
   lng: "cn",
   interpolation: {
     escapeValue: false,
   },
-});
+}
 
-export default i18n;
+export default i18n.use(initReactI18next).init(opts);

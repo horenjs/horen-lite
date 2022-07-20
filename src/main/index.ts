@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import * as mm from "music-metadata";
 import { readDir } from "./utils";
-import {arrayBufferToBase64} from "./utils/array-buf";
+import { arrayBufferToBase64 } from "./utils/array-buf";
 import { IPC_CODE, AUDIO_EXTS } from "../constant";
 import Store from "./utils/store";
 
@@ -158,6 +158,3 @@ export function arrayBufferToBuffer(ab: ArrayBuffer) {
   for (let i = 0; i < buf.length; ++i) buf[i] = view[i];
   return buf;
 }
-
-
-
