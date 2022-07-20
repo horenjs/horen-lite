@@ -28,7 +28,7 @@ export default function SettingPage() {
     <div className={"page page-setting"}>
       <div className={"setting-item electron-no-drag"}>
         <div className={"item-label"}>
-          <span>{ t("Music Library Path")}</span>
+          <span>{ t("Music Library Path") }</span>
         </div>
         <div className={"item-content"}>
           <span style={{fontSize: 12, color: "#dfdfdf"}}>{ form.musicLibraryPath }</span>
@@ -50,7 +50,7 @@ export default function SettingPage() {
           </div>
         </div>
       </div>
-      <div className={"setting-item"}>
+      <div className={"setting-item electron-no-drag"}>
         <div className={"item-label"}>
           <span>{ t("Auto Play") }</span>
         </div>

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
-import { Track } from "../../plugins/player";
+import { Track } from "@plugins/player";
 
 export const playerStatusSlice = createSlice({
   name: "player-status",

@@ -15,9 +15,9 @@ import {
   selectIsPlaying,
   selectTrack,
   selectSeek,
-} from "../../store/slices/player-status.slice";
-import CoverFrame from "../../static/cover-frame.png";
-import DefaultCover from "../../static/default-cover";
+} from "@store/slices/player-status.slice";
+import CoverFrame from "@static/cover-frame.png";
+import DefaultCover from "@static/default-cover";
 import "./style.less";
 
 export default function PageCover() {

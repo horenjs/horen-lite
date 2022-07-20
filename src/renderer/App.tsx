@@ -1,34 +1,38 @@
 import React from "react";
-import "./i18n";
+import "./App.less";
+// i18n
+import "@i18n";
 import { Routes, Route, useNavigate } from "react-router-dom";
+// icons
 import { BsMusicNoteList } from "react-icons/bs";
 import { CgMusic } from "react-icons/cg";
 import { BiAlbum } from "react-icons/bi";
 import { MdOutlineFavoriteBorder } from "react-icons/md";
 import { RiSettingsLine } from "react-icons/ri";
+// store
 import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch } from "@store/index";
 import {
   addTracks,
   setTrack,
-  selectTrack,
   setSeek,
+  setIsPlaying,
+  selectTrack,
   selectPrev,
   selectNext,
   selectIsPlaying,
-} from "./store/slices/player-status.slice";
-import { AppDispatch } from "./store";
-import Footer from "./components/footer";
+} from "@store/slices/player-status.slice";
+// components
+import Footer from "@components/footer";
 // pages
-import PageCover from "./pages/cover";
-import PageSetting from "./pages/setting";
+import PageCover from "@pages/cover";
+import PageSetting from "@pages/setting";
 // plugins
-import Player from "./plugins/player";
-import { getMusicFileList } from "./data-transfer";
-import "./App.less";
-// setting
-import { getSetting } from "./data-transfer";
+import Player from "@plugins/player";
+// data transfer
+import { getSetting, getMusicFileList } from "./data-transfer";
 // static
-import DefaultCover from "./static/default-cover";
+import DefaultCover from "@static/default-cover";
 
 export const player = new Player({ autoPlay: true });
 
@@ -87,25 +91,17 @@ function App() {
 
   React.useEffect(() => {
     (async () => {
-      const result = await getSetting("musicLibraryPath");
-      if (result.code === 1) {
-        console.log("music library path: ", result.data);
-        const musicFileList = await getMusicFileList(result.data);
-        console.log("music file list: ", musicFileList);
-        if (musicFileList.length > 0) {
-          player.load(musicFileList);
-          dispatch(addTracks(musicFileList));
-          dispatch(setTrack(player.track));
-        }
-      }
+      await setIsAutoPlayBoth();
+      await setTrackListBoth();
     })();
   }, []);
 
   React.useEffect(() => {
-    setInterval(() => {
+    const timer = setInterval(() => {
       dispatch(setSeek(player.seek));
       dispatch(setTrack(player.track));
     }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   React.useEffect(() => {
@@ -122,12 +118,37 @@ function App() {
     player.playOrPause();
   }, [isPlaying]);
 
+  const setIsAutoPlayBoth = async () => {
+    const res = await getSetting("autoPlay");
+    if (res.code === 1) {
+      console.log("set the autoplay");
+      player.isAutoPlay = res.data;
+      dispatch(setIsPlaying(res.data));
+    }
+  };
+
+  const setTrackListBoth = async () => {
+    const result = await getSetting("musicLibraryPath");
+    if (result.code === 1) {
+      console.log("music library path: ", result.data);
+      const musicFileList = await getMusicFileList(result.data);
+      console.log("music file list: ", musicFileList);
+      if (musicFileList.length > 0) {
+        player.load(musicFileList);
+        dispatch(addTracks(musicFileList));
+        dispatch(setTrack(player.track));
+      }
+    }
+  };
+
   return (
     <div className="my-app">
       <div
         className={"app-mask electron-drag"}
         style={{
-          backgroundImage: `url(data:image/png;base64,${track?.picture || DefaultCover})`,
+          backgroundImage: `url(data:image/png;base64,${
+            track?.picture || DefaultCover
+          })`,
         }}
       ></div>
       <div className={"footer"}>
