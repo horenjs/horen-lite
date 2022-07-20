@@ -17,10 +17,12 @@ import {
   setTrack,
   setSeek,
   setIsPlaying,
+  setPlayMode,
   selectTrack,
   selectPrev,
   selectNext,
   selectIsPlaying,
+  selectPlayMode,
 } from "@store/slices/player-status.slice";
 // components
 import Footer from "@components/footer";
@@ -96,6 +98,7 @@ function App() {
   const prev = useSelector(selectPrev);
   const next = useSelector(selectNext);
   const isPlaying = useSelector(selectIsPlaying);
+  const playMode = useSelector(selectPlayMode);
 
   React.useEffect(() => {
     (async () => {
@@ -127,6 +130,11 @@ function App() {
   React.useEffect(() => {
     player.playOrPause();
   }, [isPlaying]);
+
+  React.useEffect(() => {
+    player.playMode = playMode;
+    console.log("[App] play mode: ", playMode);
+  }, [playMode]);
 
   const setIsAutoPlayBoth = async () => {
     const res = await getSetting("autoPlay");

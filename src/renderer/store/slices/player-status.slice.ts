@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
-import { Track } from "@plugins/player";
+import { PlayMode, Track } from "@plugins/player";
 
 export const playerStatusSlice = createSlice({
   name: "player-status",
@@ -12,6 +12,7 @@ export const playerStatusSlice = createSlice({
     prev: 0,
     next: 0,
     isPlaying: true,
+    playMode: "in-turn" as PlayMode,
   },
   reducers: {
     setPrev: (state) => {
@@ -32,11 +33,21 @@ export const playerStatusSlice = createSlice({
     setIsPlaying: (state, action: PayloadAction<boolean>) => {
       state.isPlaying = action.payload;
     },
+    setPlayMode: (state, action: PayloadAction<PlayMode>) => {
+      state.playMode = action.payload;
+    },
   },
 });
 
-export const { setPrev, setNext, addTracks, setTrack, setSeek, setIsPlaying } =
-  playerStatusSlice.actions;
+export const {
+  setPrev,
+  setNext,
+  addTracks,
+  setTrack,
+  setSeek,
+  setIsPlaying,
+  setPlayMode,
+} = playerStatusSlice.actions;
 
 export const selectTrackList = (state: RootState) =>
   state.playerStatus.trackList;
@@ -53,5 +64,7 @@ export const selectNext = (state: RootState) => state.playerStatus.next;
 
 export const selectIsPlaying = (state: RootState) =>
   state.playerStatus.isPlaying;
+
+export const selectPlayMode = (state: RootState) => state.playerStatus.playMode;
 
 export default playerStatusSlice.reducer;

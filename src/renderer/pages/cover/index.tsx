@@ -1,7 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosPause } from "react-icons/io";
-import { RiMenuAddFill, RiShuffleLine } from "react-icons/ri";
+import { ImLoop2 } from "react-icons/im";
+import { RiMenuAddFill, RiShuffleLine, RiRepeatOneFill, RiOrderPlayLine } from "react-icons/ri";
 import { CgPlayTrackPrevO, CgPlayTrackNextO } from "react-icons/cg";
 import { FiPlay } from "react-icons/fi";
 import Handler, { HandlerItem } from "../../components/handler";
@@ -11,27 +12,49 @@ import { AppDispatch } from "../../store";
 import {
   setPrev,
   setNext,
+  setPlayMode,
   setIsPlaying,
   selectIsPlaying,
   selectTrack,
-  selectSeek,
+  selectSeek, selectPlayMode,
 } from "@store/slices/player-status.slice";
 import CoverFrame from "@static/cover-frame.png";
 import DefaultCover from "@static/default-cover";
 import "./style.less";
+import {PlayMode} from "@plugins/player";
 
 export default function PageCover() {
   const { t } = useTranslation();
   const seek = useSelector(selectSeek);
   const track = useSelector(selectTrack);
   const isPlaying = useSelector(selectIsPlaying);
+  const playMode = useSelector(selectPlayMode);
   const dispatch = useDispatch<AppDispatch>();
 
   const percent = Number(
     (track?.duration ? seek / track?.duration : 0).toFixed(3)
   );
-  console.log("seek: ", seek);
-  console.log("percent: ", percent);
+  // console.log("seek: ", seek);
+  // console.log("percent: ", percent);
+
+  const renderIcon = (m: PlayMode) => {
+    let el;
+    switch (m) {
+    case "random":
+      el = <RiShuffleLine size={20} />;
+      break;
+    case "in-turn":
+      el = <RiOrderPlayLine size={19} />;
+      break;
+    case "in-turn-loop":
+      el = <ImLoop2 size={17} />;
+      break;
+    case "repeat":
+      el = <RiRepeatOneFill size={21} />;
+      break;
+    }
+    return el;
+  }
 
   const handlerItems: HandlerItem[] = [
     {
@@ -67,10 +90,24 @@ export default function PageCover() {
     },
     {
       key: "play-mode",
-      icon: <RiShuffleLine size={20} />,
+      icon: renderIcon(playMode),
       onClick(key: string | number) {
         console.log("press: ", key);
-        console.log(key);
+        console.log("play mode: ", playMode);
+        const playModes: PlayMode[] = [
+          "in-turn",
+          "in-turn-loop",
+          "repeat",
+          "random",
+        ];
+        const idx = playModes.indexOf(playMode);
+        if (idx < playModes.length - 1) {
+          console.log("play mode: ", playMode, idx);
+          dispatch(setPlayMode(playModes[idx+1]));
+        } else {
+          console.log("play mode: ", playMode);
+          dispatch(setPlayMode(playModes[0]));
+        }
       },
     },
   ];
@@ -81,7 +118,7 @@ export default function PageCover() {
 
   React.useEffect(() => {
     setItems(handlerItems);
-  }, [isPlaying]);
+  }, [isPlaying, playMode]);
 
   React.useEffect(() => {
     if (ref.current) {
