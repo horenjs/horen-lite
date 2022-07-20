@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import counterSlice from "./slices/couter.slice";
+import counterSlice from "./slices/setting.slice";
 import playerStatusSlice from "./slices/player-status.slice";
 
 const store = configureStore({
   reducer: {
-    counter: counterSlice,
+    setting: counterSlice,
     playerStatus: playerStatusSlice,
   }
 })

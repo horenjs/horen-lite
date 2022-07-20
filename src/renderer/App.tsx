@@ -17,13 +17,15 @@ import {
   setTrack,
   setSeek,
   setIsPlaying,
-  setPlayMode,
   selectTrack,
   selectPrev,
   selectNext,
   selectIsPlaying,
   selectPlayMode,
 } from "@store/slices/player-status.slice";
+import {
+  selectRefreshMusicLibraryTimeStamp
+} from "@store/slices/setting.slice";
 // components
 import Footer from "@components/footer";
 // pages
@@ -99,13 +101,15 @@ function App() {
   const next = useSelector(selectNext);
   const isPlaying = useSelector(selectIsPlaying);
   const playMode = useSelector(selectPlayMode);
+  const refreshMusicLibraryTimeStamp =
+    useSelector(selectRefreshMusicLibraryTimeStamp);
 
   React.useEffect(() => {
     (async () => {
       await setIsAutoPlayBoth();
       await setTrackListBoth();
     })();
-  }, []);
+  }, [refreshMusicLibraryTimeStamp]);
 
   React.useEffect(() => {
     const timer = setInterval(() => {

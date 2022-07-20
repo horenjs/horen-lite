@@ -81,7 +81,7 @@ export default class Player {
 
   set track(value: Track) {
     this._track = value;
-    console.log("play: ", value.src);
+    console.log("play: ", value?.src);
     console.log("auto play: ", this._isAutoPlay);
     if (value.src) this._playFromSource(value.src);
   }

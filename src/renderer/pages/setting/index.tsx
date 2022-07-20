@@ -3,9 +3,13 @@ import { useTranslation } from "react-i18next";
 import { BsPlusSquare } from "react-icons/bs";
 import { saveSetting, getAllSetting, openDir } from "../../data-transfer";
 import "./style.less";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { refreshMusicLibrary } from "@store/slices/setting.slice";
 
 export default function SettingPage() {
   const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
 
   const [form, setForm] = React.useState({
     musicLibraryPath: "",
@@ -31,22 +35,25 @@ export default function SettingPage() {
           <span>{ t("Music Library Path") }</span>
         </div>
         <div className={"item-content"}>
-          <span style={{fontSize: 12, color: "#dfdfdf"}}>{ form.musicLibraryPath }</span>
           <div
-            style={{display:"flex",alignItems:"center",margin:"0 4px"}}
-            role={"button"}
+            style={{fontSize: 12, color: "#2483ff", cursor: "pointer"}}
             onClick={e => {
               e.preventDefault();
               (async () => {
                 const result = await openDir();
-                if (result.code === 1) {
+                if (result.code === 1 && result.data[0] !== form.musicLibraryPath) {
                   setForm({...form, musicLibraryPath: result.data[0]});
-                  console.log(await saveSetting("musicLibraryPath", result.data[0]));
+                  const res = await saveSetting("musicLibraryPath", result.data[0]);
+                  if (res.code === 1) {
+                    if (window.confirm(t("Refresh Music Library"))) {
+                      dispatch(refreshMusicLibrary());
+                    }
+                  }
                 }
               })();
             }}
           >
-            <BsPlusSquare size={18} fill={"#f1f1f1"} />
+            { form.musicLibraryPath || <span>{t("Change Music Library Path")}</span> }
           </div>
         </div>
       </div>

@@ -1,3 +1,5 @@
+@width: 300px;
+
 .my-app {
   width: 300px;
   background-color: #333;
@@ -7,7 +9,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 300px;
+  width: @width;
   height: 468px;
   background-position: center;
   background-repeat: no-repeat;
@@ -20,8 +22,12 @@
 .main {
   position: relative;
   background-color: transparent;
+  width: @width;
+  height: 400px;
   .page {
-    min-height: 400px;
+    height: 100%;
+    width: calc(100% - 16px);
+    padding: 0 8px;
   }
   z-index: 1;
 }
