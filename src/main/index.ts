@@ -105,26 +105,34 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
   const hash = crypto.createHash("md5");
   hash.update(p);
 
+  let musicFileList = [];
+
   const appPath = path.join(process.env.APPDATA, "horen-lite");
-  const musicLibraryPath = path.join(appPath, `Library-${hash.digest("hex")}.json`)
+  const musicLibraryPath = path.join(
+    appPath,
+    `Library-${hash.digest("hex")}.json`
+  );
 
   try {
     const musicLibraryJsonStr = await readFile(musicLibraryPath);
-    return {code: 1, msg: "success", data: {lists: JSON.parse(musicLibraryJsonStr)}};
+    musicFileList = JSON.parse(musicLibraryJsonStr);
   } catch (err) {
     console.log(err);
   }
 
   const fileList = [];
-  let musicFileList = [];
 
-  try {
-    musicFileList = await readDir(path.resolve(p), fileList);
-  } catch (err) {
-    console.error(err);
+  if (musicFileList.length === 0) {
+    try {
+      musicFileList = await readDir(path.resolve(p), fileList);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   const results = [];
+  const totals = musicFileList.length;
+  let progressIndex = 0;
 
   for (const file of musicFileList) {
     const extname = path.extname(file).replace(".", "");
@@ -132,6 +140,11 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
 
     try {
       meta = await mm.parseFile(file);
+      // 向渲染进程发送进度
+      mainWindow.webContents.send(
+        IPC_CODE.getMusicFileListProgress,
+        [progressIndex, totals]
+      );
     } catch (err) {
       meta = null;
     }
@@ -162,16 +175,26 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
         picture: finalPic,
       });
     }
+
+    progressIndex += 1;
   }
 
-
   try {
-    await writeFile(musicLibraryPath, JSON.stringify(results, null, 2));
+    await writeFile(
+      musicLibraryPath,
+      JSON.stringify(
+        results.map((r) => {
+          return r.src;
+        }),
+        null,
+        2
+      )
+    );
   } catch (err) {
     console.log("save music library failed.");
   }
 
-  return {code: 1, msg: "success", data: {lists: results}};
+  return { code: 1, msg: "success", data: { lists: results } };
 });
 
 ipcMain.handle(IPC_CODE.setTitle, async (evt, title: string) => {

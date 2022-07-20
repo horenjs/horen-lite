@@ -6,6 +6,7 @@ export const IPC_CODE = {
   openDir: "open-dir",
   setTitle: "set-title",
   setProgress: "set-progress",
+  getMusicFileListProgress: "get-music-file-list-progress",
 }
 
 export const DEFAULT_SETTING = {
