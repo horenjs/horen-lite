@@ -81,7 +81,7 @@ export default class Player {
 
   set track(value: Track) {
     this._track = value;
-    console.log("play: ", value?.src);
+    console.log("play: ", value.src);
     console.log("auto play: ", this._isAutoPlay);
     if (value.src) this._playFromSource(value.src);
   }
@@ -192,14 +192,16 @@ export default class Player {
       break;
     }
     case "repeat": {
+      // if play mode is repeat, play again.
       this.track = this.trackList[index];
       break;
     }
     case "in-turn": {
       if (flag === "next") {
         if (index >= length - 1) {
-          this.stop();
-          this.track = undefined;
+          // if the track is the last one, do nothing.
+          // this.stop();
+          // this.track = undefined;
         } else this.track = this.trackList[index + 1];
       } else {
         if (index < 1) {
