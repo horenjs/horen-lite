@@ -26,12 +26,12 @@ module.exports = {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
       "@constant": path.resolve(__dirname, "../src/constant"),
-      "@img": path.resolve(__dirname, '../src/assets/images'),
-      "@svg": path.resolve(__dirname, '../src/assets/svg'),
-      "@pages": path.resolve(__dirname, '../src/pages'),
-      "@store": path.resolve(__dirname, '../src/store'),
-      "@components": path.resolve(__dirname, '../src/components'),
-      "@routes": path.resolve(__dirname, '../src/routes'),
+      "@components": path.resolve(__dirname, '../src/renderer/components'),
+      "@i18n": path.resolve(__dirname, "../src/renderer/i18n"),
+      "@pages": path.resolve(__dirname, '../src/renderer/pages'),
+      "@plugins": path.resolve(__dirname, "../src/renderer/plugins"),
+      "@static": path.resolve(__dirname, "../src/renderer/static"),
+      "@store": path.resolve(__dirname, '../src/renderer/store'),
     },
   },
   module: {

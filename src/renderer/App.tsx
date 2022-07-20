@@ -23,10 +23,10 @@ import PageCover from "./pages/cover";
 import PageSetting from "./pages/setting";
 // plugins
 import Player from "./plugins/player";
-import { getMusicFileList } from "./date-center";
+import { getMusicFileList } from "./data-transfer";
 import "./App.less";
 // setting
-import { getSetting } from "./date-center";
+import { getSetting } from "./data-transfer";
 // static
 import DefaultCover from "./static/default-cover";
 

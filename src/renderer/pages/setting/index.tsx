@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { BsPlusSquare } from "react-icons/bs";
-import { saveSetting, getAllSetting, openDir } from "../../date-center";
+import { saveSetting, getAllSetting, openDir } from "../../data-transfer";
 import "./style.less";
 
 export default function SettingPage() {

@@ -23,9 +23,6 @@
       "isolatedModules": true,
       "noEmit": true,
       "jsx": "react-jsx",
-      "paths": {
-          "@constant": ["./src/constant"]
-      }
   },
   "include": [
       "src/**/*",
