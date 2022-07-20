@@ -6,6 +6,13 @@ export const IPC_CODE = {
   openDir: "open-dir",
 }
 
+export const DEFAULT_SETTING = {
+  "musicLibraryPath": "",
+  "updateAt": new Date().valueOf(),
+  "playMode": "random",
+  "autoPlay": true,
+}
+
 /**
  * 可以解析的音频文件格式
  */

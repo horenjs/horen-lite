@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { DEFAULT_SETTING } from "../../constant";
 
 export default class Store {
   private readonly p: string;
@@ -12,13 +13,21 @@ export default class Store {
     if (!fs.existsSync(appPath)) {
       fs.mkdirSync(appPath);
     }
+
+    try {
+      this.getAll();
+    } catch (err) {
+      fs.writeFileSync(this.p, JSON.stringify(DEFAULT_SETTING, null, 2), {
+        encoding: this.encoding,
+      });
+    }
   }
 
   save(item: string, value: object | string | number | boolean) {
     let data: object = {};
 
     try {
-      const str = fs.readFileSync(this.p, {encoding: this.encoding});
+      const str = fs.readFileSync(this.p, { encoding: this.encoding });
       if (str) data = JSON.parse(str);
     } catch (err) {
       console.log("cannot read setting file");
@@ -28,7 +37,9 @@ export default class Store {
     data["updateAt"] = new Date().valueOf();
 
     try {
-      fs.writeFileSync(this.p, JSON.stringify(data, null, 2), {encoding: this.encoding});
+      fs.writeFileSync(this.p, JSON.stringify(data, null, 2), {
+        encoding: this.encoding,
+      });
       return data;
     } catch (err) {
       throw new Error("save setting item failed.");
@@ -40,7 +51,7 @@ export default class Store {
     let data;
 
     try {
-      str = fs.readFileSync(this.p, {encoding: this.encoding});
+      str = fs.readFileSync(this.p, { encoding: this.encoding });
     } catch (err) {
       str = "";
       throw new Error("setting file doesnt exist.");
@@ -59,7 +70,7 @@ export default class Store {
 
   getAll() {
     try {
-      const str = fs.readFileSync(this.p, {encoding: this.encoding});
+      const str = fs.readFileSync(this.p, { encoding: this.encoding });
       if (str !== "") {
         return JSON.parse(str);
       }
