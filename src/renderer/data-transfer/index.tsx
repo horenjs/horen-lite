@@ -21,3 +21,11 @@ export async function getAllSetting() {
 export async function openDir() {
   return await ipcRenderer.invoke(IPC_CODE.openDir);
 }
+
+export async function setProgress(progress: number) {
+  return await ipcRenderer.invoke(IPC_CODE.setProgress, progress);
+}
+
+export async function setTitle(title: string) {
+  return await ipcRenderer.invoke(IPC_CODE.setTitle, title);
+}

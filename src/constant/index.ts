@@ -4,6 +4,8 @@ export const IPC_CODE = {
   getSetting: "get-setting",
   getAllSetting: "get-all-setting",
   openDir: "open-dir",
+  setTitle: "set-title",
+  setProgress: "set-progress",
 }
 
 export const DEFAULT_SETTING = {

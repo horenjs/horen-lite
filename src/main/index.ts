@@ -8,7 +8,7 @@ import Store from "./utils/store";
 
 const isDev = process.env["NODE_ENV"] === "development";
 
-let mainWindow;
+let mainWindow: BrowserWindow;
 
 function createWindow() {
   const w = new BrowserWindow({
@@ -150,6 +150,14 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
     }
   }
   return results;
+});
+
+ipcMain.handle(IPC_CODE.setTitle, async (evt, title: string) => {
+  mainWindow.setTitle(title);
+});
+
+ipcMain.handle(IPC_CODE.setProgress, async (evt, progress: number) => {
+  mainWindow.setProgressBar(progress);
 });
 
 export function arrayBufferToBuffer(ab: ArrayBuffer) {

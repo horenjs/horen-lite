@@ -34,7 +34,12 @@ import PageSetting from "@pages/setting";
 // plugins
 import Player from "@plugins/player";
 // data transfer
-import { getSetting, getMusicFileList } from "./data-transfer";
+import {
+  getSetting,
+  getMusicFileList,
+  setTitle,
+  setProgress
+} from "./data-transfer";
 // static
 import DefaultCover from "@static/default-cover";
 
@@ -114,7 +119,9 @@ function App() {
   React.useEffect(() => {
     const timer = setInterval(() => {
       dispatch(setSeek(player.seek));
+      setProgress(player.seek / player.track?.duration).then();
       if (player.seek >= 0 && player.seek <= 1.5) {
+        setTitle(`${player.track.title} - ${player.track.artist}`).then();
         dispatch(setTrack(player.track));
       }
     }, 1000);
