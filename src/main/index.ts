@@ -92,7 +92,7 @@ ipcMain.handle(IPC_CODE.openDir, async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openDirectory"],
   });
-  if (result) {
+  if (result.filePaths.length) {
     return { code: 1, msg: "open dir success.", data: result.filePaths };
   } else {
     return { code: 0, msg: "open dir failed." };
