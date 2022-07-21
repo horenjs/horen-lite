@@ -39,8 +39,12 @@ function selectAudioFile(origin: string[]) {
 }
 
 async function getAudioFileListFromExist(p: string) {
-  const musicLibraryJsonStr = await readFile(p);
-  return JSON.parse(musicLibraryJsonStr);
+  try {
+    const musicLibraryJsonStr = await readFile(p);
+    return JSON.parse(musicLibraryJsonStr);
+  } catch (err) {
+    return [];
+  }
 }
 
 async function saveAudioFileList(p: string, list: { src: string }[]) {
