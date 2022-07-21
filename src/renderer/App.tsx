@@ -20,7 +20,7 @@ import {
   selectPrev,
   selectNext,
   selectIsPlaying,
-  selectPlayMode,
+  selectPlayMode, setPlayMode,
 } from "@store/slices/player-status.slice";
 import {
   selectRefreshMusicLibraryTimeStamp
@@ -114,6 +114,7 @@ function App() {
     (async () => {
       await setIsAutoPlayBoth();
       await setTrackListBoth();
+      await setPlayModeBoth();
     })();
   }, [refreshMusicLibraryTimeStamp]);
 
@@ -170,6 +171,14 @@ function App() {
       dispatch(setIsPlaying(res.data));
     }
   };
+
+  const setPlayModeBoth = async () => {
+    const res = await getSetting("playMode");
+    if (res.code === 1) {
+      player.playMode = res.data;
+      dispatch(setPlayMode(res.data));
+    }
+  }
 
   const setTrackListBoth = async () => {
     const result = await getSetting("musicLibraryPath");
