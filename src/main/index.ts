@@ -147,18 +147,18 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
     }
   }
 
+  const lists = [];
+
+  for (const m of musicFileList) {
+    const extname = path.extname(m).replace(".", "");
+    if (AUDIO_EXTS.includes(extname)) {
+      lists.push({src: m});
+    }
+  }
+
   // 保存在曲库文件
   try {
-    await writeFile(
-      musicLibraryPath,
-      JSON.stringify(
-        musicFileList.map((r) => {
-          return { src: r };
-        }),
-        null,
-        2
-      )
-    );
+    await writeFile(musicLibraryPath, JSON.stringify(lists, null, 2));
   } catch (err) {
     console.log("save music library failed.");
   }
@@ -166,7 +166,7 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
   return {
     code: 1,
     msg: "success",
-    data: { lists: musicFileList.map((m) => ({ src: m })) },
+    data: { lists },
   };
 });
 
