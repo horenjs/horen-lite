@@ -133,7 +133,7 @@ export default function PageCover() {
 
   return (
     <div className={"page page-cover"}>
-      <div className={"cover"} ref={ref} style={{ height: w }}>
+      <div className={"cover"} ref={ref} style={{ height: w, animationPlayState: isPlaying ? "running" : "paused" }}>
         <img
           className={"cover-album"}
           alt={"cover-album"}

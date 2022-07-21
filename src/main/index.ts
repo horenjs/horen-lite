@@ -60,17 +60,6 @@ ipcMain.handle(IPC_CODE.saveSetting, handleSaveSetting);
 ipcMain.handle(IPC_CODE.getSetting, handleGetSetting);
 // ipc: get all setting item
 ipcMain.handle(IPC_CODE.getAllSetting, handleGetAllSetting);
-// ipc: open dir
-ipcMain.handle(IPC_CODE.openDir, async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ["openDirectory"],
-  });
-  if (result.filePaths.length) {
-    return { code: 1, msg: "open dir success.", data: result.filePaths };
-  } else {
-    return { code: 0, msg: "open dir failed." };
-  }
-});
 // ipc: get music file
 ipcMain.handle(IPC_CODE.getMusicFile, handleGetMusicFile);
 // ipc: get music file list
@@ -82,4 +71,15 @@ ipcMain.handle(IPC_CODE.setTitle, async (evt, title: string) => {
 // ipc: set the status bar progress
 ipcMain.handle(IPC_CODE.setProgress, async (evt, progress: number) => {
   mainWindow.setProgressBar(progress);
+});
+// ipc: open dir
+ipcMain.handle(IPC_CODE.openDir, async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ["openDirectory"],
+  });
+  if (result.filePaths.length) {
+    return { code: 1, msg: "open dir success.", data: result.filePaths };
+  } else {
+    return { code: 0, msg: "open dir failed." };
+  }
 });
