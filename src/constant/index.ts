@@ -1,4 +1,5 @@
 export const IPC_CODE = {
+  getMusicFile: "get-music-file",
   getMusicFileList: "get-music-file-list",
   saveSetting: "save-setting",
   getSetting: "get-setting",

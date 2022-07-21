@@ -42,6 +42,8 @@ import {
 } from "./data-transfer";
 // static
 import DefaultCover from "@static/default-cover";
+// data-transfer
+import { getMusicFile } from "./data-transfer";
 
 export const player = new Player({ autoPlay: true });
 
@@ -144,13 +146,27 @@ function App() {
 
   React.useEffect(() => {
     player.playMode = playMode;
-    console.log("[App] play mode: ", playMode);
+    // console.log("[App] play mode: ", playMode);
   }, [playMode]);
+
+  React.useEffect(() => {
+    (async () => {
+      // console.log("[App] player track ", player.track);
+      const res = await getMusicFile(player.track?.src);
+      if (res.code === 1) {
+        // console.log("[App] current track: ", res.data);
+        dispatch(setTrack(res.data));
+        player.track = res.data;
+      } else {
+        console.error(res);
+      }
+    })();
+  }, [player.track?.src]);
 
   const setIsAutoPlayBoth = async () => {
     const res = await getSetting("autoPlay");
     if (res.code === 1) {
-      console.log("set the autoplay");
+      // console.log("set the autoplay");
       player.isAutoPlay = res.data;
       dispatch(setIsPlaying(res.data));
     }
@@ -159,12 +175,14 @@ function App() {
   const setTrackListBoth = async () => {
     const result = await getSetting("musicLibraryPath");
     if (result.code === 1) {
-      console.log("music library path: ", result.data);
+      // console.log("music library path: ", result.data);
       const res = await getMusicFileList(result.data);
-      console.log(res);
+      // console.log(res);
       if (res.code === 1) {
-        const musicFileList = res.data.lists;
-        console.log("music file list: ", musicFileList);
+        const musicFileList = res.data.lists.map(item => {
+          return {src: item?.src};
+        });
+        // console.log("music file list: ", musicFileList);
         if (musicFileList.length > 0) {
           player.load(musicFileList);
           dispatch(addTracks(musicFileList));

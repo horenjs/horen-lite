@@ -1,10 +1,10 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import {app, BrowserWindow, dialog, ipcMain} from "electron";
 import path from "path";
 import * as crypto from "crypto";
 import * as mm from "music-metadata";
-import { readDir, readFile, writeFile } from "./utils";
-import { arrayBufferToBase64 } from "./utils/array-buf";
-import { IPC_CODE, AUDIO_EXTS } from "../constant";
+import {readDir, readFile, writeFile} from "./utils";
+import {arrayBufferToBase64} from "./utils/array-buf";
+import {AUDIO_EXTS, IPC_CODE} from "../constant";
 import Store from "./utils/store";
 
 const isDev = process.env["NODE_ENV"] === "development";
@@ -99,6 +99,12 @@ ipcMain.handle(IPC_CODE.openDir, async () => {
     return { code: 0, msg: "open dir failed." };
   }
 });
+
+// ipc: get music file
+ipcMain.handle(IPC_CODE.getMusicFile, async (evt, p: string) => {
+  const meta = await readMusicFileMeta(p);
+  return {code: 1, msg: "success", data: meta};
+})
 
 // ipc: get music file list
 ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
@@ -210,4 +216,38 @@ export function arrayBufferToBuffer(ab: ArrayBuffer) {
   const view = new Uint8Array(ab);
   for (let i = 0; i < buf.length; ++i) buf[i] = view[i];
   return buf;
+}
+
+export async function readMusicFileMeta(filepath: string) {
+  let meta;
+  try {
+    meta = await mm.parseFile(filepath);
+  } catch (err) {
+    meta = null;
+  }
+
+  const { title, artist, artists, album, genre, date, picture } =
+  meta?.common || {};
+
+  const { duration } = meta?.format || {};
+
+  let finalPic;
+  if (picture) {
+    const data = picture[0]?.data;
+    finalPic = arrayBufferToBase64(data);
+  } else {
+    finalPic = null;
+  }
+
+  return {
+    src: filepath,
+    title,
+    artist,
+    artists,
+    album,
+    genre,
+    date,
+    duration,
+    picture: finalPic,
+  }
 }

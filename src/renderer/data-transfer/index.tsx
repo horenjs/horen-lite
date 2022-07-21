@@ -6,6 +6,10 @@ export async function getMusicFileList(p: string) {
   return await ipcRenderer.invoke(IPC_CODE.getMusicFileList, p);
 }
 
+export async function getMusicFile(p: string) {
+  return await ipcRenderer.invoke(IPC_CODE.getMusicFile, p);
+}
+
 export async function getMusicFileListProgress() {
   return new Promise((res, rej) => {
     ipcRenderer.on(IPC_CODE.getMusicFileListProgress, (evt, [progress, totals]) => {
