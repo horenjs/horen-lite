@@ -8,7 +8,6 @@ import { BsMusicNoteList } from "react-icons/bs";
 import { BiAlbum } from "react-icons/bi";
 import { MdOutlineFavoriteBorder, MdOutlineTextFields } from "react-icons/md";
 import { RiSettingsLine } from "react-icons/ri";
-import { IoMdPulse } from "react-icons/io";
 // store
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch } from "@store/index";
@@ -28,6 +27,7 @@ import {
 } from "@store/slices/setting.slice";
 // components
 import Footer from "@components/footer";
+import Loading from "@components/loading";
 // pages
 import PageCover from "@pages/cover";
 import PageSetting from "@pages/setting";
@@ -49,6 +49,14 @@ export const player = new Player({ autoPlay: true });
 
 function App() {
   const navi = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const track = useSelector(selectTrack);
+  const prev = useSelector(selectPrev);
+  const next = useSelector(selectNext);
+  const isPlaying = useSelector(selectIsPlaying);
+  const playMode = useSelector(selectPlayMode);
+  const refreshMusicLibraryTimeStamp =
+    useSelector(selectRefreshMusicLibraryTimeStamp);
 
   const footerItems = [
     {
@@ -78,7 +86,7 @@ function App() {
     {
       key: "playing",
       title: "Playing",
-      icon: <IoMdPulse size={24} />,
+      icon: <Loading type={"dance"} stop={!isPlaying} />,
       onClick: function (key: string | number) {
         navi("/");
       },
@@ -101,15 +109,6 @@ function App() {
       },
     },
   ];
-
-  const dispatch = useDispatch<AppDispatch>();
-  const track = useSelector(selectTrack);
-  const prev = useSelector(selectPrev);
-  const next = useSelector(selectNext);
-  const isPlaying = useSelector(selectIsPlaying);
-  const playMode = useSelector(selectPlayMode);
-  const refreshMusicLibraryTimeStamp =
-    useSelector(selectRefreshMusicLibraryTimeStamp);
 
   React.useEffect(() => {
     (async () => {
