@@ -1,5 +1,49 @@
 import fs from "fs";
 import path from "path";
+import * as mm from "music-metadata";
+import {arrayBufferToBase64} from "./array-buf";
+
+export function arrayBufferToBuffer(ab: ArrayBuffer) {
+  const buf = new Buffer(ab.byteLength);
+  const view = new Uint8Array(ab);
+  for (let i = 0; i < buf.length; ++i) buf[i] = view[i];
+  return buf;
+}
+
+export async function readMusicFileMeta(filepath: string) {
+  let meta;
+  try {
+    meta = await mm.parseFile(filepath);
+  } catch (err) {
+    meta = null;
+  }
+
+  const { title, artist, artists, album, genre, date, picture } =
+  meta?.common || {};
+
+  const { duration } = meta?.format || {};
+
+  let finalPic;
+  if (picture) {
+    const data = picture[0]?.data;
+    finalPic = arrayBufferToBase64(data);
+  } else {
+    finalPic = null;
+  }
+
+  return {
+    src: filepath,
+    title,
+    artist,
+    artists,
+    album,
+    genre,
+    date,
+    duration,
+    picture: finalPic,
+  };
+}
+
 
 export async function readFile(p: string) :Promise<string> {
   return new Promise((rev, rej) => {
