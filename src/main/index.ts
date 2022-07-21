@@ -1,10 +1,10 @@
-import {app, BrowserWindow, dialog, ipcMain} from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
 import * as crypto from "crypto";
 import * as mm from "music-metadata";
-import {readDir, readFile, writeFile} from "./utils";
-import {arrayBufferToBase64} from "./utils/array-buf";
-import {AUDIO_EXTS, IPC_CODE} from "../constant";
+import { readDir, readFile, writeFile } from "./utils";
+import { arrayBufferToBase64 } from "./utils/array-buf";
+import { AUDIO_EXTS, IPC_CODE } from "../constant";
 import Store from "./utils/store";
 
 const isDev = process.env["NODE_ENV"] === "development";
@@ -103,8 +103,8 @@ ipcMain.handle(IPC_CODE.openDir, async () => {
 // ipc: get music file
 ipcMain.handle(IPC_CODE.getMusicFile, async (evt, p: string) => {
   const meta = await readMusicFileMeta(p);
-  return {code: 1, msg: "success", data: meta};
-})
+  return { code: 1, msg: "success", data: meta };
+});
 
 // ipc: get music file list
 ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
@@ -122,6 +122,17 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
   try {
     const musicLibraryJsonStr = await readFile(musicLibraryPath);
     musicFileList = JSON.parse(musicLibraryJsonStr);
+    if (musicFileList.length > 0) {
+      return {
+        code: 1,
+        msg: "success",
+        data: {
+          lists: musicFileList.map((m) => {
+            return { src: m };
+          }),
+        },
+      };
+    }
   } catch (err) {
     console.log(err);
   }
@@ -136,61 +147,13 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
     }
   }
 
-  const results = [];
-  const totals = musicFileList.length;
-  let progressIndex = 0;
-
-  for (const file of musicFileList) {
-    const extname = path.extname(file).replace(".", "");
-    let meta;
-
-    try {
-      meta = await mm.parseFile(file);
-      // 向渲染进程发送进度
-      mainWindow.webContents.send(
-        IPC_CODE.getMusicFileListProgress,
-        [progressIndex, totals]
-      );
-    } catch (err) {
-      meta = null;
-    }
-
-    const { title, artist, artists, album, genre, date, picture } =
-      meta?.common || {};
-
-    const { duration } = meta?.format || {};
-
-    let finalPic;
-    if (picture) {
-      const data = picture[0]?.data;
-      finalPic = arrayBufferToBase64(data);
-    } else {
-      finalPic = null;
-    }
-
-    if (AUDIO_EXTS.includes(extname)) {
-      results.push({
-        src: file,
-        title,
-        artist,
-        artists,
-        album,
-        genre,
-        date,
-        duration,
-        picture: finalPic,
-      });
-    }
-
-    progressIndex += 1;
-  }
-
+  // 保存在曲库文件
   try {
     await writeFile(
       musicLibraryPath,
       JSON.stringify(
-        results.map((r) => {
-          return r.src;
+        musicFileList.map((r) => {
+          return { src: r };
         }),
         null,
         2
@@ -200,7 +163,11 @@ ipcMain.handle(IPC_CODE.getMusicFileList, async (evt, p: string) => {
     console.log("save music library failed.");
   }
 
-  return { code: 1, msg: "success", data: { lists: results } };
+  return {
+    code: 1,
+    msg: "success",
+    data: { lists: musicFileList.map((m) => ({ src: m })) },
+  };
 });
 
 ipcMain.handle(IPC_CODE.setTitle, async (evt, title: string) => {
@@ -227,7 +194,7 @@ export async function readMusicFileMeta(filepath: string) {
   }
 
   const { title, artist, artists, album, genre, date, picture } =
-  meta?.common || {};
+    meta?.common || {};
 
   const { duration } = meta?.format || {};
 
@@ -249,5 +216,5 @@ export async function readMusicFileMeta(filepath: string) {
     date,
     duration,
     picture: finalPic,
-  }
+  };
 }

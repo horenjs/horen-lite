@@ -179,9 +179,7 @@ function App() {
       const res = await getMusicFileList(result.data);
       // console.log(res);
       if (res.code === 1) {
-        const musicFileList = res.data.lists.map(item => {
-          return {src: item?.src};
-        });
+        const musicFileList = res.data.lists;
         // console.log("music file list: ", musicFileList);
         if (musicFileList.length > 0) {
           player.load(musicFileList);
