@@ -5,7 +5,7 @@ import { PlayMode, Track } from "@plugins/player";
 export const playerStatusSlice = createSlice({
   name: "player-status",
   initialState: {
-    trackList: [],
+    trackList: [] as Track[],
     track: {} as Track,
     seek: 0,
     volume: 0,

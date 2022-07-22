@@ -31,6 +31,7 @@ export default function Header() {
       icon: <BsMusicNoteList size={22} />,
       onClick: function (key: string | number) {
         logger("click: ", key);
+        navi("/playlist");
       },
     },
     {
