@@ -3,18 +3,21 @@ import {AppDispatch} from "@store/index";
 import {
   selectIsPlaying,
   selectNext, selectPlayMode,
-  selectPrev, setSeek, setTrack
+  selectPrev, selectSeek, selectTrack, setSeek, setTrack
 } from "@store/slices/player-status.slice";
 import React from "react";
 import {getMusicFile, setProgress, setTitle} from "../data-transfer";
 import Player from "@plugins/player";
+import {use} from "i18next";
 
 export const player = new Player({ autoPlay: true });
 
 export default function DataManager() {
   const dispatch = useDispatch<AppDispatch>();
+  const seek = useSelector(selectSeek);
   const prev = useSelector(selectPrev);
   const next = useSelector(selectNext);
+  const track = useSelector(selectTrack);
   const isPlaying = useSelector(selectIsPlaying);
   const playMode = useSelector(selectPlayMode);
 
@@ -22,14 +25,13 @@ export default function DataManager() {
   React.useEffect(() => {
     const timer = setInterval(() => {
       dispatch(setSeek(player.seek));
-      setProgress(player.seek / player.track?.duration).then();
-      if (player.seek >= 0 && player.seek <= 1.5) {
-        setTitle(`${player.track.title} - ${player.track.artist}`).then();
-        dispatch(setTrack(player.track));
-      }
     }, 1000);
+
+    setTitle(`${track?.title} - ${track?.artist}`).then();
+    setProgress(seek / track?.duration).then();
+
     return () => clearInterval(timer);
-  }, []);
+  }, [seek]);
 
   // 下一首
   React.useEffect(() => {
@@ -64,7 +66,6 @@ export default function DataManager() {
       if (res.code === 1) {
         // console.log("[App] current track: ", res.data);
         dispatch(setTrack(res.data));
-        player.track = res.data;
       } else {
         console.error(res);
       }
