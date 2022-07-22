@@ -9,10 +9,12 @@ import {
 } from "@store/slices/player-status.slice";
 import {Track} from "@plugins/player";
 import debug from "@plugins/debug";
+import {useTranslation} from "react-i18next";
 
 const logger = debug("App:TitleBar");
 
 export default function TitleBar() {
+  const { t } = useTranslation();
   const seek = useSelector(selectSeek);
   const track = useSelector(selectTrack);
   const trackList = useSelector(selectTrackList);
@@ -39,7 +41,7 @@ export default function TitleBar() {
           logger("save the last index to setting:", lastIdx);
           saveSetting("lastIndex", lastIdx).then();
 
-          if (window.confirm("Exit?")) {
+          if (window.confirm(t("Confirm Exit"))) {
             logger("try to exit.");
             await closeAllWindows().then(() => {
               logger("exit the app.");

@@ -12,6 +12,7 @@ const resources = {
       "Change Music Library Path": "Change Music Library Path",
       "Refresh Music Library": "Detecting you change the Music Library Path," +
         " refresh it?",
+      "Confirm Exit": "The App will exit, confirm it?",
     },
   },
   cn: {
@@ -23,6 +24,7 @@ const resources = {
       "Language": "语言",
       "Change Music Library Path": "变更音乐库地址",
       "Refresh Music Library": "检测到您修改了音乐库地址，刷新音乐库吗？",
+      "Confirm Exit": "确定要退出应用吗？",
     },
   },
 };
