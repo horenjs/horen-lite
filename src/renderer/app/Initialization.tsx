@@ -66,7 +66,7 @@ export default function InitApp() {
           // 获取新的曲库音频文件，并加载第一首到 player 和 store
           const r = await getMusicFile(musicFileList[0].src);
           if (r.code === 1) {
-            // player.track = r.data;
+            console.log("[Init] ", r.data);
             dispatch(setTrack(r.data));
           }
         }

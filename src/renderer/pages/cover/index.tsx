@@ -2,7 +2,12 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { IoIosPause } from "react-icons/io";
 import { ImLoop2 } from "react-icons/im";
-import { RiMenuAddFill, RiShuffleLine, RiRepeatOneFill, RiOrderPlayLine } from "react-icons/ri";
+import {
+  RiMenuAddFill,
+  RiShuffleLine,
+  RiRepeatOneFill,
+  RiOrderPlayLine,
+} from "react-icons/ri";
 import { CgPlayTrackPrevO, CgPlayTrackNextO } from "react-icons/cg";
 import { FiPlay } from "react-icons/fi";
 import Handler, { HandlerItem } from "../../components/handler";
@@ -16,12 +21,13 @@ import {
   setIsPlaying,
   selectIsPlaying,
   selectTrack,
-  selectSeek, selectPlayMode,
+  selectSeek,
+  selectPlayMode,
 } from "@store/slices/player-status.slice";
 import CoverFrame from "@static/cover-frame.png";
 import DefaultCover from "@static/default-cover";
 import "./style.less";
-import {PlayMode} from "@plugins/player";
+import { PlayMode } from "@plugins/player";
 import { saveSetting } from "../../data-transfer";
 
 export default function PageCover() {
@@ -41,21 +47,21 @@ export default function PageCover() {
   const renderIcon = (m: PlayMode) => {
     let el;
     switch (m) {
-    case "random":
-      el = <RiShuffleLine size={20} />;
-      break;
-    case "in-turn":
-      el = <RiOrderPlayLine size={19} />;
-      break;
-    case "in-turn-loop":
-      el = <ImLoop2 size={17} />;
-      break;
-    case "repeat":
-      el = <RiRepeatOneFill size={21} />;
-      break;
+      case "random":
+        el = <RiShuffleLine size={20} />;
+        break;
+      case "in-turn":
+        el = <RiOrderPlayLine size={19} />;
+        break;
+      case "in-turn-loop":
+        el = <ImLoop2 size={17} />;
+        break;
+      case "repeat":
+        el = <RiRepeatOneFill size={21} />;
+        break;
     }
     return el;
-  }
+  };
 
   const handlerItems: HandlerItem[] = [
     {
@@ -104,7 +110,7 @@ export default function PageCover() {
         const idx = playModes.indexOf(playMode);
         let newPlayMode: PlayMode;
         if (idx < playModes.length - 1) {
-          newPlayMode = playModes[idx+1];
+          newPlayMode = playModes[idx + 1];
         } else {
           newPlayMode = playModes[0];
         }
@@ -133,7 +139,14 @@ export default function PageCover() {
 
   return (
     <div className={"page page-cover"}>
-      <div className={"cover"} ref={ref} style={{ height: w, animationPlayState: isPlaying ? "running" : "paused" }}>
+      <div
+        className={"cover"}
+        ref={ref}
+        style={{
+          height: w,
+          animationPlayState: isPlaying ? "running" : "paused",
+        }}
+      >
         <img
           className={"cover-album"}
           alt={"cover-album"}

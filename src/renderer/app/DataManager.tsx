@@ -8,7 +8,6 @@ import {
 import React from "react";
 import {getMusicFile, setProgress, setTitle} from "../data-transfer";
 import Player from "@plugins/player";
-import {use} from "i18next";
 
 export const player = new Player({ autoPlay: true });
 
@@ -64,7 +63,7 @@ export default function DataManager() {
       // console.log("[App] player track ", player.track);
       const res = await getMusicFile(player.track?.src);
       if (res.code === 1) {
-        // console.log("[App] current track: ", res.data);
+        console.log("[DataManager] current track: ", res.data);
         dispatch(setTrack(res.data));
       } else {
         console.error(res);
