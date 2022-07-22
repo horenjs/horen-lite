@@ -47,18 +47,18 @@ export default function PageCover() {
   const renderIcon = (m: PlayMode) => {
     let el;
     switch (m) {
-      case "random":
-        el = <RiShuffleLine size={20} />;
-        break;
-      case "in-turn":
-        el = <RiOrderPlayLine size={19} />;
-        break;
-      case "in-turn-loop":
-        el = <ImLoop2 size={17} />;
-        break;
-      case "repeat":
-        el = <RiRepeatOneFill size={21} />;
-        break;
+    case "random":
+      el = <RiShuffleLine size={20} />;
+      break;
+    case "in-turn":
+      el = <RiOrderPlayLine size={19} />;
+      break;
+    case "in-turn-loop":
+      el = <ImLoop2 size={17} />;
+      break;
+    case "repeat":
+      el = <RiRepeatOneFill size={21} />;
+      break;
     }
     return el;
   };
@@ -68,14 +68,14 @@ export default function PageCover() {
       key: "more-action",
       icon: <RiMenuAddFill size={22} />,
       onClick(key: string | number) {
-        console.log("press: ", key);
+        console.log("[Cover] press: ", key);
       },
     },
     {
       key: "prev-track",
       icon: <CgPlayTrackPrevO size={22} />,
       onClick(key: string | number) {
-        console.log("press: ", key);
+        console.log("[Cover] press: ", key);
         dispatch(setPrev());
       },
     },
@@ -83,7 +83,7 @@ export default function PageCover() {
       key: "play-or-pause",
       icon: isPlaying ? <IoIosPause size={26} /> : <FiPlay size={22} />,
       onClick(key: string | number) {
-        console.log("press: ", key);
+        console.log("[Cover] press: ", key);
         dispatch(setIsPlaying(!isPlaying));
       },
     },
@@ -91,7 +91,7 @@ export default function PageCover() {
       key: "next-track",
       icon: <CgPlayTrackNextO size={22} />,
       onClick(key: string | number) {
-        console.log("press: ", key);
+        console.log("[Cover] press: ", key);
         dispatch(setNext());
       },
     },

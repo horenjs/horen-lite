@@ -192,7 +192,7 @@ export default class Player {
       break;
     }
     case "repeat": {
-      // if play mode is repeat, play again.
+      // if play mode is repeat, do nothing.
       this.track = this.trackList[index];
       break;
     }

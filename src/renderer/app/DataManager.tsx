@@ -35,13 +35,13 @@ export default function DataManager() {
   // 下一首
   React.useEffect(() => {
     player.next();
-    dispatch(setTrack(player.track));
+    // dispatch(setTrack(player.track));
   }, [next]);
 
   // 上一首
   React.useEffect(() => {
     player.prev();
-    dispatch(setTrack(player.track));
+    // dispatch(setTrack(player.track));
   }, [prev]);
 
   // 切换播放 & 暂停
