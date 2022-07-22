@@ -12,7 +12,7 @@ import debug from "@plugins/debug";
 
 const logger = debug("App:DataManager");
 
-export const player = new Player({ autoPlay: true });
+export const player = new Player();
 
 export default function DataManager() {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,7 +29,8 @@ export default function DataManager() {
       dispatch(setSeek(player.seek));
     }, 1000);
 
-    setTitle(`${track?.title} - ${track?.artist}`).then();
+    // send progress to the status bar here
+    // because the progress should update per 1 second
     setProgress(seek / track?.duration).then();
 
     return () => clearInterval(timer);
@@ -73,6 +74,9 @@ export default function DataManager() {
   // 并写入到 store 和 player
   // 判断方式：音频地址的变化
   React.useEffect(() => {
+    // set the title to the progress bar here
+    // because the title only change when track is changing.
+    setTitle(`${track?.title} - ${track?.artist}`).then();
     (async () => {
       const res = await getMusicFile(player.track?.src);
       if (res.code === 1) {
