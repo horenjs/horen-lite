@@ -24,6 +24,9 @@ export const playerStatusSlice = createSlice({
     addTracks: (state, action: PayloadAction<Track[]>) => {
       state.trackList = state.trackList.concat(action.payload);
     },
+    setTracks: (state, action: PayloadAction<Track[]>) => {
+      state.trackList = action.payload;
+    },
     setTrack: (state, action: PayloadAction<Track>) => {
       state.track = action.payload;
     },
@@ -43,6 +46,7 @@ export const {
   setPrev,
   setNext,
   addTracks,
+  setTracks,
   setTrack,
   setSeek,
   setIsPlaying,

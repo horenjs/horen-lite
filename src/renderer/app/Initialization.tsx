@@ -6,7 +6,7 @@ import {selectRefreshMusicLibraryTimeStamp} from "@store/slices/setting.slice";
 import React from "react";
 import {getMusicFile, getMusicFileList, getSetting} from "../data-transfer";
 import {
-  addTracks,
+  setTracks,
   setIsPlaying,
   setPlayMode,
   setTrack
@@ -56,48 +56,17 @@ export default function InitApp() {
   };
 
   const _syncTrackList = async () => {
-    const result = await getSetting("musicLibraryPath");
-    if (result.code === 1) {
-      logger("get the music library path success: ", result.data);
-      // 获取所有音频文件
-      const res = await getMusicFileList(result.data);
+    const musicLibraryPath = (await getSetting("musicLibraryPath")).data;
+    const musicFileList = (await getMusicFileList(musicLibraryPath)).data.lists;
 
-      if (res.code === 1) {
-        logger("get the music file list success: ", res.data.lists);
-        const musicFileList = res.data.lists;
+    const lastIndex = (await getSetting("lastIndex")).data;
+    const lastSeek = (await getSetting("lastSeek")).data;
 
-        if (musicFileList.length > 0) {
-          logger("the music file list is not empty, length: ", musicFileList.length);
-          // 获取新的曲库音频文件，并加载第一首到 player 和 store
-          const resp = await getSetting("lastIndex");
+    const musicFile = (await getMusicFile(musicFileList[lastIndex])).data;
 
-          if (resp.code === 1) {
-            logger("get the setting->lastIndex success: ", resp.data);
-            const lastIdx = resp.data;
-            // 获取成功，加载到 player 和 store 中
-            const lastSeek = await getSetting("lastSeek");
-            player.load(musicFileList, lastIdx, {seek: lastSeek.data});
-            dispatch(addTracks(musicFileList));
-
-            const r = await getMusicFile(musicFileList[lastIdx]?.src);
-            if (r.code === 1) {
-              logger("get the music file meta success: ", r.data);
-              dispatch(setTrack(r.data));
-            } else {
-              logger("get the music file meta failed, err: ", r.err);
-            }
-          } else {
-            logger("get the setting->lastIndex failed, err: ", resp.err);
-          }
-        } else {
-          logger("the music file list is empty: ", res.data);
-        }
-      } else {
-        logger("get the music file list failed, err: ", res.err);
-      }
-    } else {
-      logger("get the setting->musicLibraryPath failed, err: ", result.err);
-    }
+    player.load(musicFileList, lastIndex, {seek: lastSeek});
+    dispatch(setTracks(musicFileList));
+    dispatch(setTrack(musicFile));
   };
 
   return <></>;

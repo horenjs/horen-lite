@@ -31,19 +31,23 @@ export default function TitleBar() {
       <div className={"close bar-item electron-no-drag"} onClick={e => {
         e.preventDefault();
         (async () => {
-          const lastIdx = indexOf(trackList, track);
           saveSetting("lastSeek", seek).then();
-          saveSetting("lastIndex", lastIdx).then(async () => {
-            logger("save the last index to setting success: ", lastIdx);
-            if (window.confirm("Exit?")) {
-              logger("try to exit.");
-              await closeAllWindows().then(() => {
-                logger("exit the app.");
-              });
-            } else {
-              logger("cancel the exit.");
-            }
-          });
+
+          const lastIdx = indexOf(trackList, track);
+          logger("track list: ", trackList);
+          logger("track: ", track);
+          logger("save the last index to setting:", lastIdx);
+          saveSetting("lastIndex", lastIdx).then();
+
+          if (window.confirm("Exit?")) {
+            logger("try to exit.");
+            await closeAllWindows().then(() => {
+              logger("exit the app.");
+            });
+          } else {
+            logger("cancel the exit.");
+          }
+
         })();
       }}>
         <RiCloseFill size={20} />

@@ -1,10 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  saveSetting,
-  getAllSetting,
-  openDir,
-} from "../../data-transfer";
+import { saveSetting, getAllSetting, openDir } from "../../data-transfer";
 import "./style.less";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
@@ -36,6 +32,29 @@ export default function SettingPage() {
     })();
   }, []);
 
+  const handleChangeLibrary = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    (async () => {
+      const result = await openDir();
+      if (result.code === 1 && result.data[0] !== form.musicLibraryPath) {
+        logger("new music library path: ", result.data[0]);
+
+        setForm({ ...form, musicLibraryPath: result.data[0] });
+
+        const res = await saveSetting("musicLibraryPath", result.data[0]);
+
+        if (res.code === 1) {
+          if (window.confirm(t("Refresh Music Library"))) {
+            // set the lastIndex and lastSeek to 0 when refresh
+            saveSetting("lastIndex", 0).then();
+            saveSetting("lastSeek", 0).then();
+            dispatch(refreshMusicLibrary());
+          }
+        }
+      }
+    })();
+  };
+
   return (
     <div className={"page page-setting"}>
       <div className={"setting-item electron-no-drag"}>
@@ -44,28 +63,13 @@ export default function SettingPage() {
         </div>
         <div className={"item-content"}>
           <div
-            style={{ fontSize: 12, color: "#2483ff", cursor: "pointer", textDecoration: "underline" }}
-            onClick={(e) => {
-              e.preventDefault();
-              (async () => {
-                const result = await openDir();
-                if (
-                  result.code === 1 &&
-                  result.data[0] !== form.musicLibraryPath
-                ) {
-                  setForm({ ...form, musicLibraryPath: result.data[0] });
-                  const res = await saveSetting(
-                    "musicLibraryPath",
-                    result.data[0]
-                  );
-                  if (res.code === 1) {
-                    if (window.confirm(t("Refresh Music Library"))) {
-                      dispatch(refreshMusicLibrary());
-                    }
-                  }
-                }
-              })();
+            style={{
+              fontSize: 12,
+              color: "#2483ff",
+              cursor: "pointer",
+              textDecoration: "underline",
             }}
+            onClick={handleChangeLibrary}
           >
             {form.musicLibraryPath || (
               <span>{t("Change Music Library Path")}</span>
