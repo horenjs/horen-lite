@@ -8,13 +8,13 @@
 - [ ] lyric show
 - [ ] playing list
 - [ ] albums viewer: hover to show
-- [ ] rotate cover
+- [x] rotate cover
 - [ ] favorites
 - [ ] more setting
-- [ ] switch between play modes
+- [x] switch between play modes
 - [ ] add current track to ...
 - [ ] roll the title when it is too long
-- [ ] read i18n resources from json file
+- [ ] ~~read i18n resources from json file~~
 - [ ] hide the player to the tray when click the minimize button
 
 ## Develop
@@ -28,6 +28,9 @@ cd horen-lite
 npm i
 # run the dev
 npm run start
+# if you want to package
+npm run build
+npm run package
 ```
 
 ## License

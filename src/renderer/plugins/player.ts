@@ -26,6 +26,7 @@ export type Track = Partial<TrackType>;
 export type PlayerConfig = {
   autoPlay?: boolean;
   formats?: string[];
+  seek?: number;
 }
 
 if (typeof window === "undefined") {
@@ -122,7 +123,11 @@ export default class Player {
     this._isAutoPlay = value;
   }
 
-  public load(list: Track[], idx=0) {
+  public load(list: Track[], idx=0, opts?: PlayerConfig) {
+    if (opts?.autoPlay !== undefined) this._isAutoPlay = opts?.autoPlay;
+    if (opts?.formats !== undefined) this._format = opts?.formats;
+    if (opts?.seek !== undefined) this._seek = opts?.seek;
+
     this._trackList = list;
     this.track = this._trackList[idx];
   }
@@ -245,6 +250,7 @@ export default class Player {
 
     if (this._isAutoPlay) {
       this.play();
+      this.seek = this._seek;
     }
   }
 }

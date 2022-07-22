@@ -2,13 +2,18 @@ import React from "react";
 import { RiCloseFill } from "react-icons/ri";
 import { closeAllWindows, saveSetting } from "../data-transfer";
 import { useSelector } from "react-redux";
-import { selectTrack, selectTrackList } from "@store/slices/player-status.slice";
+import {
+  selectSeek,
+  selectTrack,
+  selectTrackList
+} from "@store/slices/player-status.slice";
 import {Track} from "@plugins/player";
 import debug from "@plugins/debug";
 
 const logger = debug("App:TitleBar");
 
 export default function TitleBar() {
+  const seek = useSelector(selectSeek);
   const track = useSelector(selectTrack);
   const trackList = useSelector(selectTrackList);
 
@@ -27,6 +32,7 @@ export default function TitleBar() {
         e.preventDefault();
         (async () => {
           const lastIdx = indexOf(trackList, track);
+          saveSetting("seek", seek).then();
           saveSetting("lastIndex", lastIdx).then(async () => {
             logger("save the last index to setting success: ", lastIdx);
             if (window.confirm("Exit?")) {

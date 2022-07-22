@@ -33,6 +33,9 @@ export default function DataManager() {
     // because the progress should update per 1 second
     setProgress(seek / track?.duration).then();
 
+    // set the title to the progress bar here
+    setTitle(`${track?.title} - ${track?.artist}`).then();
+
     return () => clearInterval(timer);
   }, [seek]);
 
@@ -75,9 +78,6 @@ export default function DataManager() {
   // 并写入到 store 和 player
   // 判断方式：音频地址的变化
   React.useEffect(() => {
-    // set the title to the progress bar here
-    // because the title only change when track is changing.
-    setTitle(`${track?.title} - ${track?.artist}`).then();
     // if track src is changed, get the music file meta via ipc channel
     // and set the track to the store.
     // you don't need to set the track to the player manually
