@@ -24,7 +24,7 @@ import {
   selectSeek,
   selectPlayMode,
 } from "@store/slices/player-status.slice";
-import CoverFrame from "@static/cover-frame.png";
+import CoverFrame from "@static/cover-frame";
 import DefaultCover from "@static/default-cover";
 import "./style.less";
 import { PlayMode } from "@plugins/player";
