@@ -8,6 +8,7 @@ export const IPC_CODE = {
   setTitle: "set-title",
   setProgress: "set-progress",
   getMusicFileListProgress: "get-music-file-list-progress",
+  closeAllWindows: "close-all-windows",
 }
 
 export const DEFAULT_SETTING = {

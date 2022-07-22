@@ -10,13 +10,41 @@
   top: 0;
   left: 0;
   width: @width;
-  height: 468px;
+  height: 100vh;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   opacity: 0.25;
   z-index: 0;
   filter: blur(5px);
+}
+
+.title-bar {
+  width: @width;
+  height: 20px;
+  position: relative;
+  color: #d0d0d0;
+  z-index: 2;
+  &:hover {
+    .close {
+      visibility: visible;
+      color: #a5a5a5;
+    }
+  }
+  .bar-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .close {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    visibility: hidden;
+  }
 }
 
 .main {

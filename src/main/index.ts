@@ -16,7 +16,7 @@ export let mainWindow: BrowserWindow;
 function createWindow() {
   const w = new BrowserWindow({
     width: 300,
-    height: 468,
+    height: 488,
     frame: false,
     resizable: false,
     movable: true,
@@ -53,7 +53,10 @@ app.on("window-all-closed", function () {
     app.quit();
   }
 });
-
+// ipc: close all windows
+ipcMain.handle(IPC_CODE.closeAllWindows, async () => {
+  mainWindow.close();
+})
 // ipc: save setting
 ipcMain.handle(IPC_CODE.saveSetting, handleSaveSetting);
 // ipc: get setting

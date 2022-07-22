@@ -59,16 +59,22 @@ export default function InitApp() {
       if (res.code === 1) {
         const musicFileList = res.data.lists;
         if (musicFileList.length > 0) {
-          // 获取成功，加载到 player 和 store 中
-          player.load(musicFileList);
-          dispatch(addTracks(musicFileList));
-
           // 获取新的曲库音频文件，并加载第一首到 player 和 store
-          const r = await getMusicFile(musicFileList[0].src);
-          if (r.code === 1) {
-            console.log("[Init] ", r.data);
-            dispatch(setTrack(r.data));
+          const resp = await getSetting("lastIndex");
+          if (resp.code === 1) {
+            const lastIdx = resp.data;
+            console.log("[Init] last index: ", lastIdx);
+            // 获取成功，加载到 player 和 store 中
+            player.load(musicFileList, lastIdx);
+            dispatch(addTracks(musicFileList));
+
+            const r = await getMusicFile(musicFileList[lastIdx]?.src);
+            if (r.code === 1) {
+              console.log("[Init] ", r.data);
+              dispatch(setTrack(r.data));
+            }
           }
+
         }
       } else {
         console.error(res.err);

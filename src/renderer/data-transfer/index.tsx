@@ -10,6 +10,10 @@ export async function getMusicFile(p: string) {
   return await ipcRenderer.invoke(IPC_CODE.getMusicFile, p);
 }
 
+export async function closeAllWindows() {
+  return await ipcRenderer.invoke(IPC_CODE.closeAllWindows);
+}
+
 export async function getMusicFileListProgress() {
   return new Promise((res, rej) => {
     ipcRenderer.on(IPC_CODE.getMusicFileListProgress, (evt, [progress, totals]) => {

@@ -5,6 +5,7 @@ import DataManager from "./DataManager";
 import Mask from "./Mask";
 import Main from "./Main";
 import Header from "./Header";
+import TitleBar from "./TitleBar";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       <DataManager />
       <div className="my-app">
         <Mask />
+        <TitleBar />
         <Header />
         <Main />
       </div>

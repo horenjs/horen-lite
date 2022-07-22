@@ -114,9 +114,9 @@ export default class Player {
     this._isAutoPlay = value;
   }
 
-  public load(list: Track[]) {
+  public load(list: Track[], idx=0) {
     this._trackList = list;
-    this.track = this._trackList[0];
+    this.track = this._trackList[idx];
   }
 
   private play() {
