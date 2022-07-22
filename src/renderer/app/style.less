@@ -1,4 +1,6 @@
 @width: 300px;
+@footer-height: 40px;
+@title-bar-height: 28px;
 
 .my-app {
   width: 300px;
@@ -21,16 +23,10 @@
 
 .title-bar {
   width: @width;
-  height: 20px;
+  height: @title-bar-height;
   position: relative;
   color: #d0d0d0;
   z-index: 2;
-  &:hover {
-    .close {
-      visibility: visible;
-      color: #a5a5a5;
-    }
-  }
   .bar-item {
     display: flex;
     justify-content: center;
@@ -41,9 +37,13 @@
     width: 20px;
     height: 20px;
     position: absolute;
-    right: 0;
-    top: 0;
-    visibility: hidden;
+    right: 8px;
+    top: 8px;
+    visibility: visible;
+    color: #616161;
+    &:hover {
+      color: #71b15f;
+    }
   }
 }
 
@@ -51,7 +51,7 @@
   position: relative;
   background-color: transparent;
   width: @width;
-  height: 400px;
+  height: calc(100vh - @footer-height - @title-bar-height);
   .page {
     height: 100%;
     width: calc(100% - 16px);
@@ -64,6 +64,6 @@
   position: relative;
   z-index: 1;
   background-color: transparent;
-  height: 68px;
+  height: @footer-height;
   color: #f6f6f6 !important;
 }

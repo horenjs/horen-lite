@@ -8,7 +8,9 @@
  */
 // eslint-disable-next-line no-undef
 module.exports = {
-  packagerConfig: {},
+  packagerConfig: {
+    asar: true,
+  },
   makers: [
     {
       name: "@electron-forge/maker-squirrel",

@@ -20,13 +20,15 @@ export default function TitleBar() {
   }
 
   return (
-    <div className={"title-bar electron-no-drag"}>
-      <div className={"close bar-item"} onClick={e => {
+    <div className={"title-bar"}>
+      <div className={"close bar-item electron-no-drag"} onClick={e => {
         e.preventDefault();
         (async () => {
           const lastIdx = indexOf(trackList, track);
           saveSetting("lastIndex", lastIdx).then(async () => {
-            await closeAllWindows();
+            if (window.confirm("Exit?")) {
+              await closeAllWindows();
+            }
           });
         })();
       }}>
