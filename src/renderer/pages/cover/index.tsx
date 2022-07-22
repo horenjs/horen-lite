@@ -28,7 +28,10 @@ import CoverFrame from "@static/cover-frame.png";
 import DefaultCover from "@static/default-cover";
 import "./style.less";
 import { PlayMode } from "@plugins/player";
+import debug from "@plugins/debug";
 import { saveSetting } from "../../data-transfer";
+
+const logger = debug("Page:Cover");
 
 export default function PageCover() {
   const { t } = useTranslation();
@@ -41,8 +44,6 @@ export default function PageCover() {
   const percent = Number(
     (track?.duration ? seek / track?.duration : 0).toFixed(3)
   );
-  // console.log("seek: ", seek);
-  // console.log("percent: ", percent);
 
   const renderIcon = (m: PlayMode) => {
     let el;
@@ -68,14 +69,14 @@ export default function PageCover() {
       key: "more-action",
       icon: <RiMenuAddFill size={22} />,
       onClick(key: string | number) {
-        console.log("[Cover] press: ", key);
+        logger("press: ", key);
       },
     },
     {
       key: "prev-track",
       icon: <CgPlayTrackPrevO size={22} />,
       onClick(key: string | number) {
-        console.log("[Cover] press: ", key);
+        logger("press: ", key);
         dispatch(setPrev());
       },
     },
@@ -83,7 +84,7 @@ export default function PageCover() {
       key: "play-or-pause",
       icon: isPlaying ? <IoIosPause size={26} /> : <FiPlay size={22} />,
       onClick(key: string | number) {
-        console.log("[Cover] press: ", key);
+        logger("press: ", key);
         dispatch(setIsPlaying(!isPlaying));
       },
     },
@@ -91,7 +92,7 @@ export default function PageCover() {
       key: "next-track",
       icon: <CgPlayTrackNextO size={22} />,
       onClick(key: string | number) {
-        console.log("[Cover] press: ", key);
+        logger("press: ", key);
         dispatch(setNext());
       },
     },
@@ -99,8 +100,7 @@ export default function PageCover() {
       key: "play-mode",
       icon: renderIcon(playMode),
       onClick(key: string | number) {
-        console.log("press: ", key);
-        console.log("play mode: ", playMode);
+        logger("press: ", key);
         const playModes: PlayMode[] = [
           "in-turn",
           "in-turn-loop",
@@ -127,12 +127,12 @@ export default function PageCover() {
   const ref: any = React.useRef();
 
   React.useEffect(() => {
+    logger("set the handler items.")
     setItems(handlerItems);
   }, [isPlaying, playMode]);
 
   React.useEffect(() => {
     if (ref.current) {
-      console.log(ref);
       setW(ref.current.offsetWidth);
     }
   }, [ref?.current]);

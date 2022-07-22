@@ -4,6 +4,9 @@ import { closeAllWindows, saveSetting } from "../data-transfer";
 import { useSelector } from "react-redux";
 import { selectTrack, selectTrackList } from "@store/slices/player-status.slice";
 import {Track} from "@plugins/player";
+import debug from "@plugins/debug";
+
+const logger = debug("App:TitleBar");
 
 export default function TitleBar() {
   const track = useSelector(selectTrack);
@@ -15,7 +18,6 @@ export default function TitleBar() {
         return i;
       }
     }
-
     return 0;
   }
 
@@ -26,8 +28,14 @@ export default function TitleBar() {
         (async () => {
           const lastIdx = indexOf(trackList, track);
           saveSetting("lastIndex", lastIdx).then(async () => {
+            logger("save the last index to setting success: ", lastIdx);
             if (window.confirm("Exit?")) {
-              await closeAllWindows();
+              logger("try to exit.");
+              await closeAllWindows().then(() => {
+                logger("exit the app.");
+              });
+            } else {
+              logger("cancel the exit.");
             }
           });
         })();

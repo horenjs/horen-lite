@@ -1,4 +1,7 @@
 import { Howl, Howler } from "howler";
+import debug from "./debug";
+
+const logger = debug("Plugin:Player");
 
 export type DateType = string | number | Date;
 
@@ -81,9 +84,14 @@ export default class Player {
 
   set track(value: Track) {
     this._track = value;
-    console.log("play: ", value.src);
-    console.log("auto play: ", this._isAutoPlay);
-    if (value.src) this._playFromSource(value.src);
+    logger("track: ", value);
+    // value can be null;
+    if (value && value.src) {
+      logger("current track index: ", this.trackList.indexOf(value));
+      this._playFromSource(value.src);
+    } else {
+      // do nothing.
+    }
   }
 
   get isPlaying(): boolean {
@@ -175,24 +183,25 @@ export default class Player {
       if (flag === "next") {
         if (index >= length - 1) {
           this.track = this.trackList[0];
-          console.log("current is the last one, next play: ", 0);
+          logger("current is the last one, next play: ", 0);
         } else {
           this.track = this.trackList[index + 1];
-          console.log("next play: ", index + 1);
+          logger("next play: ", index + 1);
         }
       } else if (flag === "prev") {
         if (index < 1) {
           this.track = this.trackList[length - 1];
-          console.log("current is the first one, prev play: ", length - 1);
+          logger("current is the first one, prev play: ", length - 1);
         } else {
           this.track = this.trackList[index - 1];
-          console.log("prev play: ", index - 1);
+          logger("prev play: ", index - 1);
         }
       }
       break;
     }
     case "repeat": {
       // if play mode is repeat, do nothing.
+      logger("play mode is repeat, play it from begin again.");
       this.track = this.trackList[index];
       break;
     }
@@ -200,13 +209,11 @@ export default class Player {
       if (flag === "next") {
         if (index >= length - 1) {
           // if the track is the last one, do nothing.
-          // this.stop();
-          // this.track = undefined;
+          logger("the last one, do nothing.");
         } else this.track = this.trackList[index + 1];
       } else {
         if (index < 1) {
-          this.stop();
-          this.track = undefined;
+          logger("the first one, do nothing.");
         } else this.track = this.trackList[index - 1];
       }
       break;

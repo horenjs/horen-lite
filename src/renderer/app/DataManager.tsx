@@ -3,11 +3,14 @@ import {AppDispatch} from "@store/index";
 import {
   selectIsPlaying,
   selectNext, selectPlayMode,
-  selectPrev, selectSeek, selectTrack, setSeek, setTrack
+  selectPrev, selectSeek, selectTrack, setIsPlaying, setSeek, setTrack
 } from "@store/slices/player-status.slice";
 import React from "react";
 import {getMusicFile, setProgress, setTitle} from "../data-transfer";
 import Player from "@plugins/player";
+import debug from "@plugins/debug";
+
+const logger = debug("App:DataManager");
 
 export const player = new Player({ autoPlay: true });
 
@@ -34,39 +37,50 @@ export default function DataManager() {
 
   // 下一首
   React.useEffect(() => {
+    logger("skip to the next, timestamp: ", next);
     player.next();
-    // dispatch(setTrack(player.track));
+    // if the current track is paused, set it to playing.
+    // that means you will change the playing status
+    // when you click prev or next button.
+    dispatch(setIsPlaying(true));
   }, [next]);
 
   // 上一首
   React.useEffect(() => {
+    logger("skip to the prev, timestamp: ", prev);
     player.prev();
-    // dispatch(setTrack(player.track));
+    // if the current track is paused, set it to playing.
+    // just like clicking the next button.
+    dispatch(setIsPlaying(true));
   }, [prev]);
 
   // 切换播放 & 暂停
+  // switch between playing or paused.
   React.useEffect(() => {
+    logger("set the playing: ", isPlaying);
     player.playOrPause();
   }, [isPlaying]);
 
   // 切换播放模式
+  // switch the play mode in [[PlayMode]]
+  // the type definition is in the plugins/player.ts
   React.useEffect(() => {
+    logger("set the play mode: ", playMode);
     player.playMode = playMode;
-    // console.log("[App] play mode: ", playMode);
   }, [playMode]);
 
   // 音频变化时，从数据交换中心获取新的音频信息
   // 并写入到 store 和 player
-  // 通过音频的地址来判断音频是否变换
+  // 判断方式：音频地址的变化
   React.useEffect(() => {
     (async () => {
-      // console.log("[App] player track ", player.track);
       const res = await getMusicFile(player.track?.src);
       if (res.code === 1) {
-        console.log("[DataManager] current track: ", res.data);
+        logger("get the music file meta success: ", res.data.src);
+        logger("set the track: ", res.data);
         dispatch(setTrack(res.data));
       } else {
-        console.error(res);
+        logger("get the music file meta failed, err: ", res.err);
       }
     })();
   }, [player.track?.src]);

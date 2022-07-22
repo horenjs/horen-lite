@@ -1,6 +1,6 @@
 import path from "path";
-import {AUDIO_EXTS} from "@constant/index";
-import {readDir, readFile, writeFile} from "../utils";
+import { AUDIO_EXTS } from "@constant/index";
+import { readDir, readFile, writeFile } from "../utils";
 import crypto from "crypto";
 
 export async function handleGetMusicFileList(evt, p: string) {
@@ -16,6 +16,15 @@ export async function handleGetMusicFileList(evt, p: string) {
   }
   // 如果不存在，重新读取并生成
   const originFileList = await getOriginFileList(p);
+
+  if (originFileList.length === 0) {
+    return {
+      code: 0,
+      msg: "failed",
+      err: "target path is empty: " + p,
+    };
+  }
+
   const lists = selectAudioFile(originFileList);
   // 保存到曲库文件
   await saveAudioFileList(musicLibraryFilePath, lists);
@@ -61,6 +70,7 @@ async function getOriginFileList(p: string) {
     return await readDir(path.resolve(p), tmp);
   } catch (err) {
     console.error(err);
+    return [];
   }
 }
 
@@ -69,8 +79,5 @@ function generateMusicLibraryFilePath(p: string) {
   hash.update(p);
 
   const appPath = path.join(process.env.APPDATA, "horen-lite");
-  return path.join(
-    appPath,
-    `Library-${hash.digest("hex")}.json`
-  );
+  return path.join(appPath, `Library-${hash.digest("hex")}.json`);
 }

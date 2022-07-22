@@ -14,14 +14,6 @@ export async function closeAllWindows() {
   return await ipcRenderer.invoke(IPC_CODE.closeAllWindows);
 }
 
-export async function getMusicFileListProgress() {
-  return new Promise((res, rej) => {
-    ipcRenderer.on(IPC_CODE.getMusicFileListProgress, (evt, [progress, totals]) => {
-      res([progress, totals]);
-    })
-  })
-}
-
 export async function saveSetting(item: string, value: object | string | number | boolean) {
   return await ipcRenderer.invoke(IPC_CODE.saveSetting, item ,value);
 }

@@ -4,13 +4,14 @@ import {
   saveSetting,
   getAllSetting,
   openDir,
-  getMusicFileListProgress,
 } from "../../data-transfer";
 import "./style.less";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import { refreshMusicLibrary } from "@store/slices/setting.slice";
-import Slider from "@components/slider";
+import debug from "@plugins/debug";
+
+const logger = debug("Page:Setting");
 
 export default function SettingPage() {
   const { t } = useTranslation();
@@ -21,13 +22,12 @@ export default function SettingPage() {
     autoPlay: true,
   });
 
-  const [musicFileListProgress, setMusicFileListProgress] =
-    React.useState<number>();
-
   React.useEffect(() => {
     (async () => {
+      logger("try to get all setting.");
       const result = await getAllSetting();
       if (result.code === 1) {
+        logger("get all setting success: ", result.data);
         const { musicLibraryPath, autoPlay } = result.data;
         setForm({ musicLibraryPath, autoPlay });
       } else {
@@ -36,38 +36,8 @@ export default function SettingPage() {
     })();
   }, []);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      getMusicFileListProgress().then(([progress, totals]) => {
-        const ratio = progress / totals;
-        console.log(totals, ratio);
-        if (totals >= 10) {
-          setMusicFileListProgress(ratio);
-
-          if (totals < 30 && ratio > 0.3) {
-            setMusicFileListProgress(undefined);
-          } else if (totals < 50 && ratio > 0.75) {
-            setMusicFileListProgress(undefined);
-          } else if (totals < 100 && ratio > 0.80) {
-            setMusicFileListProgress(undefined);
-          } else if (totals < 200 && ratio > 0.85) {
-            setMusicFileListProgress(undefined);
-          } else if (totals < 500 && ratio > 0.92) {
-            setMusicFileListProgress(undefined);
-          } else if (ratio > 0.98) {
-            setMusicFileListProgress(undefined);
-          }
-        }
-      });
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [musicFileListProgress]);
-
   return (
     <div className={"page page-setting"}>
-      <div className={"progress-bar"}>
-        {musicFileListProgress ? <Slider percent={musicFileListProgress} /> : ""}
-      </div>
       <div className={"setting-item electron-no-drag"}>
         <div className={"item-label"}>
           <span>{t("Music Library Path")}</span>

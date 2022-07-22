@@ -8,6 +8,9 @@ import {RiSettingsLine} from "react-icons/ri";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
 import {selectIsPlaying} from "@store/slices/player-status.slice";
+import debug from "@plugins/debug";
+
+const logger = debug("App:Header");
 
 export default function Header() {
   const navi = useNavigate();
@@ -19,7 +22,7 @@ export default function Header() {
       title: "Lyric",
       icon: <MdOutlineTextFields size={24} />,
       onClick(key: string | number) {
-        console.log(key);
+        logger("click: ", key);
       },
     },
     {
@@ -27,7 +30,7 @@ export default function Header() {
       title: "Play List",
       icon: <BsMusicNoteList size={22} />,
       onClick: function (key: string | number) {
-        console.log(key);
+        logger("click: ", key);
       },
     },
     {
@@ -35,7 +38,7 @@ export default function Header() {
       title: "Albums",
       icon: <BiAlbum size={25} />,
       onClick: function (key: string | number) {
-        console.log(key);
+        logger("click: ", key);
       },
     },
     {
@@ -43,6 +46,7 @@ export default function Header() {
       title: "Playing",
       icon: <Loading type={"dance"} stop={!isPlaying} />,
       onClick: function (key: string | number) {
+        logger("click: ", key);
         navi("/");
       },
     },
@@ -51,7 +55,7 @@ export default function Header() {
       title: "Favorite",
       icon: <MdOutlineFavoriteBorder size={26} />,
       onClick(key: string | number) {
-        console.log(key);
+        logger("click: ", key);
       },
     },
     {
@@ -59,7 +63,7 @@ export default function Header() {
       title: "Setting",
       icon: <RiSettingsLine size={24} />,
       onClick(key: string | number) {
-        console.log(key);
+        logger("click: ", key);
         navi("/setting");
       },
     },
