@@ -124,12 +124,14 @@ export default class Player {
   }
 
   public load(list: Track[], idx=0, opts?: PlayerConfig) {
-    if (opts?.autoPlay !== undefined) this._isAutoPlay = opts?.autoPlay;
-    if (opts?.formats !== undefined) this._format = opts?.formats;
-    if (opts?.seek !== undefined) this._seek = opts?.seek;
+    if (opts?.autoPlay !== undefined) this._isAutoPlay = opts.autoPlay;
+    if (opts?.formats !== undefined) this._format = opts.formats;
 
     this._trackList = list;
     this.track = this._trackList[idx];
+
+    // seek only when the tracks load first time.
+    if (opts?.seek !== undefined) this.seek = opts.seek;
   }
 
   private play() {
@@ -138,7 +140,10 @@ export default class Player {
     // play current track, otherwise
     this.__howler?.play();
     // monitor the current track is ended
-    this.__howler?.once("end", () => this._skip("next"));
+    this.__howler?.once("end", () => {
+      this._skip("next");
+      this._seek = 0;
+    });
   }
 
   public stop() {
@@ -250,7 +255,6 @@ export default class Player {
 
     if (this._isAutoPlay) {
       this.play();
-      this.seek = this._seek;
     }
   }
 }

@@ -75,8 +75,8 @@ export default function InitApp() {
             logger("get the setting->lastIndex success: ", resp.data);
             const lastIdx = resp.data;
             // 获取成功，加载到 player 和 store 中
-            const savedSeek = await getSetting("seek");
-            player.load(musicFileList, lastIdx, {seek: savedSeek.data});
+            const lastSeek = await getSetting("lastSeek");
+            player.load(musicFileList, lastIdx, {seek: lastSeek.data});
             dispatch(addTracks(musicFileList));
 
             const r = await getMusicFile(musicFileList[lastIdx]?.src);

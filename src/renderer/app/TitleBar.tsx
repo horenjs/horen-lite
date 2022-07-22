@@ -32,7 +32,7 @@ export default function TitleBar() {
         e.preventDefault();
         (async () => {
           const lastIdx = indexOf(trackList, track);
-          saveSetting("seek", seek).then();
+          saveSetting("lastSeek", seek).then();
           saveSetting("lastIndex", lastIdx).then(async () => {
             logger("save the last index to setting success: ", lastIdx);
             if (window.confirm("Exit?")) {
