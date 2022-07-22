@@ -232,6 +232,9 @@ export default class Player {
 
   private _playFromSource(src: string) {
     Howler.unload();
+    logger("track to play: ", src);
+    logger("is auto play: ", this._isAutoPlay);
+
     this.__howler = new Howl({
       src: [src],
       format: this.format,
@@ -239,6 +242,7 @@ export default class Player {
       volume: this.volume,
       autoplay: this._isAutoPlay,
     });
+
     if (this._isAutoPlay) {
       this.play();
     }

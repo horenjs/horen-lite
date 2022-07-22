@@ -3,7 +3,7 @@ import {AppDispatch} from "@store/index";
 import {
   selectIsPlaying,
   selectNext, selectPlayMode,
-  selectPrev, selectSeek, selectTrack, setIsPlaying, setSeek, setTrack
+  selectPrev, selectSeek, selectTrack, setSeek, setTrack
 } from "@store/slices/player-status.slice";
 import React from "react";
 import {getMusicFile, setProgress, setTitle} from "../data-transfer";
@@ -38,21 +38,22 @@ export default function DataManager() {
 
   // 下一首
   React.useEffect(() => {
+    logger("is playing: ", isPlaying);
+    // its behavior is similar to the prev button.
+    player.isAutoPlay = isPlaying;
     logger("skip to the next, timestamp: ", next);
     player.next();
-    // if the current track is paused, set it to playing.
-    // that means you will change the playing status
-    // when you click prev or next button.
-    dispatch(setIsPlaying(true));
   }, [next]);
 
   // 上一首
   React.useEffect(() => {
+    logger("is playing: ", isPlaying);
+    // when you click the prev button
+    // the current track is playing determined
+    // the track to be playing is to play auto.
+    player.isAutoPlay = isPlaying;
     logger("skip to the prev, timestamp: ", prev);
     player.prev();
-    // if the current track is paused, set it to playing.
-    // just like clicking the next button.
-    dispatch(setIsPlaying(true));
   }, [prev]);
 
   // 切换播放 & 暂停
@@ -77,6 +78,10 @@ export default function DataManager() {
     // set the title to the progress bar here
     // because the title only change when track is changing.
     setTitle(`${track?.title} - ${track?.artist}`).then();
+    // if track src is changed, get the music file meta via ipc channel
+    // and set the track to the store.
+    // you don't need to set the track to the player manually
+    // because it changes in its inner operation.
     (async () => {
       const res = await getMusicFile(player.track?.src);
       if (res.code === 1) {
@@ -87,6 +92,8 @@ export default function DataManager() {
         logger("get the music file meta failed, err: ", res.err);
       }
     })();
+    // to-do: when the track is paused,
+    // the track src only react while click the prev or next button twice.
   }, [player.track?.src]);
 
   return <></>;
