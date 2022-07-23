@@ -37,8 +37,13 @@ async function handleGetAllSetting() {
 
 
 
-async function handleGetMusicFile(evt, p: string) {
-  const meta = await readMusicFileMeta(p);
+async function handleGetMusicFile(evt, p: string, items?: string[]) {
+  let meta;
+  if (items) {
+    meta = await readMusicFileMeta(p, items);
+  } else {
+    meta = await readMusicFileMeta(p);
+  }
   return { code: 1, msg: "success", data: meta };
 }
 

@@ -30,7 +30,8 @@ export default function PlayList() {
     const tmp = trackList;
     for (const track of tmp) {
       (async () => {
-        const meta = (await getMusicFile(track.src)).data;
+        const meta = (await getMusicFile(track.src, ["title"])).data;
+        logger("get the music file: ", meta);
         lists.push(meta);
         if (tmp.length === lists.length) {
           setTrackListMore(lists);

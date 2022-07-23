@@ -6,8 +6,8 @@ export async function getMusicFileList(p: string) {
   return await ipcRenderer.invoke(IPC_CODE.getMusicFileList, p);
 }
 
-export async function getMusicFile(p: string) {
-  return await ipcRenderer.invoke(IPC_CODE.getMusicFile, p);
+export async function getMusicFile(p: string, items?: string[]) {
+  return await ipcRenderer.invoke(IPC_CODE.getMusicFile, p, items);
 }
 
 export async function closeAllWindows() {
