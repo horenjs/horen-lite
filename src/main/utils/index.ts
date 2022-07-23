@@ -36,7 +36,7 @@ export async function readMusicFileMeta(filepath: string) {
 
     try {
       lyric = await lyricApi.getLyric();
-      await writeFile(lrcPath, lyric);
+      if (lyric) await writeFile(lrcPath, lyric);
     } catch (err) {
       lyric = String(err);
     }

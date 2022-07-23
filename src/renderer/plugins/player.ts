@@ -86,10 +86,13 @@ export default class Player {
 
   set track(value: Track) {
     this._track = value;
-    logger("track: ", value);
+    // logger("track: ", value);
     // value can be null;
     if (value && value.src) {
-      logger("current track index: ", this.trackList.indexOf(value));
+      if (this._trackList) {
+        logger("current track index: ", this._indexOf(this._trackList, value));
+      }
+
       this._playFromSource(value.src);
     } else {
       // do nothing.
@@ -256,6 +259,14 @@ export default class Player {
 
     if (this._isAutoPlay) {
       this.play();
+    }
+  }
+
+  private _indexOf(arr: Track[], target: Track) {
+    for (const a of arr) {
+      if (a.src === target.src) {
+        return arr.indexOf(a);
+      }
     }
   }
 }

@@ -86,7 +86,7 @@ export default function DataManager() {
       if (player.track?.src) {
         const res = await getMusicFile(player.track.src);
         if (res.code === 1) {
-          logger("get the music file meta success: ", res.data.src);
+          logger("get the music file meta success: ", res.data);
           dispatch(setTrack(res.data));
         } else {
           logger("get the music file meta failed, err: ", res.err);
@@ -96,29 +96,6 @@ export default function DataManager() {
     // to-do: when the track is paused,
     // the track src only react while click the prev or next button twice.
   }, [player.track?.src]);
-
-  // 音频变化时，从数据交换中心获取新的音频信息
-  // 并写入到 store 和 player
-  // 判断方式：音频地址的变化
-  React.useEffect(() => {
-    // if track src is changed, get the music file meta via ipc channel
-    // and set the track to the store.
-    // you don't need to set the track to the player manually
-    // because it changes in its inner operation.
-    (async () => {
-      if (track?.src) {
-        const res = await getMusicFile(track.src);
-        if (res.code === 1) {
-          logger("get the music file meta success: ", res.data);
-          player.track = res.data;
-        } else {
-          logger("get the music file meta failed, err: ", res.err);
-        }
-      }
-    })();
-    // to-do: when the track is paused,
-    // the track src only react while click the prev or next button twice.
-  }, [track?.src]);
 
   return <></>;
 }

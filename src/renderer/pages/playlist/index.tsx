@@ -12,6 +12,7 @@ import { getMusicFile } from "../../data-transfer";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
+import {player} from "../../app/DataManager";
 
 const logger = debug("Page:PlayList");
 
@@ -44,7 +45,9 @@ export default function PlayList() {
   ) => {
     // e.preventDefault();
     logger("double click: ", src);
-    dispatch(setTrack({ src }));
+    // dispatch(setTrack({ src }));
+    logger("to play the select track: ", src);
+    player.track = {src};
   };
 
   return (

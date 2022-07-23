@@ -27,52 +27,81 @@ function lrcParser(data: string) {
   // split a long string into lines by system's end-of-line marker line
   // \r\n on Windows
   // \n   on POSIX
-  let lines = data.split(EOL);
-  const timeStart = /\[(\d*:\d*\.?\d*)\]/; // i.g [00:10.55]
-  const scriptText = /(.+)/; // Havana ooh na-na (ayy)
-  const timeEnd = timeStart;
-  const startAndText = new RegExp(timeStart.source + scriptText.source);
-
-  const infos = [];
-  const scripts: LyricScript[] = [];
-  const result: Lyric = {
-    scripts: []
-  };
-
-  // test the info line and push it;
-  for (let i = 0; !startAndText.test(lines[i]); i++) {
-    infos.push(lines[i]);
+  let originLines = [];
+  try {
+    originLines = data.split(EOL);
+  } catch (err) {
+    throw new Error("cannot split the lyric: " + String(data));
   }
 
-  // make ["length", "03:06"] => {length: "03:06"};
+  const scripts: LyricScript[] = [];
+  const result: Lyric = {
+    scripts: [],
+  };
+
+  const timeStartPattern = /\[(\d*:\d*\.?\d*)\]/; // i.g [00:10.55]
+  const timeEndPattern = timeStartPattern;
+  const scriptText = /(.+)/; // Havana ooh na-na (ayy)
+
+  const timesStartAndTextPattern = new RegExp(
+    timeStartPattern.source + scriptText.source
+  );
+
+  const infos = [];
+  const infoPattern = /\[(\w+:\w+)\]/;
+
+  // test the info line and push it;
+  for (let i = 0; i < originLines.length; i++) {
+    if (infoPattern.test(originLines[i])) {
+      infos.push(originLines[i]);
+    }
+  }
+
+  // make [ti:hello] => {"ti": "hello"};
   infos.reduce((result, info) => {
     const [key, value] = extractInfo(info);
     result[key] = value;
     return result;
   }, result);
 
-  // remove all info lines
-  lines.splice(0, infos.length);
+  const copyLines = [...originLines];
+  // remove all info lines from top;
+  copyLines.splice(0, infos.length);
 
-  //
-  const qualified = new RegExp(startAndText.source + '|' + timeEnd.source);
-  lines = lines.filter((line) => qualified.test(line));
+  // test the correct line
+  const qualified = new RegExp(
+    timesStartAndTextPattern.source + "|" + timeEndPattern.source
+  );
+  const qualifiedLines = copyLines.filter((line) => qualified.test(line));
 
-  for (let i = 0, l = lines.length; i < l; i++) {
-    const matches = startAndText.exec(lines[i]);
-    const timeEndMatches = timeEnd.exec(lines[i + 1]);
+  if (qualifiedLines.length === 0) {
+    result.scripts = originLines.map((line) => {
+      return {
+        start: 0,
+        end: 0,
+        text: line,
+      }
+    });
+    return result;
+  }
+
+  for (let i = 0, l = qualifiedLines.length; i < l; i++) {
+    const matches = timesStartAndTextPattern.exec(qualifiedLines[i]);
+    const timeEndMatches = timeEndPattern.exec(qualifiedLines[i + 1]);
     if (matches && timeEndMatches) {
       const [, start, text] = matches;
       const [, end] = timeEndMatches;
-      scripts.push({
+      const item = {
         start: convertTime(start),
         text,
         end: convertTime(end),
-      });
+      };
+      scripts.push(item);
     }
   }
 
   result.scripts = scripts;
+
   return result;
 }
 
@@ -83,7 +112,8 @@ function lrcParser(data: string) {
  */
 function extractInfo(s: string): string[] {
   const info = s.trim().slice(1, -1);
-  return info.split(": ");
+  const infos = info.split(":");
+  return infos.map(i => i.trim());
 }
 
 /**

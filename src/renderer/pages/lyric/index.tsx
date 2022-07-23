@@ -3,8 +3,10 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { selectSeek, selectTrack } from "@store/slices/player-status.slice";
 import lyricParse from "@plugins/lyric";
+import { useTranslation } from "react-i18next";
 
 export default function PageLyric() {
+  const { t } = useTranslation();
   const track = useSelector(selectTrack);
   const seek = useSelector(selectSeek);
 
@@ -16,34 +18,38 @@ export default function PageLyric() {
 
   return (
     <div className={"page page-lyric electron-no-drag perfect-scrollbar"}>
-      <div className={"lyric-panel"} style={{transform: `translateY(${-top}px)`}}>
+      <div
+        className={"lyric-panel"}
+        style={{ transform: `translateY(${-top}px)` }}
+      >
         <div className={"spacer"}></div>
-        {lyricParse(track?.lyric).scripts.map((lyric, idx) => {
-          const hit = isHit(seek, lyric.start, lyric.end);
-          const color = hit ? "#71b15f" : "#a2a2a2";
-          const size = hit ? 18 : 13;
-          const margin = hit ? 12 : 8;
-          const toTop = idx * 28;
+        {track?.lyric && lyricParse(track?.lyric).scripts.length ?
+          lyricParse(track?.lyric).scripts.map((lyric, idx) => {
+            const hit = isHit(seek, lyric.start, lyric.end);
+            const color = hit ? "#71b15f" : "#a2a2a2";
+            const size = hit ? 18 : 13;
+            const margin = hit ? 12 : 8;
+            const toTop = idx * 28;
 
-          if (hit) {
-            setTimeout(() => {
-              setTop(toTop);
-            }, 100);
-          }
+            if (hit) {
+              setTimeout(() => {
+                setTop(toTop);
+              }, 100);
+            }
 
-          return (
-            <div
-              className={"lyric-item"}
-              key={lyric.start + idx}
-              data-start={lyric.start}
-              data-end={lyric.end}
-              data-top={toTop}
-              style={{ color, fontSize: size, margin: `${margin}px 0` }}
-            >
-              {lyric.text}
-            </div>
-          );
-        })}
+            return (
+              <div
+                className={"lyric-item"}
+                key={lyric.start + idx}
+                data-start={lyric.start}
+                data-end={lyric.end}
+                data-top={toTop}
+                style={{ color, fontSize: size, margin: `${margin}px 0` }}
+              >
+                {lyric.text}
+              </div>
+            );
+          }) : <div className={"no-lyric"}>{t("No Lyric")}</div> }
       </div>
     </div>
   );
