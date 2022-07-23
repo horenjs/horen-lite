@@ -5,8 +5,8 @@
 ![main](./screenshoot/main.jpg)
 
 ## To-do's
-- [ ] lyric show
-- [ ] playing list
+- [x] lyric show
+- [x] playing list
 - [ ] albums viewer: hover to show
 - [x] rotate cover
 - [ ] favorites
