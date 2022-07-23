@@ -6,10 +6,19 @@ import crypto from "crypto";
 import pack from "../../../package.json";
 
 export async function handleGetMusicFileList(evt, p: string) {
+  const musicLibraryFilePathFull = generateMusicLibraryFilePath(p, "-full");
   const musicLibraryFilePath = generateMusicLibraryFilePath(p);
   // 从已经保存的列表中读取，如果已经存在直接返回
+  const audioFileListFull = await getAudioFileListFromExist(musicLibraryFilePathFull);
   const audioFileList = await getAudioFileListFromExist(musicLibraryFilePath);
-  if (audioFileList.length > 0) {
+
+  if (audioFileListFull.length > 0) {
+    return {
+      code: 1,
+      msg: "success",
+      data: { lists: audioFileListFull },
+    };
+  } else if (audioFileList.length > 0) {
     return {
       code: 1,
       msg: "success",
@@ -76,7 +85,7 @@ async function getOriginFileList(p: string) {
   }
 }
 
-function generateMusicLibraryFilePath(p: string) {
+export function generateMusicLibraryFilePath(p: string, flag="") {
   const hash = crypto.createHash("md5");
   hash.update(p);
 
@@ -87,5 +96,5 @@ function generateMusicLibraryFilePath(p: string) {
     fs.mkdirSync(musicLibraryPath);
   }
 
-  return path.join(musicLibraryPath, `${hash.digest("hex")}.json`);
+  return path.join(musicLibraryPath, `${hash.digest("hex")}${flag}.json`);
 }

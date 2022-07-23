@@ -1,17 +1,27 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { saveSetting, getAllSetting, openDir } from "../../data-transfer";
+import {
+  saveSetting,
+  getAllSetting,
+  openDir,
+  saveMusicFileListMsg,
+} from "../../data-transfer";
 import "./style.less";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import { refreshMusicLibrary } from "@store/slices/setting.slice";
 import debug from "@plugins/debug";
+import Slider from "@components/slider";
 
 const logger = debug("Page:Setting");
 
 export default function SettingPage() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
+  const [saveProgress, setSaveProgress] = React.useState<[number, string]>([
+    0,
+    "",
+  ]);
 
   const [form, setForm] = React.useState({
     musicLibraryPath: "",
@@ -31,6 +41,18 @@ export default function SettingPage() {
       }
     })();
   }, []);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      saveMusicFileListMsg().then((result) => {
+        logger("save progress: ", result);
+        const progress = result[0] / result[1];
+        setSaveProgress([progress, result[2]]);
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [saveProgress]);
 
   const handleChangeLibrary = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -91,6 +113,20 @@ export default function SettingPage() {
               (async () => await saveSetting("autoPlay", e.target.checked))();
             }}
           />
+        </div>
+      </div>
+      <div
+        className={"save-progress"}
+        style={{
+          display: Math.abs(saveProgress[0] - 1) < 0.05 ? "none" : "block",
+        }}
+      >
+        <span className={"save-prompt"}>
+          <span>{ t("Saving") }</span>
+          <span>{saveProgress[1]}</span>
+        </span>
+        <div className={"save-slider"}>
+          <Slider percent={saveProgress[0]} />
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 export const IPC_CODE = {
   getMusicFile: "get-music-file",
   getMusicFileList: "get-music-file-list",
+  saveMusicFileList: "save-music-file-list",
   saveSetting: "save-setting",
   getSetting: "get-setting",
   getAllSetting: "get-all-setting",
@@ -9,6 +10,7 @@ export const IPC_CODE = {
   setProgress: "set-progress",
   getMusicFileListProgress: "get-music-file-list-progress",
   closeAllWindows: "close-all-windows",
+  saveMusicFileListMsg: "save-music-file-list-msg",
 }
 
 export const DEFAULT_SETTING = {

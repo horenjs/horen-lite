@@ -1,13 +1,16 @@
-import {app, BrowserWindow, dialog, ipcMain} from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import { IPC_CODE } from "../constant";
+import path from "path";
 // handlers
 import {
   handleSaveSetting,
   handleGetMusicFileList,
   handleGetMusicFile,
   handleGetSetting,
-  handleGetAllSetting
+  handleGetAllSetting,
 } from "./handlers";
+import { readMusicFileMeta, writeFile } from "./utils";
+import { generateMusicLibraryFilePath } from "./handlers/get-music-file-list";
 
 const isDev = process.env["NODE_ENV"] === "development";
 
@@ -56,7 +59,7 @@ app.on("window-all-closed", function () {
 // ipc: close all windows
 ipcMain.handle(IPC_CODE.closeAllWindows, async () => {
   mainWindow.close();
-})
+});
 // ipc: save setting
 ipcMain.handle(IPC_CODE.saveSetting, handleSaveSetting);
 // ipc: get setting
@@ -67,6 +70,40 @@ ipcMain.handle(IPC_CODE.getAllSetting, handleGetAllSetting);
 ipcMain.handle(IPC_CODE.getMusicFile, handleGetMusicFile);
 // ipc: get music file list
 ipcMain.handle(IPC_CODE.getMusicFileList, handleGetMusicFileList);
+// ipc: save music file list
+ipcMain.handle(
+  IPC_CODE.saveMusicFileList,
+  async (evt, p: string, lists: { src: string }[]) => {
+    const metas = [];
+    for (let i = 0; i < lists.length; i++) {
+      mainWindow.webContents.send(
+        IPC_CODE.saveMusicFileListMsg,
+        i,
+        lists.length,
+        path.basename(lists[i].src)
+      );
+      const meta = await readMusicFileMeta(lists[i].src, [
+        "title",
+        "artist",
+        "artists",
+        "album",
+        "genre",
+        "date",
+        "duration",
+        // "picture",
+        "lyric",
+      ]);
+      metas.push(meta);
+    }
+    const filepath = generateMusicLibraryFilePath(p, "-full");
+    try {
+      await writeFile(filepath, JSON.stringify(metas, null, 2));
+      return { code: 1, msg: "success" };
+    } catch (err) {
+      return { code: 0, msg: "save library list full failed" };
+    }
+  }
+);
 // ipc: set the main window title
 ipcMain.handle(IPC_CODE.setTitle, async (evt, title: string) => {
   mainWindow.setTitle(title);

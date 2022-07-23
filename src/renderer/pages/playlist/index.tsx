@@ -1,14 +1,12 @@
 import "./style.less";
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   selectIsPlaying,
   selectTrack,
-  selectTrackList,
-  setTrack,
 } from "@store/slices/player-status.slice";
 import { Track } from "@plugins/player";
-import { getMusicFile } from "../../data-transfer";
+import { getMusicFileList, getSetting } from "../../data-transfer";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
@@ -18,26 +16,21 @@ const logger = debug("Page:PlayList");
 
 export default function PlayList() {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const isPlaying = useSelector(selectIsPlaying);
   const track = useSelector(selectTrack);
-  const trackList: Track[] = useSelector(selectTrackList);
-  const [trackListMore, setTrackListMore] = React.useState<Track[]>([]);
-
-  const lists = [];
+  const [trackListFull, setTrackListFull] = React.useState<Track[]>([]);
 
   React.useEffect(() => {
-    const tmp = trackList;
-    for (const track of tmp) {
-      (async () => {
-        const meta = (await getMusicFile(track.src, ["title"])).data;
-        logger("get the music file: ", meta);
-        lists.push(meta);
-        if (tmp.length === lists.length) {
-          setTrackListMore(lists);
-        }
-      })();
-    }
+    getSetting("musicLibraryPath").then(result => {
+      if (result.code === 1) {
+        getMusicFileList(result.data).then(res => {
+          if (res.code === 1) {
+            logger("get the [full] music file list: ", res.data?.lists);
+            setTrackListFull(res.data?.lists);
+          }
+        })
+      }
+    })
   }, []);
 
   const handleDoubleClick = (
@@ -53,8 +46,8 @@ export default function PlayList() {
 
   return (
     <div className={"page page-playlist electron-no-drag perfect-scrollbar"}>
-      {trackListMore &&
-        trackListMore.map((tt: Track, idx) => {
+      {trackListFull &&
+        trackListFull.map((tt: Track, idx) => {
           const isCurrent = track.src === tt.src;
           return (
             <div

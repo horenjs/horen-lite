@@ -1,8 +1,28 @@
+.page-setting {
+  position: relative;
+}
+
+.save-progress {
+  position: absolute;
+  bottom: 12px;
+  color: #f6f6f6;
+  .save-prompt {
+    font-size: 12px;
+    overflow: hidden;
+    height: 12px;
+  }
+  .save-slider {
+    height: 4px;
+    margin: 4px 0;
+  }
+}
+
 .setting-item {
   display: flex;
   align-items: center;
   padding: 8px 0;
   max-width: 100%;
+  transition: all .3s ease-in-out;
   .item-label {
     display: inline-block;
     color: #f6f6f6;

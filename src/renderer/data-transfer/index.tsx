@@ -1,9 +1,27 @@
+import {Track} from "@plugins/player";
+
 const electron = window.require("electron");
 const { ipcRenderer } = electron;
 import { IPC_CODE } from "@constant/index";
 
+export async function saveMusicFileListMsg() {
+  return new Promise((res, rej) => {
+    try {
+      ipcRenderer.on(IPC_CODE.saveMusicFileListMsg, (evt, idx, totals, src) => {
+        res([idx, totals, src]);
+      })
+    } catch (err) {
+      rej(err);
+    }
+  })
+}
+
 export async function getMusicFileList(p: string) {
   return await ipcRenderer.invoke(IPC_CODE.getMusicFileList, p);
+}
+
+export async function saveMusicFileList(p: string, lists: Track[]) {
+  return await ipcRenderer.invoke(IPC_CODE.saveMusicFileList, p, lists);
 }
 
 export async function getMusicFile(p: string, items?: string[]) {

@@ -1,5 +1,5 @@
 import Store from "../utils/store";
-import { readMusicFileMeta } from "../utils";
+import {readMusicFileMeta} from "../utils";
 
 async function handleSaveSetting(
   evt,
@@ -34,8 +34,6 @@ async function handleGetAllSetting() {
     return { code: 0, msg: "get setting failed", err: err };
   }
 }
-
-
 
 async function handleGetMusicFile(evt, p: string, items?: string[]) {
   let meta;
