@@ -1,7 +1,9 @@
 import path from "path";
+import fs from "fs";
 import { AUDIO_EXTS } from "@constant/index";
 import { readDir, readFile, writeFile } from "../utils";
 import crypto from "crypto";
+import pack from "../../../package.json";
 
 export async function handleGetMusicFileList(evt, p: string) {
   const musicLibraryFilePath = generateMusicLibraryFilePath(p);
@@ -78,6 +80,12 @@ function generateMusicLibraryFilePath(p: string) {
   const hash = crypto.createHash("md5");
   hash.update(p);
 
-  const appPath = path.join(process.env.APPDATA, "horen-lite");
-  return path.join(appPath, `Library-${hash.digest("hex")}.json`);
+  const appPath = path.join(process.env.APPDATA, pack.name);
+  const musicLibraryPath = path.join(appPath, "MusicLibrary");
+
+  if (!fs.existsSync(musicLibraryPath)) {
+    fs.mkdirSync(musicLibraryPath);
+  }
+
+  return path.join(musicLibraryPath, `${hash.digest("hex")}.json`);
 }

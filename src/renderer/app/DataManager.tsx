@@ -86,7 +86,6 @@ export default function DataManager() {
       const res = await getMusicFile(player.track?.src);
       if (res.code === 1) {
         logger("get the music file meta success: ", res.data.src);
-        logger("set the track: ", res.data);
         dispatch(setTrack(res.data));
       } else {
         logger("get the music file meta failed, err: ", res.err);
@@ -107,9 +106,8 @@ export default function DataManager() {
     (async () => {
       const res = await getMusicFile(track?.src);
       if (res.code === 1) {
-        logger("get the music file meta success: ", res.data.src);
-        logger("set the track: ", res.data);
-        player.track = track;
+        logger("get the music file meta success: ", res.data);
+        player.track = res.data;
       } else {
         logger("get the music file meta failed, err: ", res.err);
       }

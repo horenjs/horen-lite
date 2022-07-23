@@ -57,16 +57,20 @@ export default function InitApp() {
 
   const _syncTrackList = async () => {
     const musicLibraryPath = (await getSetting("musicLibraryPath")).data;
-    const musicFileList = (await getMusicFileList(musicLibraryPath)).data.lists;
+    const musicFileList = (await getMusicFileList(musicLibraryPath)).data?.lists;
 
-    const lastIndex = (await getSetting("lastIndex")).data;
-    const lastSeek = (await getSetting("lastSeek")).data;
+    if (musicFileList?.length > 0) {
+      logger("music file list: ", musicFileList);
 
-    const musicFile = (await getMusicFile(musicFileList[lastIndex])).data;
+      const lastIndex = (await getSetting("lastIndex")).data;
+      const lastSeek = (await getSetting("lastSeek")).data;
 
-    player.load(musicFileList, lastIndex, {seek: lastSeek});
-    dispatch(setTracks(musicFileList));
-    dispatch(setTrack(musicFile));
+      const musicFile = (await getMusicFile(musicFileList[lastIndex]?.src)).data;
+
+      player.load(musicFileList, lastIndex, {seek: lastSeek});
+      dispatch(setTracks(musicFileList));
+      dispatch(setTrack(musicFile));
+    }
   };
 
   return <></>;

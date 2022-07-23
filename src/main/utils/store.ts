@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { DEFAULT_SETTING } from "../../constant";
+import pack from "../../../package.json";
 
 export default class Store {
   private readonly defaultSettingFileName = "setting.default.json";
@@ -10,7 +11,7 @@ export default class Store {
   private readonly encoding = "utf-8";
 
   constructor() {
-    const appPath = path.join(process.env.APPDATA, "horen-lite");
+    const appPath = path.join(process.env.APPDATA, pack.name, "UserData");
 
     this.defaultSettingPath = path.join(appPath, this.defaultSettingFileName);
     this.userSettingPath = path.join(appPath, this.userSettingFileName);
