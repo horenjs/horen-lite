@@ -12,6 +12,8 @@ export const IPC_CODE = {
 }
 
 export const DEFAULT_SETTING = {
+  "promptCN": "请勿修改默认设置",
+  "promptEN": "Please don't modify the default setting",
   "musicLibraryPath": "",
   "updateAt": new Date().valueOf(),
   "playMode": "random",

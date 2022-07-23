@@ -12,7 +12,7 @@ export default function App() {
     <>
       <Initialization />
       <DataManager />
-      <div className="my-app">
+      <div className="app">
         <Mask />
         <TitleBar />
         <Header />
