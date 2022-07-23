@@ -27,7 +27,7 @@ export default function DataManager() {
   React.useEffect(() => {
     const timer = setInterval(() => {
       dispatch(setSeek(player.seek));
-    }, 1000);
+    }, 500);
 
     // send progress to the status bar here
     // because the progress should update per 1 second
@@ -83,12 +83,14 @@ export default function DataManager() {
     // you don't need to set the track to the player manually
     // because it changes in its inner operation.
     (async () => {
-      const res = await getMusicFile(player.track?.src);
-      if (res.code === 1) {
-        logger("get the music file meta success: ", res.data.src);
-        dispatch(setTrack(res.data));
-      } else {
-        logger("get the music file meta failed, err: ", res.err);
+      if (player.track?.src) {
+        const res = await getMusicFile(player.track.src);
+        if (res.code === 1) {
+          logger("get the music file meta success: ", res.data.src);
+          dispatch(setTrack(res.data));
+        } else {
+          logger("get the music file meta failed, err: ", res.err);
+        }
       }
     })();
     // to-do: when the track is paused,
@@ -104,12 +106,14 @@ export default function DataManager() {
     // you don't need to set the track to the player manually
     // because it changes in its inner operation.
     (async () => {
-      const res = await getMusicFile(track?.src);
-      if (res.code === 1) {
-        logger("get the music file meta success: ", res.data);
-        player.track = res.data;
-      } else {
-        logger("get the music file meta failed, err: ", res.err);
+      if (track?.src) {
+        const res = await getMusicFile(track.src);
+        if (res.code === 1) {
+          logger("get the music file meta success: ", res.data);
+          player.track = res.data;
+        } else {
+          logger("get the music file meta failed, err: ", res.err);
+        }
       }
     })();
     // to-do: when the track is paused,

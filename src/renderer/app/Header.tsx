@@ -23,6 +23,7 @@ export default function Header() {
       icon: <MdOutlineTextFields size={24} />,
       onClick(key: string | number) {
         logger("click: ", key);
+        navi("/lyric");
       },
     },
     {

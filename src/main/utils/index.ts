@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import * as mm from "music-metadata";
 import {arrayBufferToBase64} from "./array-buf";
+import {Netease} from "./lyric-api";
 
 export function arrayBufferToBuffer(ab: ArrayBuffer) {
   const buf = new Buffer(ab.byteLength);
@@ -23,6 +24,24 @@ export async function readMusicFileMeta(filepath: string) {
 
   const { duration } = meta?.format || {};
 
+  let lyric;
+  const extname = path.extname(filepath);
+  const lrcPath = filepath.replace(extname, ".lrc");
+  try {
+    lyric = await readFile(lrcPath);
+  } catch (err) {
+    console.log("there is no local lrc file.");
+
+    const lyricApi = new Netease(title, artist);
+
+    try {
+      lyric = await lyricApi.getLyric();
+      await writeFile(lrcPath, lyric);
+    } catch (err) {
+      lyric = String(err);
+    }
+  }
+
   let finalPic;
   if (picture) {
     const data = picture[0]?.data;
@@ -41,6 +60,7 @@ export async function readMusicFileMeta(filepath: string) {
     date,
     duration,
     picture: finalPic,
+    lyric,
   };
 }
 

@@ -48,7 +48,7 @@ export default function PlayList() {
   };
 
   return (
-    <div className={"page-playlist electron-no-drag perfect-scrollbar"}>
+    <div className={"page page-playlist electron-no-drag perfect-scrollbar"}>
       {trackListMore &&
         trackListMore.map((tt: Track, idx) => {
           const isCurrent = track.src === tt.src;

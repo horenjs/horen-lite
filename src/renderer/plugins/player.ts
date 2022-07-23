@@ -19,6 +19,7 @@ type TrackType = {
   date: DateType;
   genre: string;
   picture: PictureType;
+  lyric: string;
 }
 
 export type Track = Partial<TrackType>;

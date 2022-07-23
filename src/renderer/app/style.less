@@ -53,9 +53,11 @@
   width: @width;
   height: calc(100vh - @footer-height - @title-bar-height);
   .page {
-    height: 100%;
-    width: calc(100% - 16px);
-    padding: 0 8px;
+    width: calc(100% - 40px);
+    padding: 0 20px 8px 20px;
+    height: calc(100vh - 68px - 8px);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   z-index: 1;
 }

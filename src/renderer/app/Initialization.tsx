@@ -65,8 +65,9 @@ export default function InitApp() {
       const lastIndex = (await getSetting("lastIndex")).data;
       const lastSeek = (await getSetting("lastSeek")).data;
 
-      const musicFile = (await getMusicFile(musicFileList[lastIndex]?.src)).data;
+      const src = musicFileList[lastIndex]?.src;
 
+      const musicFile = (await getMusicFile(src)).data;
       player.load(musicFileList, lastIndex, {seek: lastSeek});
       dispatch(setTracks(musicFileList));
       dispatch(setTrack(musicFile));
