@@ -10,12 +10,13 @@
 module.exports = {
   packagerConfig: {
     asar: true,
+    icon: "./public/horen-lite.ico"
   },
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        name: "",
+        name: "horen-lite",
       },
     },
     {
