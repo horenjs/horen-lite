@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import { IPC_CODE } from "../constant";
+import fs from "fs";
 import path from "path";
 // handlers
 import {
@@ -74,6 +75,11 @@ ipcMain.handle(IPC_CODE.getMusicFileList, handleGetMusicFileList);
 ipcMain.handle(
   IPC_CODE.saveMusicFileList,
   async (evt, p: string, lists: { src: string }[]) => {
+    const filepath = generateMusicLibraryFilePath(p, "-full");
+    if (fs.existsSync(filepath)) {
+      return {code: 1, msg: "full music library exists."};
+    }
+
     const metas = [];
     for (let i = 0; i < lists.length; i++) {
       mainWindow.webContents.send(
@@ -95,7 +101,7 @@ ipcMain.handle(
       ]);
       metas.push(meta);
     }
-    const filepath = generateMusicLibraryFilePath(p, "-full");
+
     try {
       await writeFile(filepath, JSON.stringify(metas, null, 2));
       return { code: 1, msg: "success" };

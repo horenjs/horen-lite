@@ -15,6 +15,8 @@ const resources = {
       "Confirm Exit": "The App will exit, confirm it?",
       "No Lyric": "There is no lyric for this song.",
       "Saving": "Saving: ",
+      "Dont Change Music Library When Saving": "Saving, No Change Music" +
+        " Library.",
     },
   },
   cn: {
@@ -29,6 +31,7 @@ const resources = {
       "Confirm Exit": "确定要退出应用吗？",
       "No Lyric": "这首歌曲没有歌词",
       "Saving": "正在保存：",
+      "Dont Change Music Library When Saving": "正在刷新音乐库，无法选择新的音乐库",
     },
   },
 };

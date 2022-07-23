@@ -18,10 +18,10 @@ const logger = debug("Page:Setting");
 export default function SettingPage() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
-  const [saveProgress, setSaveProgress] = React.useState<[number, string]>([
-    0,
-    "",
-  ]);
+  const [progressIdx, setProgressIdx] = React.useState(0);
+  const [progressSrc, setProgressSrc] = React.useState("");
+  const [totals, setTotals] = React.useState(1);
+  const [isSlider, setIsSlider] = React.useState(false);
 
   const [form, setForm] = React.useState({
     musicLibraryPath: "",
@@ -43,16 +43,14 @@ export default function SettingPage() {
   }, []);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      saveMusicFileListMsg().then((result) => {
-        logger("save progress: ", result);
-        const progress = result[0] / result[1];
-        setSaveProgress([progress, result[2]]);
-      });
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [saveProgress]);
+    saveMusicFileListMsg().then((result: [number, number, string]) => {
+      logger("save progress: ", result);
+      setProgressIdx(result[0]);
+      setProgressSrc(result[2]);
+      setTotals(result[1]);
+      setIsSlider((result[1] - result[0]) > 3);
+    });
+  }, [progressIdx]);
 
   const handleChangeLibrary = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -61,16 +59,18 @@ export default function SettingPage() {
       if (result.code === 1 && result.data[0] !== form.musicLibraryPath) {
         logger("new music library path: ", result.data[0]);
 
-        setForm({ ...form, musicLibraryPath: result.data[0] });
-
-        const res = await saveSetting("musicLibraryPath", result.data[0]);
-
-        if (res.code === 1) {
-          if (window.confirm(t("Refresh Music Library"))) {
-            // set the lastIndex and lastSeek to 0 when refresh
-            saveSetting("lastIndex", 0).then();
-            saveSetting("lastSeek", 0).then();
-            dispatch(refreshMusicLibrary());
+        if (isSlider) {
+          window.alert(t("Dont Change Music Library When Saving"));
+        } else {
+          setForm({ ...form, musicLibraryPath: result.data[0] });
+          const res = await saveSetting("musicLibraryPath", result.data[0]);
+          if (res.code === 1) {
+            if (window.confirm(t("Refresh Music Library"))) {
+              // set the lastIndex and lastSeek to 0 when refresh
+              saveSetting("lastIndex", 0).then();
+              saveSetting("lastSeek", 0).then();
+              dispatch(refreshMusicLibrary());
+            }
           }
         }
       }
@@ -118,15 +118,15 @@ export default function SettingPage() {
       <div
         className={"save-progress"}
         style={{
-          display: Math.abs(saveProgress[0] - 1) < 0.05 ? "none" : "block",
+          display: isSlider ? "block" : "none",
         }}
       >
         <span className={"save-prompt"}>
-          <span>{ t("Saving") }</span>
-          <span>{saveProgress[1]}</span>
+          <span>{t("Saving")}</span>
+          <span>{progressSrc}</span>
         </span>
         <div className={"save-slider"}>
-          <Slider percent={saveProgress[0]} />
+          <Slider percent={progressIdx / totals} />
         </div>
       </div>
     </div>
