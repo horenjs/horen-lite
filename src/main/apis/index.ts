@@ -61,10 +61,12 @@ type Album = Partial<{
   artists: Artist[],
 }>
 
-export interface SearchLyricResult {
+export interface SearchResult {
   result: {
     songs?: Song[],
     songCount?: number,
+    albums?: Album[],
+    albumCount?: number,
   },
   code: number,
 }
@@ -82,15 +84,17 @@ export interface LyricResult {
 
 export class Netease {
   private readonly searchLyricKw: string;
+  private readonly searchAlbumKw: string;
 
-  constructor(private title: string, private artist: string) {
+  constructor(private title: string, private artist: string, private album: string) {
     this.searchLyricKw = title + artist;
+    this.searchAlbumKw = album + artist;
   }
 
-  private async searchLyricResult() :Promise<SearchLyricResult> {
+  private async search(type=1) :Promise<SearchResult> {
     const data = {
-      s: this.searchLyricKw,
-      type: 1, // 1: song; 10: albums
+      s: type === 1 ? this.searchLyricKw : this.searchAlbumKw,
+      type, // 1: song; 10: albums
       offset: 0,
       total: true,
       limit: 30,
@@ -129,7 +133,7 @@ export class Netease {
   }
 
   public async getLyric() :Promise<string> {
-    const searchLyricResult = await this.searchLyricResult();
+    const searchLyricResult = await this.search();
     const songs = searchLyricResult.result?.songs;
     if (songs?.length > 0) {
       for (const song of songs) {
@@ -141,6 +145,18 @@ export class Netease {
           } catch (err) {
             throw new Error("get lyric failed.");
           }
+        }
+      }
+    }
+  }
+
+  public async getAlbumPic(): Promise<string> {
+    const resp = await this.search(10);
+    const albums = resp.result?.albums;
+    if (albums?.length > 0) {
+      for (const album of albums) {
+        if (album?.artist?.name === this.artist) {
+          return album.picUrl;
         }
       }
     }

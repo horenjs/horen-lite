@@ -137,6 +137,18 @@ export default function PageCover() {
     }
   }, [ref?.current]);
 
+  const generateCover = () => {
+    const httpPattern = /https?:\/\/.*/i;
+    const filePattern = /file:\/\/\/.*/i;
+    if (httpPattern.test(track?.picture as string)) {
+      return track?.picture as string;
+    } else if (filePattern.test(track?.picture as string)) {
+      return track?.picture as string;
+    } else {
+      return `data:image/png;base64,${track?.picture || DefaultCover}`;
+    }
+  }
+
   return (
     <div className={"page page-cover"}>
       <div
@@ -150,7 +162,7 @@ export default function PageCover() {
         <img
           className={"cover-album"}
           alt={"cover-album"}
-          src={`data:image/png;base64,${track?.picture || DefaultCover}`}
+          src={generateCover()}
           style={{ height: w }}
         />
         <img
@@ -165,6 +177,8 @@ export default function PageCover() {
       </div>
       <div className={"artist"}>
         <span>{track?.artist || track?.artists || t("No Artist")}</span>
+        <span> - </span>
+        <span>{track?.album}</span>
       </div>
       <div className={"handlers electron-no-drag"}>
         <Handler items={items} />

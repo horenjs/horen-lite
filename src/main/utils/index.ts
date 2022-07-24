@@ -1,8 +1,11 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import * as mm from "music-metadata";
 import { arrayBufferToBase64 } from "./array-buf";
-import { Netease } from "./lyric-api";
+import { Netease } from "../apis";
+import axios from "axios";
+import pack from "../../../package.json";
 
 export function arrayBufferToBuffer(ab: ArrayBuffer) {
   const buf = new Buffer(ab.byteLength);
@@ -42,15 +45,18 @@ export async function readMusicFileMeta(
   const { duration } = meta?.format || {};
 
   let lyric;
+
+
   if (items.includes("lyric")) {
     const lrcPath = filepath.replace(extname, ".lrc");
     try {
       lyric = await readFile(lrcPath);
     } catch (err) {
       console.log("there is no local lrc file.");
-      const lyricApi = new Netease(title, artist);
+
+      const neteaseApi = new Netease(title, artist, album);
       try {
-        lyric = await lyricApi.getLyric();
+        lyric = await neteaseApi.getLyric();
         if (lyric) await writeFile(lrcPath, lyric);
       } catch (err) {
         lyric = String(err);
@@ -58,13 +64,37 @@ export async function readMusicFileMeta(
     }
   }
 
+
+
   let finalPic;
   if (items.includes("picture")) {
     if (picture) {
       const data = picture[0]?.data;
       finalPic = arrayBufferToBase64(data);
     } else {
-      finalPic = null;
+      const hash = crypto.createHash("md5");
+      hash.update(artist+album);
+      const picDir = path.join(process.env.APPDATA, pack.name, "AlbumCover");
+      const picPath = path.join(picDir, `${hash.digest("hex")}.png`);
+
+      if (!fs.existsSync(picDir)) {
+        fs.mkdirSync(picDir);
+      }
+
+      if (fs.existsSync(picPath)) {
+        finalPic = "file:///" + picPath;
+      } else {
+        const neteaseApi = new Netease(title, artist, album);
+        const picUrl = await neteaseApi.getAlbumPic();
+        finalPic = picUrl;
+
+        if (picUrl) {
+          const resp = await axios.get(picUrl, {responseType: "arraybuffer"});
+          if (resp.data) {
+            await writeFile(picPath, resp.data);
+          }
+        }
+      }
     }
   }
 
@@ -82,9 +112,10 @@ export async function readMusicFileMeta(
   };
 }
 
-export async function readFile(p: string): Promise<string> {
+export async function readFile(p: string, type="string"): Promise<string> {
   return new Promise((rev, rej) => {
-    fs.readFile(p, { encoding: "utf-8" }, (err, data) => {
+    const encoding = type === "string" ? "utf-8" : null;
+    fs.readFile(p, { encoding: encoding }, (err, data) => {
       if (err) rej(err);
       else rev(data);
     });
@@ -93,7 +124,11 @@ export async function readFile(p: string): Promise<string> {
 
 export async function writeFile(p: string, data: any): Promise<string> {
   return new Promise((rev, rej) => {
-    fs.writeFile(p, data, { encoding: "utf-8" }, (err) => {
+    const opts: fs.WriteFileOptions = {};
+    if (typeof data === "string") {
+      opts.encoding = "utf-8";
+    }
+    fs.writeFile(p, data, opts, (err) => {
       if (err) rej(err);
       else rev("success");
     });
