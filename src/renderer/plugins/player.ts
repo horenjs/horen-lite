@@ -5,7 +5,7 @@ const logger = debug("Plugin:Player");
 
 export type DateType = string | number | Date;
 
-export type PictureType = string | Buffer;
+export type PictureType = string;
 
 export type PlayMode = "repeat" | "in-turn" | "random" | "in-turn-loop";
 

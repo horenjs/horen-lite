@@ -137,17 +137,7 @@ export default function PageCover() {
     }
   }, [ref?.current]);
 
-  const generateCover = () => {
-    const httpPattern = /https?:\/\/.*/i;
-    const filePattern = /file:\/\/\/.*/i;
-    if (httpPattern.test(track?.picture as string)) {
-      return track?.picture as string;
-    } else if (filePattern.test(track?.picture as string)) {
-      return track?.picture as string;
-    } else {
-      return `data:image/png;base64,${track?.picture || DefaultCover}`;
-    }
-  }
+
 
   return (
     <div className={"page page-cover"}>
@@ -162,7 +152,7 @@ export default function PageCover() {
         <img
           className={"cover-album"}
           alt={"cover-album"}
-          src={generateCover()}
+          src={generateCover(track?.picture)}
           style={{ height: w }}
         />
         <img
@@ -188,4 +178,16 @@ export default function PageCover() {
       </div>
     </div>
   );
+}
+
+export function generateCover(pic: string) {
+  const httpPattern = /https?:\/\/.*/i;
+  const filePattern = /file:\/\/\/.*/i;
+  if (httpPattern.test(pic)) {
+    return pic;
+  } else if (filePattern.test(pic)) {
+    return pic;
+  } else {
+    return `data:image/png;base64,${pic || DefaultCover}`;
+  }
 }
