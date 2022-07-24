@@ -46,7 +46,7 @@ export default function PlayList() {
 
   return (
     <div className={"page page-playlist electron-no-drag perfect-scrollbar"}>
-      {trackListFull &&
+      {trackListFull.length ?
         trackListFull.map((tt: Track, idx) => {
           const isCurrent = track.src === tt.src;
           return (
@@ -71,7 +71,8 @@ export default function PlayList() {
               </div>
             </div>
           );
-        })}
+        }) : <div className={"loading"}><Loading type={"square"}/></div>
+      }
     </div>
   );
 }

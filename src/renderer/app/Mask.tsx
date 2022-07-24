@@ -1,4 +1,3 @@
-import DefaultCover from "@static/default-cover";
 import React from "react";
 import {useSelector} from "react-redux";
 import {selectTrack} from "@store/slices/player-status.slice";

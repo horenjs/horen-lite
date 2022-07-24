@@ -1,26 +1,29 @@
 import "./style.less";
 import React from "react";
+import DanceLoading from "./dance-loading";
+import SquareLoading from "./square-loading";
+
+type LoadingType = "dance" | "square";
 
 export interface LoadingProps {
-  type?: string;
+  type?: LoadingType;
   stop?: boolean;
   scale?: number;
   color?: string;
 }
 
 export default function Loading(props: LoadingProps) {
-  const { type = "dance", stop = false, scale = 1, color = "#f1f1f1"} = props;
-  return (
-    <div
-      className={"component-loading"}
-      style={{
-        animationPlayState: stop ? "paused" : "running",
-        transform: `scale(${scale}, ${scale})`
-      }}
-    >
-      <div className={"loading-item"} style={{backgroundColor: color}}></div>
-      <div className={"loading-item"} style={{backgroundColor: color}}></div>
-      <div className={"loading-item"} style={{backgroundColor: color}}></div>
-    </div>
-  );
+  const { type = "dance", ...restProps } = props;
+  let el: React.ReactElement;
+
+  switch (type) {
+  case "dance":
+    el = <DanceLoading {...restProps} />;
+    break;
+  case "square":
+    el = <SquareLoading {...restProps} />;
+    break;
+  }
+
+  return el;
 }
