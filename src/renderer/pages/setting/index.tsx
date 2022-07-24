@@ -4,7 +4,7 @@ import {
   saveSetting,
   getAllSetting,
   openDir,
-  saveMusicFileListMsg,
+  saveAudioFileListMsg,
 } from "../../data-transfer";
 import "./style.less";
 import { useDispatch } from "react-redux";
@@ -43,7 +43,7 @@ export default function SettingPage() {
   }, []);
 
   React.useEffect(() => {
-    saveMusicFileListMsg().then((result: [number, number, string]) => {
+    saveAudioFileListMsg().then((result: [number, number, string]) => {
       logger("save progress: ", result);
       setProgressIdx(result[0]);
       setProgressSrc(result[2]);

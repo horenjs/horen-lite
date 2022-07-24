@@ -1,5 +1,4 @@
 import axios from "axios";
-import lyric from "@plugins/lyric";
 
 const NETEASE_API_URL = {
   lrc: "https://music.163.com/api/song/lyric",

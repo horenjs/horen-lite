@@ -6,7 +6,7 @@ import {
   selectPrev, selectSeek, selectTrack, setSeek, setTrack
 } from "@store/slices/player-status.slice";
 import React from "react";
-import {getMusicFile, setProgress, setTitle} from "../data-transfer";
+import {getAudioFileMeta, setProgress, setTitle} from "../data-transfer";
 import Player from "@plugins/player";
 import debug from "@plugins/debug";
 
@@ -84,7 +84,7 @@ export default function DataManager() {
     // because it changes in its inner operation.
     (async () => {
       if (player.track?.src) {
-        const res = await getMusicFile(player.track.src);
+        const res = await getAudioFileMeta(player.track.src);
         if (res.code === 1) {
           logger("get the music file meta success: ", res.data);
           dispatch(setTrack(res.data));

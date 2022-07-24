@@ -2,7 +2,7 @@ import "./style.less";
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectSeek, selectTrack } from "@store/slices/player-status.slice";
-import lyricParse from "@plugins/lyric";
+import lyricParse from "@plugins/lyric-parser";
 import { useTranslation } from "react-i18next";
 
 export default function PageLyric() {

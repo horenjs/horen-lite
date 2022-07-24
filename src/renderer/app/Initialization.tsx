@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch} from "@store/index";
 import {selectRefreshMusicLibraryTimeStamp} from "@store/slices/setting.slice";
 import React from "react";
-import {getMusicFile, getMusicFileList, getSetting, saveMusicFileList} from "../data-transfer";
+import {getAudioFileMeta, getAudioFileList, getSetting, saveAudioFileList} from "../data-transfer";
 import {
   setTracks,
   setIsPlaying,
@@ -57,7 +57,7 @@ export default function InitApp() {
 
   const _syncTrackList = async () => {
     const musicLibraryPath = (await getSetting("musicLibraryPath")).data;
-    const musicFileList = (await getMusicFileList(musicLibraryPath)).data?.lists;
+    const musicFileList = (await getAudioFileList(musicLibraryPath)).data?.lists;
 
     if (musicFileList?.length > 0) {
       logger("music file list: ", musicFileList);
@@ -67,13 +67,13 @@ export default function InitApp() {
 
       const src = musicFileList[lastIndex]?.src;
 
-      const musicFile = (await getMusicFile(src)).data;
+      const musicFile = (await getAudioFileMeta(src)).data;
       player.load(musicFileList, lastIndex, {seek: lastSeek});
       dispatch(setTracks(musicFileList));
       dispatch(setTrack(musicFile));
 
       logger("send signal to the main process to save list.")
-      const saveResult = await saveMusicFileList(musicLibraryPath, musicFileList);
+      const saveResult = await saveAudioFileList(musicLibraryPath, musicFileList);
       logger("save status: ", saveResult);
     }
   };

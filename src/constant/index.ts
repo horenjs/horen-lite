@@ -1,16 +1,15 @@
 export const IPC_CODE = {
-  getMusicFile: "get-music-file",
-  getMusicFileList: "get-music-file-list",
-  saveMusicFileList: "save-music-file-list",
+  getAudioFileMeta: "get-music-file-meta",
+  getAudioFileList: "get-music-file-list",
+  saveAudioFileList: "save-music-file-list",
+  saveAudioFileListMsg: "save-music-file-list-msg",
   saveSetting: "save-setting",
   getSetting: "get-setting",
   getAllSetting: "get-all-setting",
   openDir: "open-dir",
   setTitle: "set-title",
   setProgress: "set-progress",
-  getMusicFileListProgress: "get-music-file-list-progress",
   closeAllWindows: "close-all-windows",
-  saveMusicFileListMsg: "save-music-file-list-msg",
 }
 
 export const DEFAULT_SETTING = {

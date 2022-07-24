@@ -6,7 +6,7 @@ import {
   selectTrack,
 } from "@store/slices/player-status.slice";
 import { Track } from "@plugins/player";
-import { getMusicFileList, getSetting } from "../../data-transfer";
+import { getAudioFileList, getSetting } from "../../data-transfer";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
@@ -23,7 +23,7 @@ export default function PlayList() {
   React.useEffect(() => {
     getSetting("musicLibraryPath").then(result => {
       if (result.code === 1) {
-        getMusicFileList(result.data).then(res => {
+        getAudioFileList(result.data).then(res => {
           if (res.code === 1) {
             logger("get the [full] music file list: ", res.data?.lists);
             setTrackListFull(res.data?.lists);

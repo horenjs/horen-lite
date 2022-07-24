@@ -1,17 +1,17 @@
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
-import { IPC_CODE } from "../constant";
 import fs from "fs";
 import path from "path";
-// handlers
 import {
-  handleSaveSetting,
-  handleGetMusicFileList,
-  handleGetMusicFile,
-  handleGetSetting,
+  handleGetAudioFileList,
+  handleGetAudioFileMeta,
   handleGetAllSetting,
+  handleGetSettingItem,
+  handleSaveSetting,
+  generateLibraryFilePath,
+  readMusicFileMeta,
 } from "./handlers";
-import { readMusicFileMeta, writeFile } from "./utils";
-import { generateMusicLibraryFilePath } from "./handlers/get-music-file-list";
+import { IPC_CODE } from "../constant";
+import {writeFileAsync} from "./utils/fs-promises";
 
 const isDev = process.env["NODE_ENV"] === "development";
 
@@ -57,6 +57,13 @@ app.on("window-all-closed", function () {
     app.quit();
   }
 });
+
+/**
+ * ipc handlers
+ * some handlers need mainWindow and app instance,
+ * so you cannot move it to the another file.
+ * otherwise you should move it to a single file.
+ */
 // ipc: close all windows
 ipcMain.handle(IPC_CODE.closeAllWindows, async () => {
   mainWindow.close();
@@ -64,26 +71,26 @@ ipcMain.handle(IPC_CODE.closeAllWindows, async () => {
 // ipc: save setting
 ipcMain.handle(IPC_CODE.saveSetting, handleSaveSetting);
 // ipc: get setting
-ipcMain.handle(IPC_CODE.getSetting, handleGetSetting);
+ipcMain.handle(IPC_CODE.getSetting, handleGetSettingItem);
 // ipc: get all setting item
 ipcMain.handle(IPC_CODE.getAllSetting, handleGetAllSetting);
 // ipc: get music file
-ipcMain.handle(IPC_CODE.getMusicFile, handleGetMusicFile);
+ipcMain.handle(IPC_CODE.getAudioFileMeta, handleGetAudioFileMeta);
 // ipc: get music file list
-ipcMain.handle(IPC_CODE.getMusicFileList, handleGetMusicFileList);
+ipcMain.handle(IPC_CODE.getAudioFileList, handleGetAudioFileList);
 // ipc: save music file list
 ipcMain.handle(
-  IPC_CODE.saveMusicFileList,
+  IPC_CODE.saveAudioFileList,
   async (evt, p: string, lists: { src: string }[]) => {
-    const filepath = generateMusicLibraryFilePath(p, "-full");
+    const filepath = generateLibraryFilePath(p, "-full");
     if (fs.existsSync(filepath)) {
-      return {code: 1, msg: "full music library exists."};
+      return { code: 1, msg: "full music library exists." };
     }
 
     const metas = [];
     for (let i = 0; i < lists.length; i++) {
       mainWindow.webContents.send(
-        IPC_CODE.saveMusicFileListMsg,
+        IPC_CODE.saveAudioFileListMsg,
         i,
         lists.length,
         path.basename(lists[i].src)
@@ -103,7 +110,7 @@ ipcMain.handle(
     }
 
     try {
-      await writeFile(filepath, JSON.stringify(metas, null, 2));
+      await writeFileAsync(filepath, JSON.stringify(metas, null, 2));
       return { code: 1, msg: "success" };
     } catch (err) {
       return { code: 0, msg: "save library list full failed" };

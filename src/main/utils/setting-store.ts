@@ -3,7 +3,11 @@ import path from "path";
 import { DEFAULT_SETTING } from "../../constant";
 import pack from "../../../package.json";
 
-export default class Store {
+export type SettingValue = object | string | number | boolean;
+
+export type SettingFile = object;
+
+export default class SettingStore {
   private readonly defaultSettingFileName = "setting.default.json";
   private readonly userSettingFileName = "setting.user.json";
   private readonly defaultSettingPath: string;
@@ -43,7 +47,7 @@ export default class Store {
     }
   }
 
-  public save(item: string, value: object | string | number | boolean) {
+  public save(item: string, value: SettingValue) :SettingFile {
     let data: object = {};
 
     try {
@@ -66,7 +70,7 @@ export default class Store {
     }
   }
 
-  public get(item: string) {
+  public get(item: string) :SettingValue {
     let foundValue;
     try {
       foundValue = this.getCombineSetting()[item];
@@ -76,11 +80,11 @@ export default class Store {
     }
   }
 
-  public getAll() {
+  public getAll() :SettingValue {
     return this.getCombineSetting();
   }
 
-  private getCombineSetting() {
+  private getCombineSetting() :SettingFile {
     let defaultStr: string;
     let userStr: string;
 

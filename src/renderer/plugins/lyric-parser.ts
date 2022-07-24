@@ -8,7 +8,7 @@
  */
 const EOL = "\n";
 
-interface Lyric {
+interface LyricParser {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
   scripts: LyricScript[];
@@ -35,7 +35,7 @@ function lrcParser(data: string) {
   }
 
   const scripts: LyricScript[] = [];
-  const result: Lyric = {
+  const result: LyricParser = {
     scripts: [],
   };
 

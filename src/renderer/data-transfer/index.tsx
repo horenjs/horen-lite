@@ -4,10 +4,10 @@ const electron = window.require("electron");
 const { ipcRenderer } = electron;
 import { IPC_CODE } from "@constant/index";
 
-export async function saveMusicFileListMsg() {
+export async function saveAudioFileListMsg() {
   return new Promise((res, rej) => {
     try {
-      ipcRenderer.on(IPC_CODE.saveMusicFileListMsg, (evt, idx, totals, src) => {
+      ipcRenderer.on(IPC_CODE.saveAudioFileListMsg, (evt, idx, totals, src) => {
         res([idx, totals, src]);
       })
     } catch (err) {
@@ -16,16 +16,16 @@ export async function saveMusicFileListMsg() {
   })
 }
 
-export async function getMusicFileList(p: string) {
-  return await ipcRenderer.invoke(IPC_CODE.getMusicFileList, p);
+export async function getAudioFileList(p: string) {
+  return await ipcRenderer.invoke(IPC_CODE.getAudioFileList, p);
 }
 
-export async function saveMusicFileList(p: string, lists: Track[]) {
-  return await ipcRenderer.invoke(IPC_CODE.saveMusicFileList, p, lists);
+export async function saveAudioFileList(p: string, lists: Track[]) {
+  return await ipcRenderer.invoke(IPC_CODE.saveAudioFileList, p, lists);
 }
 
-export async function getMusicFile(p: string, items?: string[]) {
-  return await ipcRenderer.invoke(IPC_CODE.getMusicFile, p, items);
+export async function getAudioFileMeta(p: string, items?: string[]) {
+  return await ipcRenderer.invoke(IPC_CODE.getAudioFileMeta, p, items);
 }
 
 export async function closeAllWindows() {
