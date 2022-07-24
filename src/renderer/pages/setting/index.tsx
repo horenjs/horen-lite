@@ -16,7 +16,7 @@ import Slider from "@components/slider";
 const logger = debug("Page:Setting");
 
 export default function SettingPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const [progressIdx, setProgressIdx] = React.useState(0);
   const [progressSrc, setProgressSrc] = React.useState("");
@@ -26,6 +26,7 @@ export default function SettingPage() {
   const [form, setForm] = React.useState({
     musicLibraryPath: "",
     autoPlay: true,
+    language: "Chinese",
   });
 
   React.useEffect(() => {
@@ -34,8 +35,8 @@ export default function SettingPage() {
       const result = await getAllSetting();
       if (result.code === 1) {
         logger("get all setting success: ", result.data);
-        const { musicLibraryPath, autoPlay } = result.data;
-        setForm({ musicLibraryPath, autoPlay });
+        const { musicLibraryPath, autoPlay, language } = result.data;
+        setForm({ musicLibraryPath, autoPlay, language });
       } else {
         window.alert(result.err);
       }
@@ -113,6 +114,23 @@ export default function SettingPage() {
               (async () => await saveSetting("autoPlay", e.target.checked))();
             }}
           />
+        </div>
+      </div>
+      <div className={"setting-item electron-no-drag"}>
+        <div className={"item-label"}>{t("Choose Language")}</div>
+        <div className={"item-content"}>
+          <select
+            id={"lang-change-select"}
+            onChange={e => {
+              const value = e.target.value;
+              setForm({...form, language: value});
+              i18n.changeLanguage(value).then();
+              saveSetting("language", value).then();
+            }}
+          >
+            <option value={"cn"}>中文</option>
+            <option value={"en"}>English</option>
+          </select>
         </div>
       </div>
       <div
