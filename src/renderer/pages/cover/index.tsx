@@ -7,6 +7,8 @@ import {
   RiShuffleLine,
   RiRepeatOneFill,
   RiOrderPlayLine,
+  RiHeart3Line,
+  RiHeart3Fill
 } from "react-icons/ri";
 import { CgPlayTrackPrevO, CgPlayTrackNextO } from "react-icons/cg";
 import { FiPlay } from "react-icons/fi";
@@ -29,7 +31,7 @@ import DefaultCover from "@static/default-cover";
 import "./style.less";
 import { PlayMode } from "@plugins/player";
 import debug from "@plugins/debug";
-import { saveSetting } from "../../data-transfer";
+import { saveSetting, getFavorites, addFavorite, removeFavorite } from "../../data-transfer";
 
 const logger = debug("Page:Cover");
 
@@ -124,6 +126,8 @@ export default function PageCover() {
 
   const [items, setItems] = React.useState(handlerItems);
   const [w, setW] = React.useState(0);
+  const [favorites, setFavorites] = React.useState();
+  const [isFavorite, setIsFavorite] = React.useState(false);
   const ref: any = React.useRef();
 
   React.useEffect(() => {
@@ -137,7 +141,14 @@ export default function PageCover() {
     }
   }, [ref?.current]);
 
-
+  React.useEffect(() => {
+    getFavorites().then(res => {
+      if (res.code === 1) {
+        setFavorites(res.data.lists);
+        setIsFavorite(favoritesIncludes(res.data.lists, track));
+      }
+    })
+  }, [track?.src]);
 
   return (
     <div className={"page page-cover"}>
@@ -162,8 +173,22 @@ export default function PageCover() {
           style={{ height: w }}
         />
       </div>
-      <div className={"title"}>
+      <div className={"title electron-no-drag"}>
         <span>{track?.title || t("No Title")}</span>
+        <span className={"add-to-favorite"} onClick={e => {
+          e.preventDefault();
+          if (!isFavorite) {
+            addFavorite(track?.src).then();
+            setIsFavorite(true);
+          } else {
+            removeFavorite(track?.src).then(res => {
+              console.log(res);
+            });
+            setIsFavorite(false);
+          }
+        }}>
+          {isFavorite ? <RiHeart3Fill fill={"#e32c2c"} /> : <RiHeart3Line />}
+        </span>
       </div>
       <div className={"artist"}>
         <span>{track?.artist || track?.artists || t("No Artist")}</span>
@@ -178,6 +203,15 @@ export default function PageCover() {
       </div>
     </div>
   );
+}
+
+function favoritesIncludes(arr: any[], favo: any) {
+  if (arr) {
+    for (const a of arr) {
+      if (a?.src === favo?.src) return true;
+    }
+  }
+  return false;
 }
 
 export function generateCover(pic: string) {

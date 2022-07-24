@@ -1,3 +1,8 @@
+import pack from "../../package.json";
+import path from "path";
+
+export const APP_DATA_PATH = path.join(process.env.APPDATA, pack.name);
+
 export const IPC_CODE = {
   getAudioFileMeta: "get-music-file-meta",
   getAudioFileList: "get-music-file-list",
@@ -10,6 +15,9 @@ export const IPC_CODE = {
   setTitle: "set-title",
   setProgress: "set-progress",
   closeAllWindows: "close-all-windows",
+  getFavorites: "get-favorites",
+  addFavorite: "add-favorite",
+  remoteFavorite: "remove-favorite",
 }
 
 export const DEFAULT_SETTING = {

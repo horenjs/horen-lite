@@ -4,6 +4,18 @@ const electron = window.require("electron");
 const { ipcRenderer } = electron;
 import { IPC_CODE } from "@constant/index";
 
+export async function addFavorite(src: string) {
+  return await ipcRenderer.invoke(IPC_CODE.addFavorite, src);
+}
+
+export async function getFavorites() {
+  return await ipcRenderer.invoke(IPC_CODE.getFavorites);
+}
+
+export async function removeFavorite(src: string) {
+  return await ipcRenderer.invoke(IPC_CODE.remoteFavorite, src);
+}
+
 export async function saveAudioFileListMsg() {
   return new Promise((res, rej) => {
     try {

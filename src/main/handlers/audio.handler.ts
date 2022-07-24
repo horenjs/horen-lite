@@ -1,14 +1,19 @@
 import path from "path";
 import fs from "fs";
-import { AUDIO_EXTS } from "@constant/index";
+import * as fse from "fs-extra";
+import { AUDIO_EXTS, APP_DATA_PATH } from "@constant/index";
 import crypto from "crypto";
 import pack from "../../../package.json";
 import * as mm from "music-metadata";
 import { Netease } from "../apis";
 import axios from "axios";
 import { HandlerResponse } from "./index";
-import {walksAsync, readFileAsync, writeFileAsync} from "../utils/fs-promises";
-import {arrayBufferToBase64} from "../utils";
+import {
+  walksAsync,
+  readFileAsync,
+  writeFileAsync,
+} from "../utils/fs-promises";
+import { arrayBufferToBase64 } from "../utils";
 
 type AudioMeta = Partial<{
   src: string;
@@ -22,6 +27,17 @@ type AudioMeta = Partial<{
   picture: string;
   lyric: string;
 }>;
+
+type Favorites = {
+  updateAt: string | number;
+  lists: Array<
+    AudioMeta & {
+      addAt: string | number;
+    }
+  >;
+};
+
+const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");
 
 async function handleGetAudioFileMeta(
   evt,
@@ -84,6 +100,90 @@ async function handleGetAudioFileList(evt, p: string) {
     data: { lists },
   };
 }
+
+async function handleGetFavorites(): Promise<HandlerResponse<Favorites>> {
+  const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
+  try {
+    await fse.ensureDir(USER_DATA_PATH);
+  } catch (err) {
+    console.log("cannot make path: ", USER_DATA_PATH);
+  }
+  try {
+    const jsonStr = await fse.readJSON(favoritesFilePath, {
+      encoding: "utf-8",
+    });
+    return { code: 1, msg: "success", data: jsonStr };
+  } catch (err) {
+    return { code: 0, msg: "get favorites failed", err: err };
+  }
+}
+
+async function handleAddFavorite(
+  evt,
+  src: string
+): Promise<HandlerResponse<any>> {
+  const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
+  let data: Favorites;
+  try {
+    data = await fse.readJSON(favoritesFilePath, { encoding: "utf-8" });
+  } catch (err) {
+    console.log("there is no favorites file, create it.");
+    data = {
+      updateAt: new Date().valueOf(),
+      lists: [],
+    };
+    await fse.writeJSON(favoritesFilePath, data, {
+      encoding: "utf-8",
+      spaces: 2,
+    });
+  }
+
+  const meta = await readMusicFileMeta(src, ["title", "src", "artist"]);
+  const favorite = { ...meta, addAt: new Date().valueOf() };
+  data.lists.push(favorite);
+  try {
+    await fse.writeJSON(favoritesFilePath, data, {
+      encoding: "utf-8",
+      spaces: 2,
+    });
+    return { code: 1, msg: "add favorite failed", data: data };
+  } catch (err) {
+    console.log("add favorite failed.");
+    return { code: 0, msg: "add favorite failed" };
+  }
+}
+
+async function handleRemoveFavorite(
+  evt,
+  src: string
+): Promise<HandlerResponse<any>> {
+  const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
+  let data: Favorites;
+  try {
+    data = await fse.readJSON(favoritesFilePath, { encoding: "utf-8" });
+  } catch (err) {
+    console.log("there is no favorites file, create it.");
+    return { code: 0, msg: "no favorites" };
+  }
+
+  for (let i = 0; i < data.lists.length; i++) {
+    const item = data.lists[i];
+    if (item?.src === src) {
+      data.lists.splice(i, 1);
+    }
+  }
+
+  data.updateAt = new Date().valueOf();
+
+  try {
+    await fse.writeJSON(favoritesFilePath, data, {encoding:"utf-8", spaces:2});
+    return { code: 1, msg: "remove success", data: data };
+  } catch (err) {
+    return { code: 0, msg: "remove failed" };
+  }
+}
+
+// tools function
 
 function filterAudioFile(originFileList: string[]) {
   const tmp = [];
@@ -240,4 +340,7 @@ export {
   handleGetAudioFileMeta,
   readMusicFileMeta,
   generateLibraryFilePath,
+  handleGetFavorites,
+  handleAddFavorite,
+  handleRemoveFavorite,
 };

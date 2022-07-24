@@ -9,6 +9,9 @@ import {
   handleSaveSetting,
   generateLibraryFilePath,
   readMusicFileMeta,
+  handleGetFavorites,
+  handleAddFavorite,
+  handleRemoveFavorite,
 } from "./handlers";
 import { IPC_CODE } from "../constant";
 import {writeFileAsync} from "./utils/fs-promises";
@@ -117,6 +120,10 @@ ipcMain.handle(
     }
   }
 );
+// ipc: get the favorites
+ipcMain.handle(IPC_CODE.getFavorites, handleGetFavorites);
+ipcMain.handle(IPC_CODE.addFavorite, handleAddFavorite);
+ipcMain.handle(IPC_CODE.remoteFavorite, handleRemoveFavorite);
 // ipc: set the main window title
 ipcMain.handle(IPC_CODE.setTitle, async (evt, title: string) => {
   mainWindow.setTitle(title);

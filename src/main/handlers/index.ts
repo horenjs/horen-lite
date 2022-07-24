@@ -8,6 +8,9 @@ export {
   handleGetAudioFileMeta,
   generateLibraryFilePath,
   readMusicFileMeta,
+  handleGetFavorites,
+  handleAddFavorite,
+  handleRemoveFavorite,
 } from "./audio.handler";
 
 export type HandlerResponseCode =
