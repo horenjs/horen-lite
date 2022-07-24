@@ -74,10 +74,24 @@ async function statAsync(p: string): Promise<fs.Stats> {
   });
 }
 
+async function existAsync(p: string) :Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    try {
+      fs.stat(p, (err, stats) => {
+        if (err) reject(err);
+        else resolve(true);
+      })
+    } catch (err) {
+      reject(err);
+    }
+  })
+}
+
 export {
   readdirAsync,
   walksAsync,
   readFileAsync,
   writeFileAsync,
   statAsync,
+  existAsync,
 }
