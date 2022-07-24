@@ -1,4 +1,5 @@
 import axios from "axios";
+import { simplized } from "../utils";
 
 const NETEASE_API_URL = {
   lrc: "https://music.163.com/api/song/lyric",
@@ -20,54 +21,54 @@ type Song = Partial<{
   fee: number;
   rUrl: string | null;
   mark: number;
-}>
+}>;
 
 type Artist = Partial<{
-  name: string,
-  id: number,
-  picId: number,
-  img1v1id: number,
-  picUrl: string,
-  img1v1Url: string,
-  albumSize: number,
-  alias: string[],
-  trans: string,
-  musicSize: number,
-  picId_str: string,
+  name: string;
+  id: number;
+  picId: number;
+  img1v1id: number;
+  picUrl: string;
+  img1v1Url: string;
+  albumSize: number;
+  alias: string[];
+  trans: string;
+  musicSize: number;
+  picId_str: string;
 }>;
 
 type Album = Partial<{
-  name: string,
-  id: number,
-  type: string,
-  size: number,
-  picId: number,
-  blurPicUrl: string,
-  companyId: number,
-  pic: number,
-  picUrl: string,
-  publishTime: number, // linux time stamp
-  description: string,
-  tags: string,
-  company: string,
-  briefDesc: string,
-  artist: Artist,
-  songs: [],
-  alias: string[],
-  status: number,
-  copyrightId: number,
-  commentThreadId: string,
-  artists: Artist[],
-}>
+  name: string;
+  id: number;
+  type: string;
+  size: number;
+  picId: number;
+  blurPicUrl: string;
+  companyId: number;
+  pic: number;
+  picUrl: string;
+  publishTime: number; // linux time stamp
+  description: string;
+  tags: string;
+  company: string;
+  briefDesc: string;
+  artist: Artist;
+  songs: [];
+  alias: string[];
+  status: number;
+  copyrightId: number;
+  commentThreadId: string;
+  artists: Artist[];
+}>;
 
 export interface SearchResult {
   result: {
-    songs?: Song[],
-    songCount?: number,
-    albums?: Album[],
-    albumCount?: number,
-  },
-  code: number,
+    songs?: Song[];
+    songCount?: number;
+    albums?: Album[];
+    albumCount?: number;
+  };
+  code: number;
 }
 
 export interface LyricResult {
@@ -77,7 +78,7 @@ export interface LyricResult {
   lrc: {
     version: number;
     lyric: string;
-  },
+  };
   code: number;
 }
 
@@ -85,12 +86,19 @@ export class Netease {
   private readonly searchLyricKw: string;
   private readonly searchAlbumKw: string;
 
-  constructor(private title: string, private artist: string, private album: string) {
-    this.searchLyricKw = title + artist;
-    this.searchAlbumKw = album + artist;
+  constructor(
+    private readonly title: string,
+    private readonly artist: string,
+    private readonly album: string
+  ) {
+    this.title = simplized(title);
+    this.artist = simplized(artist);
+    this.album = simplized(album);
+    this.searchLyricKw = this.title + this.artist;
+    this.searchAlbumKw = this.album + this.artist;
   }
 
-  private async search(type=1) :Promise<SearchResult> {
+  private async search(type = 1): Promise<SearchResult> {
     const data = {
       s: type === 1 ? this.searchLyricKw : this.searchAlbumKw,
       type, // 1: song; 10: albums
@@ -99,7 +107,7 @@ export class Netease {
       limit: 30,
     };
     try {
-      const res = await axios.get(NETEASE_API_URL.search, {params: data});
+      const res = await axios.get(NETEASE_API_URL.search, { params: data });
       if (res.status === 200) {
         if (typeof res.data === "string") {
           return JSON.parse(res.data);
@@ -112,13 +120,13 @@ export class Netease {
     }
   }
 
-  private static async getLyricResult(uid: number) :Promise<LyricResult> {
+  private static async getLyricResult(uid: number): Promise<LyricResult> {
     const data = {
       id: uid,
       lv: -1,
     };
     try {
-      const res = await axios.get(NETEASE_API_URL.lrc, {params: data});
+      const res = await axios.get(NETEASE_API_URL.lrc, { params: data });
       if (res.status === 200) {
         if (typeof res.data === "string") {
           return JSON.parse(res.data);
@@ -131,7 +139,7 @@ export class Netease {
     }
   }
 
-  public async getLyric() :Promise<string> {
+  public async getLyric(): Promise<string> {
     const searchLyricResult = await this.search();
     const songs = searchLyricResult.result?.songs;
     if (songs?.length > 0) {
