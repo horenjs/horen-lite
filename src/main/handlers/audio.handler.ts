@@ -303,7 +303,7 @@ async function readMusicFileMeta(
       }
 
       if (fs.existsSync(picPath)) {
-        finalPic = "file:///" + picPath;
+        finalPic = "file:///" + picPath.replace(/\\/g, "/");
       } else {
         const neteaseApi = new Netease(title, artist, album);
         const picUrl = await neteaseApi.getAlbumPic();
