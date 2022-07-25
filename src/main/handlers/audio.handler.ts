@@ -14,6 +14,9 @@ import {
   writeFileAsync,
 } from "../utils/fs-promises";
 import { arrayBufferToBase64 } from "../utils";
+import Logger from "../utils/logger";
+
+const log = new Logger("audio-handlers");
 
 type AudioMeta = Partial<{
   src: string;
@@ -54,6 +57,7 @@ async function handleGetAudioFileMeta(
 }
 
 async function handleGetAudioFileList(evt, p: string) {
+  log.debug("Try to get audio file list from library file: ", p);
   const audioFileListFull = await getAudioFileListFromLibraryFile(p, "full");
 
   if (audioFileListFull.length > 0) {
