@@ -1,13 +1,17 @@
 import fs from "fs";
-import chalk from "chalk";
+import fse from "fs-extra";
+import path from "path";
+import * as Chalk from "chalk";
+import Dato from "./dato";
 
 export interface LoggerConfig {
-  logLevel: string;
-  dateFormat: string | false;
-  filePath: string | null;
+  logLevel?: string;
+  dateFormat?: string | false;
+  filePath?: string | null;
 }
 
 export default class Logger {
+  private _chalk;
   private _defaultConfig: LoggerConfig = {
     logLevel: "DEBUG",
     dateFormat: "YYYY-MM-DD",
@@ -16,6 +20,7 @@ export default class Logger {
 
   constructor(private logName: string, private config?: LoggerConfig) {
     this.config = { ...this._defaultConfig, ...config };
+    this._chalk = new Chalk.Instance({level: 3});
   }
 
   public log(msg: string, cMsg: string) {
@@ -33,10 +38,11 @@ export default class Logger {
       cMsg + "\n"
     ].join(" ");
 
-    process.stderr.write(toWrite);
+    process.stderr.write(toWriteColor);
 
     if (this.config.filePath) {
-      fs.appendFile(this.config.filePath, toWriteColor, (err) => {
+      fse.ensureDir(path.dirname(this.config.filePath)).then();
+      fs.appendFile(this.config.filePath, toWrite, (err) => {
         if (err)
           throw new Error(
             "cannot write log msg to the file: " + this.config.filePath
@@ -49,7 +55,7 @@ export default class Logger {
     if (this.config.dateFormat === false) {
       return "";
     }
-    return new Date().toLocaleDateString();
+    return Dato.now("YYYY-MM-DD HH:mm:SS.sss");
   }
 
   public debug(...msg) {
@@ -61,28 +67,28 @@ export default class Logger {
   public info(...msg) {
     this.config.logLevel = "INFO";
     const m = msg.join("");
-    const cm = chalk.cyan(m);
+    const cm = this._chalk.cyan(m);
     this.log(m, cm);
   }
 
   public warning(...msg) {
     this.config.logLevel = "WARNING";
     const m = msg.join("");
-    const cm = chalk.yellow(m);
+    const cm = this._chalk.yellow(m);
     this.log(m, cm);
   }
 
   public error(...msg) {
     this.config.logLevel = "ERROR";
     const m = msg.join("");
-    const cm = chalk.red(m);
+    const cm = this._chalk.red(m);
     this.log(m, cm);
   }
 
   public critic(...msg) {
     this.config.logLevel = "CRITIC";
     const m = msg.join("");
-    const cm = chalk.bgRed(m);
+    const cm = this._chalk.bgRed(m);
     this.log(m, cm);
   }
 }

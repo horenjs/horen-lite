@@ -13,8 +13,14 @@ import {
   handleAddFavorite,
   handleRemoveFavorite,
 } from "./handlers";
-import { IPC_CODE } from "../constant";
+import {APP_DATA_PATH, IPC_CODE} from "../constant";
 import {writeFileAsync} from "./utils/fs-promises";
+import Logger from "./utils/logger";
+import Dato from "./utils/dato";
+
+const log = new Logger("main-index", {
+  filePath: path.join(APP_DATA_PATH, "logs", `${Dato.now("YYYY-MM-DD")}.log`),
+});
 
 const isDev = process.env["NODE_ENV"] === "development";
 
@@ -86,10 +92,13 @@ ipcMain.handle(
   IPC_CODE.saveAudioFileList,
   async (evt, p: string, lists: { src: string }[]) => {
     const filepath = generateLibraryFilePath(p, "-full");
+    log.debug("try to save audio file list to the library");
     if (fs.existsSync(filepath)) {
+      log.warning("full music library exists.");
       return { code: 1, msg: "full music library exists." };
     }
 
+    log.info("try to get the audio meta for all.");
     const metas = [];
     for (let i = 0; i < lists.length; i++) {
       mainWindow.webContents.send(
@@ -113,9 +122,11 @@ ipcMain.handle(
     }
 
     try {
+      log.info("try to save library.");
       await writeFileAsync(filepath, JSON.stringify(metas, null, 2));
       return { code: 1, msg: "success" };
     } catch (err) {
+      log.error("save library list full failed");
       return { code: 0, msg: "save library list full failed" };
     }
   }

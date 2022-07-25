@@ -15,14 +15,11 @@ import {
 } from "../utils/fs-promises";
 import { arrayBufferToBase64 } from "../utils";
 import Logger from "../utils/logger";
+import Dato from "../utils/dato";
 
-const log = new Logger("audio-handlers");
-
-log.debug("debug");
-log.info("info");
-log.warning("warning");
-log.error("error");
-log.critic("critic");
+const log = new Logger("audio-handlers", {
+  filePath: path.join(APP_DATA_PATH, "logs", `${Dato.now("YYYY-MM-DD")}.log`),
+});
 
 type AudioMeta = Partial<{
   src: string;
@@ -50,34 +47,40 @@ const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");
 
 async function handleGetAudioFileMeta(
   evt,
-  p: string,
+  src: string,
   items?: string[]
 ): Promise<HandlerResponse<AudioMeta>> {
   let meta: AudioMeta;
   if (items) {
-    meta = await readMusicFileMeta(p, items);
+    log.debug("try to get audio meta, src: ", src, ", items: ", ...items);
+    meta = await readMusicFileMeta(src, items);
   } else {
-    meta = await readMusicFileMeta(p);
+    log.debug("try to get audio meta, src: ", src);
+    meta = await readMusicFileMeta(src);
   }
   return { code: 1, msg: "success", data: meta };
 }
 
 async function handleGetAudioFileList(evt, p: string) {
-  log.debug("Try to get audio file list from library file: ", p);
+  log.debug("try to get audio file list from full library file: ", p);
   const audioFileListFull = await getAudioFileListFromLibraryFile(p, "full");
 
   if (audioFileListFull.length > 0) {
+    log.debug("get file list from the full library file success, length: ", audioFileListFull.length);
     return {
       code: 1,
       msg: "success",
       data: { lists: audioFileListFull },
     };
   } else {
+    log.debug("get file list from the full library file failed.");
+    log.debug("try to get audio list from the short library file.");
     const audioFileListShort = await getAudioFileListFromLibraryFile(
       p,
       "short"
     );
     if (audioFileListShort.length > 0) {
+      log.debug("get file list from the short library file success, length: ", audioFileListShort.length);
       return {
         code: 1,
         msg: "success",
@@ -86,9 +89,11 @@ async function handleGetAudioFileList(evt, p: string) {
     }
   }
   // if library file doesn't exist, rebuild it.
+  log.debug("library file doesn't exist, rebuild it.");
   const originFileList = await getOriginFileList(p);
 
   if (originFileList.length === 0) {
+    log.debug("rebuild from the path: ", p, " failed.");
     return {
       code: 0,
       msg: "failed",
@@ -96,12 +101,15 @@ async function handleGetAudioFileList(evt, p: string) {
     };
   }
 
+  log.debug("filter the audio file from origin file list.");
   const lists = filterAudioFile(originFileList);
   // save to the library file.
   try {
-    await writeFileAsync(p, JSON.stringify(lists, null, 2));
+    log.debug("try to save the audio file list to the file.");
+    await writeFileAsync(generateLibraryFilePath(p), JSON.stringify(lists, null, 2));
   } catch (err) {
-    console.error("save the library file failed.");
+    log.error("save the library file failed.");
+    log.error(err);
   }
 
   return {
@@ -114,16 +122,19 @@ async function handleGetAudioFileList(evt, p: string) {
 async function handleGetFavorites(): Promise<HandlerResponse<Favorites>> {
   const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
   try {
+    log.debug("ensure the favorite dir: ", favoritesFilePath);
     await fse.ensureDir(USER_DATA_PATH);
   } catch (err) {
-    console.log("cannot make path: ", USER_DATA_PATH);
+    log.error("cannot make path: ", USER_DATA_PATH);
   }
   try {
+    log.debug("try to get the favorites from existed file.");
     const jsonStr = await fse.readJSON(favoritesFilePath, {
       encoding: "utf-8",
     });
     return { code: 1, msg: "success", data: jsonStr };
   } catch (err) {
+    log.error("get the favorites from file failed.");
     return { code: 0, msg: "get favorites failed", err: err };
   }
 }
@@ -135,13 +146,15 @@ async function handleAddFavorite(
   const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
   let data: Favorites;
   try {
+    log.debug("try to get the favorites from existed file: ", favoritesFilePath);
     data = await fse.readJSON(favoritesFilePath, { encoding: "utf-8" });
   } catch (err) {
-    console.log("there is no favorites file, create it.");
+    log.debug("there is no favorites file, create it.");
     data = {
       updateAt: new Date().valueOf(),
       lists: [],
     };
+    log.debug("try to write new favorites to the file.");
     await fse.writeJSON(favoritesFilePath, data, {
       encoding: "utf-8",
       spaces: 2,
@@ -152,13 +165,14 @@ async function handleAddFavorite(
   const favorite = { ...meta, addAt: new Date().valueOf() };
   data.lists.push(favorite);
   try {
+    log.debug("try to write the favorites to the file.");
     await fse.writeJSON(favoritesFilePath, data, {
       encoding: "utf-8",
       spaces: 2,
     });
-    return { code: 1, msg: "add favorite failed", data: data };
+    return { code: 1, msg: "add favorite success", data: data };
   } catch (err) {
-    console.log("add favorite failed.");
+    log.error("add favorite failed.");
     return { code: 0, msg: "add favorite failed" };
   }
 }
@@ -167,12 +181,13 @@ async function handleRemoveFavorite(
   evt,
   src: string
 ): Promise<HandlerResponse<any>> {
+  log.warning("try to remove the favorite item: ", src);
   const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
   let data: Favorites;
   try {
     data = await fse.readJSON(favoritesFilePath, { encoding: "utf-8" });
   } catch (err) {
-    console.log("there is no favorites file, create it.");
+    log.warning("there is no favorites file, create it.");
     return { code: 0, msg: "no favorites" };
   }
 
@@ -186,7 +201,10 @@ async function handleRemoveFavorite(
   data.updateAt = new Date().valueOf();
 
   try {
-    await fse.writeJSON(favoritesFilePath, data, {encoding:"utf-8", spaces:2});
+    await fse.writeJSON(favoritesFilePath, data, {
+      encoding: "utf-8",
+      spaces: 2,
+    });
     return { code: 1, msg: "remove success", data: data };
   } catch (err) {
     return { code: 0, msg: "remove failed" };
@@ -264,6 +282,7 @@ async function readMusicFileMeta(
   ]
 ): Promise<AudioMeta> {
   let meta;
+  log.info("try to get the audio meta.");
 
   try {
     meta = await mm.parseFile(filepath);
@@ -281,17 +300,20 @@ async function readMusicFileMeta(
 
   let lyric: string;
   if (items.includes("lyric")) {
+    log.debug("include lyric, try to get it.");
     const lrcPath = filepath.replace(extname, ".lrc");
     try {
       lyric = await readFileAsync(lrcPath);
     } catch (err) {
-      console.log("there is no local lrc file.");
+      log.warning("there is no local lrc file, try to get from internet.");
 
       const neteaseApi = new Netease(title, artist, album);
       try {
         lyric = await neteaseApi.getLyric();
+        log.info("get the lyric from internet success, save it to file.");
         if (lyric) await writeFileAsync(lrcPath, lyric);
       } catch (err) {
+        log.error("get the lyric from internet failed.");
         lyric = String(err);
       }
     }
@@ -299,6 +321,7 @@ async function readMusicFileMeta(
 
   let finalPic: string;
   if (items.includes("picture")) {
+    log.debug("include picture, try to get it.");
     if (picture) {
       const data = picture[0]?.data;
       finalPic = arrayBufferToBase64(data);
