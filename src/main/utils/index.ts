@@ -126,6 +126,7 @@ export function traditionalized(cc: string) {
 }
 
 export function simplized(cc: string) {
+  if (!cc) return cc;
   let str = "";
   for (let i = 0; i < cc.length; i++) {
     if (ftPYStr().indexOf(cc.charAt(i)) != -1)

@@ -14,13 +14,14 @@ const webpackDevServer = require('webpack-dev-server');
 const prodConfig = require('./webpack/webpack.prod');
 const devConfig = require('./webpack/webpack.dev');
 const mainConfig = require('./webpack/main.webpack');
+const electron = require("electron");
 
 const NODE_ENV = process.env.NODE_ENV;
 
 console.log(`NODE_ENV is ${NODE_ENV}.`);
 
 const IS_DEV = NODE_ENV === 'development';
-const distMainPath = "./dist/main.js";
+const distMainPath = ["./dist/main.js"];
 
 if (IS_DEV) {
   const compiler = webpack(devConfig);
@@ -90,10 +91,30 @@ function runServer(compiler, opts, callback) {
  */
 function runElectron(args) {
   const cmds = ["electron", args]
-
+  const eletronPath = path.resolve("./node_modules/electron/dist/electron.exe");
+  /*
   proc.exec(cmds.join(" "), (err) => {
     if (err) {
       console.log(err);
     }
+  }); */
+  const child = proc.spawn(eletronPath, args, { stdio: 'inherit', windowsHide: false });
+  child.on('close', function (code, signal) {
+    if (code === null) {
+      console.error(electron, 'exited with signal', signal);
+      process.exit(1);
+    }
+    process.exit(code);
   });
+  const handleTerminationSignal = function (signal) {
+    process.on(signal, function signalHandler () {
+      if (!child.killed) {
+        child.kill(signal);
+      }
+    });
+  };
+
+  handleTerminationSignal('SIGINT');
+  handleTerminationSignal('SIGTERM');
 }
+
