@@ -18,6 +18,12 @@ import Logger from "../utils/logger";
 
 const log = new Logger("audio-handlers");
 
+log.debug("debug");
+log.info("info");
+log.warning("warning");
+log.error("error");
+log.critic("critic");
+
 type AudioMeta = Partial<{
   src: string;
   title: string;

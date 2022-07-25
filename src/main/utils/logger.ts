@@ -1,4 +1,5 @@
 import fs from "fs";
+import chalk from "chalk";
 
 export interface LoggerConfig {
   logLevel: string;
@@ -17,16 +18,25 @@ export default class Logger {
     this.config = { ...this._defaultConfig, ...config };
   }
 
-  public log(msg: string) {
+  public log(msg: string, cMsg: string) {
     const toWrite = [
       this.getDate(),
       `[${this.config.logLevel}]`,
       `<${this.logName}>`,
       msg + "\n",
-    ].join(" ")
+    ].join(" ");
+
+    const toWriteColor = [
+      this.getDate(),
+      `[${this.config.logLevel}]`,
+      `<${this.logName}>`,
+      cMsg + "\n"
+    ].join(" ");
+
     process.stderr.write(toWrite);
+
     if (this.config.filePath) {
-      fs.appendFile(this.config.filePath, toWrite, (err) => {
+      fs.appendFile(this.config.filePath, toWriteColor, (err) => {
         if (err)
           throw new Error(
             "cannot write log msg to the file: " + this.config.filePath
@@ -39,31 +49,40 @@ export default class Logger {
     if (this.config.dateFormat === false) {
       return "";
     }
-    return new Date().valueOf();
+    return new Date().toLocaleDateString();
   }
 
   public debug(...msg) {
     this.config.logLevel = "DEBUG";
-    this.log(msg.join(""));
+    const m = msg.join("");
+    this.log(m, m);
   }
 
   public info(...msg) {
     this.config.logLevel = "INFO";
-    this.log(msg.join(""));
+    const m = msg.join("");
+    const cm = chalk.cyan(m);
+    this.log(m, cm);
   }
 
   public warning(...msg) {
     this.config.logLevel = "WARNING";
-    this.log(msg.join(""));
+    const m = msg.join("");
+    const cm = chalk.yellow(m);
+    this.log(m, cm);
   }
 
   public error(...msg) {
     this.config.logLevel = "ERROR";
-    this.log(msg.join(""));
+    const m = msg.join("");
+    const cm = chalk.red(m);
+    this.log(m, cm);
   }
 
   public critic(...msg) {
     this.config.logLevel = "CRITIC";
-    this.log(msg.join(""));
+    const m = msg.join("");
+    const cm = chalk.bgRed(m);
+    this.log(m, cm);
   }
 }
