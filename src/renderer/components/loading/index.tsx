@@ -13,12 +13,12 @@ export interface LoadingProps {
 }
 
 export default function Loading(props: LoadingProps) {
-  const { type = "dance", ...restProps } = props;
+  const { type = "dance", color="#f1f1f1", ...restProps } = props;
   let el: React.ReactElement;
 
   switch (type) {
   case "dance":
-    el = <DanceLoading {...restProps} />;
+    el = <DanceLoading color={color} {...restProps} />;
     break;
   case "square":
     el = <SquareLoading {...restProps} />;

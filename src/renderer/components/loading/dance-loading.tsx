@@ -10,7 +10,7 @@ export default function DanceLoading(props: LoadingProps) {
       className={"component-loading dance-loading"}
       style={{
         animationPlayState: stop ? "paused" : "running",
-        transform: `scale(${scale}, ${scale})`
+        transform: `scale(${scale}, ${scale})`,
       }}
     >
       <div className={"loading-item"} style={{backgroundColor: color}}></div>

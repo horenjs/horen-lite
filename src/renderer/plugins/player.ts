@@ -237,8 +237,9 @@ export default class Player {
       const i = randomInt(0, length - 1);
       // 如果随机到的数与当前正在播放的相差在 1 位以内
       // 则重新进行随机以制造出伪随机的效果
-      if (Math.abs(i - index) < 2) this._skipTo(flag, index, length);
-      else this.track = this.trackList[i];
+      if (Math.abs(i - index) < 2 && this._trackList.length > 5) {
+        this._skipTo(flag, index, length);
+      } else this.track = this.trackList[i];
       break;
     }
     }

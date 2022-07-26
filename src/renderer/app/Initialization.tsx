@@ -1,12 +1,13 @@
 // i18n
 import "@i18n";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import {AppDispatch} from "@store/index";
 import React from "react";
-import {getSetting} from "../data";
+import {getSetting, getAudioFileMeta} from "../data";
 import {
+  setCurrent,
   setIsPlaying,
-  setPlayMode,
+  setPlayMode, setQueue,
 } from "@store/slices/player-status.slice";
 import {player} from "./DataManager";
 import debug from "@plugins/debug";
@@ -19,6 +20,7 @@ export default function InitApp() {
   React.useEffect(() => {
     _syncAutoPlay().then();
     _syncPlayMode().then();
+    _syncQueue().then();
   }, []);
 
   const _syncAutoPlay = async () => {
@@ -38,6 +40,31 @@ export default function InitApp() {
       dispatch(setPlayMode(res.data));
     }
   };
+
+  const _syncQueue = async () => {
+    const res = await getSetting("queue");
+    const lastIdx = (await getSetting("lastIndex")).data;
+
+    const lastSeek = (await getSetting("lastSeek")).data;
+
+    if (res.code === 1) {
+      logger("get the setting-> queue success: ", res.data);
+      const queue = res.data;
+      if (queue.length > 0) {
+        const newQueue = [];
+        for (const q of queue) {
+          const resp = await getAudioFileMeta(q?.src, ["title", "src"]);
+          console.log(resp);
+          if (resp.code === 1) newQueue.push(resp.data);
+        }
+        if (newQueue.length > 0) {
+          dispatch(setQueue(newQueue));
+          dispatch(setCurrent(newQueue[lastIdx]));
+          player.seek = lastSeek;
+        }
+      }
+    }
+  }
 
   return <></>;
 }
