@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch} from "@store/index";
 import {selectRefreshMusicLibraryTimeStamp} from "@store/slices/setting.slice";
 import React from "react";
-import {getAudioFileMeta, getAudioFileList, getSetting, saveAudioFileList} from "../data-transfer";
+import {getAudioFileMeta, getAudioFileList, getSetting, saveAudioFileList} from "../data";
 import {
   setTracks,
   setIsPlaying,

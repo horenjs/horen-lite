@@ -13,7 +13,7 @@ const { htmlPlugin } = require('./plugins');
 const srcPath = path.join(__dirname, '../src/renderer');
 
 module.exports = {
-  target: "electron-renderer",
+  target: "web",
   entry: {
     app: path.join(srcPath, 'index.tsx')
   },

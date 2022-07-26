@@ -31,7 +31,7 @@ import DefaultCover from "@static/default-cover";
 import "./style.less";
 import { PlayMode } from "@plugins/player";
 import debug from "@plugins/debug";
-import { saveSetting, getFavorites, addFavorite, removeFavorite } from "../../data-transfer";
+import { saveSetting, getFavorites, addFavorite, removeFavorite } from "../../data";
 
 const logger = debug("Page:Cover");
 

@@ -17,11 +17,12 @@ module.exports = {
   mode: process.env.NODE_ENV,
   devtool: "inline-source-map",
   entry: {
-    main: path.join(__dirname, "../src/main/index.ts")
+    main: path.join(__dirname, "../src/main/index.ts"),
+    preload: path.join(__dirname, "../src/preload/index.js"),
   },
   output: {
     path: path.join(__dirname, "../dist"),
-    filename: "main.js",
+    filename: "[name].js",
     clean: true,
   },
   resolve: {

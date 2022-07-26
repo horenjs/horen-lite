@@ -6,7 +6,7 @@ import {
   selectPrev, selectSeek, selectTrack, setSeek, setTrack
 } from "@store/slices/player-status.slice";
 import React from "react";
-import {getAudioFileMeta, setProgress, setTitle} from "../data-transfer";
+import {getAudioFileMeta, setProgress, setTitle} from "../data";
 import Player from "@plugins/player";
 import debug from "@plugins/debug";
 

@@ -6,7 +6,7 @@ import {
   selectTrack,
 } from "@store/slices/player-status.slice";
 import { Track } from "@plugins/player";
-import { getAudioFileList, getSetting } from "../../data-transfer";
+import { getAudioFileList, getSetting } from "../../data";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";

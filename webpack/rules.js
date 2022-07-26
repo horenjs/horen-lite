@@ -50,7 +50,7 @@ function jsRules(includePath) {
 
 function babelTsLoader(p) {
   return {
-    test: /\.ts$/,
+    test: /\.ts?$/,
     include: p,
     use: {
       loader: 'babel-loader',

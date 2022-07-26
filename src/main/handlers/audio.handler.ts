@@ -34,7 +34,7 @@ type AudioMeta = Partial<{
   lyric: string;
 }>;
 
-type Favorites = {
+export type Favorites = {
   updateAt: string | number;
   lists: Array<
     AudioMeta & {

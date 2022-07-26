@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
   <head>
     <meta charset="utf-8" />
     <title>Horen lite</title>
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // when you set the contextIsolation [in main process] to true,
+      // you need set the global like below.
+      window.global = window;
+    </script>
   </body>
 </html>

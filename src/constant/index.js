@@ -1,9 +1,10 @@
-import pack from "../../package.json";
-import path from "path";
+/* eslint-disable */
+const pack = require("../../package.json");
+const path = require("path");
 
-export const APP_DATA_PATH = path.join(process.env.APPDATA, pack.name);
+const APP_DATA_PATH = path.join(process.env.APPDATA, pack.name);
 
-export const IPC_CODE = {
+const IPC_CODE = {
   getAudioFileMeta: "get-music-file-meta",
   getAudioFileList: "get-music-file-list",
   saveAudioFileList: "save-music-file-list",
@@ -20,7 +21,7 @@ export const IPC_CODE = {
   remoteFavorite: "remove-favorite",
 }
 
-export const DEFAULT_SETTING = {
+const DEFAULT_SETTING = {
   "promptCN": "请勿修改默认设置",
   "promptEN": "Please don't modify the default setting",
   "musicLibraryPath": "",
@@ -32,7 +33,7 @@ export const DEFAULT_SETTING = {
 /**
  * 可以解析的音频文件格式
  */
-export const AUDIO_EXTS = [
+const AUDIO_EXTS = [
   "aiff",
   "aac",
   "ape",
@@ -58,3 +59,11 @@ export const AUDIO_EXTS = [
   "wv",
   "wma",
 ];
+
+// eslint-disable-next-line no-undef
+module.exports = {
+  IPC_CODE,
+  DEFAULT_SETTING,
+  AUDIO_EXTS,
+  APP_DATA_PATH,
+}

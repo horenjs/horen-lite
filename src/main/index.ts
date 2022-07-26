@@ -35,8 +35,9 @@ function createWindow() {
     movable: true,
     transparent: true,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false, // this config make react use electron.
+      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: false,
+      contextIsolation: true, // this config make react use electron.
       webSecurity: false,
     },
   });
