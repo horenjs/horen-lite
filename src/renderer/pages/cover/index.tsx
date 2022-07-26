@@ -152,6 +152,9 @@ export default function PageCover() {
 
   return (
     <div className={"page page-cover"}>
+      <div className={"album"}>
+        <span>{track?.album}</span>
+      </div>
       <div
         className={"cover"}
         ref={ref}
@@ -192,9 +195,8 @@ export default function PageCover() {
       </div>
       <div className={"artist"}>
         <span>{track?.artist || track?.artists || t("No Artist")}</span>
-        <span> - </span>
-        <span>{track?.album}</span>
       </div>
+
       <div className={"handlers electron-no-drag"}>
         <Handler items={items} />
       </div>

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@constant": ["./src/constant"],
       "@constant/*": ["./src/constant/*"],
       "@components/*": ["./src/renderer/components/*"],
       "@i18n/*": ["./src/renderer/i18n/*"],

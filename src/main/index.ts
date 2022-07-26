@@ -123,8 +123,8 @@ ipcMain.handle(
     }
 
     try {
-      log.info("try to save library.");
       await writeFileAsync(filepath, JSON.stringify(metas, null, 2));
+      log.info("save the audio library success: ", filepath);
       return { code: 1, msg: "success" };
     } catch (err) {
       log.error("save library list full failed");
@@ -146,12 +146,15 @@ ipcMain.handle(IPC_CODE.setProgress, async (evt, progress: number) => {
 });
 // ipc: open dir
 ipcMain.handle(IPC_CODE.openDir, async () => {
+  log.debug("to open dialog [dir]");
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openDirectory"],
   });
   if (result.filePaths.length) {
+    log.debug("open dir success: ", result.filePaths);
     return { code: 1, msg: "open dir success.", data: result.filePaths };
   } else {
+    log.error("open dir failed.");
     return { code: 0, msg: "open dir failed." };
   }
 });

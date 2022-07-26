@@ -3,7 +3,7 @@ import { HandlerResponse } from "./index";
 import { SettingValue } from "../utils/setting-store";
 import Logger from "../utils/logger";
 import path from "path";
-import {APP_DATA_PATH} from "@constant/index";
+import {APP_DATA_PATH} from "@constant";
 import Dato from "../utils/dato";
 
 const log = new Logger("setting-handlers", {

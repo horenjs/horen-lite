@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import * as fse from "fs-extra";
-import { AUDIO_EXTS, APP_DATA_PATH } from "@constant/index";
+import { AUDIO_EXTS, APP_DATA_PATH } from "@constant";
 import crypto from "crypto";
 import pack from "../../../package.json";
 import * as mm from "music-metadata";
@@ -164,12 +164,13 @@ async function handleAddFavorite(
   const meta = await readMusicFileMeta(src, ["title", "src", "artist"]);
   const favorite = { ...meta, addAt: new Date().valueOf() };
   data.lists.push(favorite);
+  log.debug("try to write the favorites to the file.");
   try {
-    log.debug("try to write the favorites to the file.");
     await fse.writeJSON(favoritesFilePath, data, {
       encoding: "utf-8",
       spaces: 2,
     });
+    log.info("add favorite success: ", src);
     return { code: 1, msg: "add favorite success", data: data };
   } catch (err) {
     log.error("add favorite failed.");

@@ -5,10 +5,23 @@
   position: relative;
 }
 
+.album {
+  margin-top: 20px;
+  width: 100%;
+  height: 20px;
+  text-align: center;
+  span {
+    color: #797979;
+    display: inline-block;
+    font-size: .8rem;
+    overflow: hidden;
+  }
+}
+
 .cover {
   height: 60%;
   width: 60%;
-  margin: 20px auto;
+  margin: 0 auto 8px auto;
   position: relative;
   animation: spin_animate 16s linear infinite;
   img {
@@ -52,13 +65,16 @@
 }
 
 .artist {
+  width: 100%;
   height: 24px;
   font-size: .8rem;
-  color: #d5d5d5;
+  color: #acacac;
   user-select: none;
+  text-align: center;
 }
 
 .handlers {
+  margin-bottom: 20px;
   width: 100%;
   height: 32px;
   display: flex;

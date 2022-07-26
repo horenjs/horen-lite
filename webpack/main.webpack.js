@@ -27,10 +27,9 @@ module.exports = {
   },
   resolve: {
     alias: {
-      "@": path.join(__dirname, "../src/main"),
-      "@constant": path.join(__dirname, "../src/constant"),
+      "@constant": path.join(__dirname, "../src/constant/index"),
     },
-    extensions: [".ts"],
+    extensions: [".ts", ".js"],
   },
   module: {
     rules: [

@@ -121,6 +121,7 @@ export default function SettingPage() {
         <div className={"item-content"}>
           <select
             id={"lang-change-select"}
+            value={form.language}
             onChange={e => {
               const value = e.target.value;
               setForm({...form, language: value});
