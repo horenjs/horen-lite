@@ -2,7 +2,7 @@ import Footer from "@components/footer";
 import React from "react";
 import {MdOutlineFavoriteBorder, MdOutlineTextFields} from "react-icons/md";
 import {BsMusicNoteList} from "react-icons/bs";
-import {BiAlbum} from "react-icons/bi";
+import {MdFormatListBulleted} from "react-icons/md";
 import Loading from "@components/loading";
 import {RiSettingsLine} from "react-icons/ri";
 import {useNavigate} from "react-router-dom";
@@ -27,20 +27,12 @@ export default function Header() {
       },
     },
     {
-      key: "playlist",
-      title: "Play List",
+      key: "Queue",
+      title: "Play Queue",
       icon: <BsMusicNoteList size={22} />,
       onClick: function (key: string | number) {
         logger("click: ", key);
-        navi("/playlist");
-      },
-    },
-    {
-      key: "albums",
-      title: "Albums",
-      icon: <BiAlbum size={25} />,
-      onClick: function (key: string | number) {
-        logger("click: ", key);
+        navi("/queue");
       },
     },
     {
@@ -50,6 +42,15 @@ export default function Header() {
       onClick: function (key: string | number) {
         logger("click: ", key);
         navi("/");
+      },
+    },
+    {
+      key: "audio-list",
+      title: "Audios",
+      icon: <MdFormatListBulleted size={25} />,
+      onClick: function (key: string | number) {
+        logger("click: ", key);
+        navi("/audios");
       },
     },
     {

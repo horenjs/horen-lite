@@ -1,16 +1,16 @@
 import React from "react";
 import {useSelector} from "react-redux";
-import {selectTrack} from "@store/slices/player-status.slice";
+import {selectCurrent} from "@store/slices/player-status.slice";
 import {generateCover} from "@pages/cover";
 
 export default function Mask() {
-  const track = useSelector(selectTrack);
+  const current = useSelector(selectCurrent);
 
   return (
     <div
       className={"app-mask electron-drag"}
       style={{
-        backgroundImage: `url(${generateCover(track?.picture)})`,
+        backgroundImage: `url(${generateCover(current?.picture)})`,
       }}
     ></div>
   )

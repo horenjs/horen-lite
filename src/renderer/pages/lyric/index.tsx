@@ -1,13 +1,13 @@
 import "./style.less";
 import React from "react";
 import { useSelector } from "react-redux";
-import { selectSeek, selectTrack } from "@store/slices/player-status.slice";
+import { selectSeek, selectCurrent } from "@store/slices/player-status.slice";
 import lyricParse from "@plugins/lyric-parser";
 import { useTranslation } from "react-i18next";
 
 export default function PageLyric() {
   const { t } = useTranslation();
-  const track = useSelector(selectTrack);
+  const current = useSelector(selectCurrent);
   const seek = useSelector(selectSeek);
 
   const [top, setTop] = React.useState(0);
@@ -23,8 +23,8 @@ export default function PageLyric() {
         style={{ transform: `translateY(${-top}px)` }}
       >
         <div className={"spacer"}></div>
-        {track?.lyric && lyricParse(track?.lyric).scripts.length ?
-          lyricParse(track?.lyric).scripts.map((lyric, idx) => {
+        {current?.lyric && lyricParse(current?.lyric).scripts.length ?
+          lyricParse(current?.lyric).scripts.map((lyric, idx) => {
             const hit = isHit(seek, lyric.start, lyric.end);
             const color = hit ? "#71b15f" : "#a2a2a2";
             const size = hit ? 18 : 13;

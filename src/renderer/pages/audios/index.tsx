@@ -1,23 +1,24 @@
 import "./style.less";
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   selectIsPlaying,
-  selectTrack,
+  selectCurrent,
+  setCurrent, setQueue,
 } from "@store/slices/player-status.slice";
 import { Track } from "@plugins/player";
 import { getAudioFileList, getSetting } from "../../data";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
-import {player} from "../../app/DataManager";
 
-const logger = debug("Page:PlayList");
+const logger = debug("Page:Audios");
 
 export default function PlayList() {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const isPlaying = useSelector(selectIsPlaying);
-  const track = useSelector(selectTrack);
+  const current = useSelector(selectCurrent);
   const [trackListFull, setTrackListFull] = React.useState<Track[]>([]);
 
   React.useEffect(() => {
@@ -37,18 +38,15 @@ export default function PlayList() {
     e: React.MouseEvent<HTMLDivElement>,
     src: string
   ) => {
-    // e.preventDefault();
-    logger("double click: ", src);
-    // dispatch(setTrack({ src }));
     logger("to play the select track: ", src);
-    player.track = {src};
+    dispatch(setCurrent({src}));
   };
 
   return (
     <div className={"page page-playlist electron-no-drag perfect-scrollbar"}>
       {trackListFull.length ?
         trackListFull.map((tt: Track, idx) => {
-          const isCurrent = track.src === tt.src;
+          const isCurrent = current.src === tt.src;
           return (
             <div
               className={"playlist-item"}

@@ -4,8 +4,8 @@ import { closeAllWindows, saveSetting } from "../data";
 import { useSelector } from "react-redux";
 import {
   selectSeek,
-  selectTrack,
-  selectTrackList
+  selectCurrent,
+  selectQueue
 } from "@store/slices/player-status.slice";
 import {Track} from "@plugins/player";
 import debug from "@plugins/debug";
@@ -16,8 +16,8 @@ const logger = debug("App:TitleBar");
 export default function TitleBar() {
   const { t } = useTranslation();
   const seek = useSelector(selectSeek);
-  const track = useSelector(selectTrack);
-  const trackList = useSelector(selectTrackList);
+  const current = useSelector(selectCurrent);
+  const trackList = useSelector(selectQueue);
 
   const indexOf = (items: Track[], item: Track) => {
     for (let i = 0; i < items.length; i++) {
@@ -35,9 +35,9 @@ export default function TitleBar() {
         (async () => {
           saveSetting("lastSeek", seek).then();
 
-          const lastIdx = indexOf(trackList, track);
+          const lastIdx = indexOf(trackList, current);
           logger("track list: ", trackList);
-          logger("track: ", track);
+          logger("track: ", current);
           logger("save the last index to setting:", lastIdx);
           saveSetting("lastIndex", lastIdx).then();
 

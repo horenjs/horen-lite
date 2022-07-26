@@ -1,12 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
 import { PlayMode, Track } from "@plugins/player";
+import {act} from "react-dom/test-utils";
 
 export const playerStatusSlice = createSlice({
   name: "player-status",
   initialState: {
-    trackList: [] as Track[],
-    track: {} as Track,
+    queue: [] as Track[],
+    current: {} as Track,
+    audioList: [] as Track[],
     seek: 0,
     volume: 0,
     prev: 0,
@@ -21,14 +23,20 @@ export const playerStatusSlice = createSlice({
     setNext: (state) => {
       state.next = new Date().valueOf();
     },
-    addTracks: (state, action: PayloadAction<Track[]>) => {
-      state.trackList = state.trackList.concat(action.payload);
+    setAudioList: (state, action: PayloadAction<Track[]>) => {
+      state.audioList = action.payload;
     },
-    setTracks: (state, action: PayloadAction<Track[]>) => {
-      state.trackList = action.payload;
+    addToAudioList: (state, action: PayloadAction<Track[]>) => {
+      state.audioList = state.audioList.concat(action.payload);
     },
-    setTrack: (state, action: PayloadAction<Track>) => {
-      state.track = action.payload;
+    addToQueue: (state, action: PayloadAction<Track[]>) => {
+      state.queue = Array.from(new Set([...state.queue, ...action.payload]));
+    },
+    setQueue: (state, action: PayloadAction<Track[]>) => {
+      state.queue = action.payload;
+    },
+    setCurrent: (state, action: PayloadAction<Track>) => {
+      state.current = action.payload;
     },
     setSeek: (state, action: PayloadAction<number>) => {
       state.seek = action.payload;
@@ -45,18 +53,22 @@ export const playerStatusSlice = createSlice({
 export const {
   setPrev,
   setNext,
-  addTracks,
-  setTracks,
-  setTrack,
+  addToQueue,
+  setQueue,
+  setAudioList,
+  setCurrent,
   setSeek,
   setIsPlaying,
   setPlayMode,
 } = playerStatusSlice.actions;
 
-export const selectTrackList = (state: RootState) =>
-  state.playerStatus.trackList;
+export const selectAudioList = (state: RootState) =>
+  state.playerStatus.audioList;
 
-export const selectTrack = (state: RootState) => state.playerStatus.track;
+export const selectQueue = (state: RootState) =>
+  state.playerStatus.queue;
+
+export const selectCurrent = (state: RootState) => state.playerStatus.current;
 
 export const selectSeek = (state: RootState) => state.playerStatus.seek;
 

@@ -2,13 +2,29 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch} from "@store/index";
 import {
   selectIsPlaying,
-  selectNext, selectPlayMode,
-  selectPrev, selectSeek, selectTrack, setSeek, setTrack
+  selectNext,
+  selectPlayMode,
+  selectPrev,
+  selectSeek,
+  selectCurrent,
+  setSeek,
+  setCurrent,
+  setAudioList,
+  addToQueue,
+  selectQueue
 } from "@store/slices/player-status.slice";
 import React from "react";
-import {getAudioFileMeta, setProgress, setTitle} from "../data";
+import {
+  getAudioFileList,
+  getAudioFileMeta,
+  getSetting, saveAudioFileList,
+  setProgress,
+  setTitle,
+  saveSetting,
+} from "../data";
 import Player from "@plugins/player";
 import debug from "@plugins/debug";
+import {selectRefreshMusicLibraryTimeStamp} from "@store/slices/setting.slice";
 
 const logger = debug("App:DataManager");
 
@@ -19,9 +35,13 @@ export default function DataManager() {
   const seek = useSelector(selectSeek);
   const prev = useSelector(selectPrev);
   const next = useSelector(selectNext);
-  const track = useSelector(selectTrack);
+  const current = useSelector(selectCurrent);
+  const queue = useSelector(selectQueue);
   const isPlaying = useSelector(selectIsPlaying);
   const playMode = useSelector(selectPlayMode);
+  const refreshMusicLibraryTimeStamp = useSelector(
+    selectRefreshMusicLibraryTimeStamp
+  );
 
   // 每隔一秒刷新一次播放进度
   React.useEffect(() => {
@@ -31,13 +51,20 @@ export default function DataManager() {
 
     // send progress to the status bar here
     // because the progress should update per 1 second
-    setProgress(seek / track?.duration).then();
+    setProgress(seek / current?.duration).then();
 
     // set the title to the progress bar here
-    setTitle(`${track?.title} - ${track?.artist}`).then();
+    setTitle(`${current?.title} - ${current?.artist}`).then();
 
     return () => clearInterval(timer);
   }, [seek]);
+
+  // 通过生成新的时间戳来指示歌曲库的变动
+  // 这是一种取巧的方式，利用了 useEffect 这个 hook 的特性
+  React.useEffect(() => {
+    _refreshLibrary().then();
+    logger("refresh library, timestamp: ", refreshMusicLibraryTimeStamp);
+  }, [refreshMusicLibraryTimeStamp]);
 
   // 下一首
   React.useEffect(() => {
@@ -74,28 +101,44 @@ export default function DataManager() {
     player.playMode = playMode;
   }, [playMode]);
 
-  // 音频变化时，从数据交换中心获取新的音频信息
-  // 并写入到 store 和 player
-  // 判断方式：音频地址的变化
   React.useEffect(() => {
-    // if track src is changed, get the music file meta via ipc channel
-    // and set the track to the store.
-    // you don't need to set the track to the player manually
-    // because it changes in its inner operation.
-    (async () => {
-      if (player.track?.src) {
-        const res = await getAudioFileMeta(player.track.src);
-        if (res.code === 1) {
-          logger("get the music file meta success: ", res.data);
-          dispatch(setTrack(res.data));
-        } else {
-          logger("get the music file meta failed, err: ", res.err);
-        }
+    player.trackList = queue;
+    saveSetting("queue", queue.map(q => ({src: q.src}))).then();
+  }, [queue?.length]);
+
+  React.useEffect(() => {
+    player.track = current;
+
+    if (current?.src) {
+      let exists = false;
+
+      for (const q of queue) {
+        if (q.src === current.src) exists = true;
       }
-    })();
-    // to-do: when the track is paused,
-    // the track src only react while click the prev or next button twice.
-  }, [player.track?.src]);
+
+      getAudioFileMeta(current.src).then(res => {
+        if (res.code === 1) {
+          console.log(res.data);
+          dispatch(setCurrent(res.data));
+          if (!exists) dispatch(addToQueue([res.data]));
+        }
+      })
+    }
+  }, [current?.src]);
+
+  const _refreshLibrary = async () => {
+    const musicLibraryPath = (await getSetting("musicLibraryPath")).data;
+    const musicFileList = (await getAudioFileList(musicLibraryPath)).data?.lists;
+
+    if (musicFileList?.length > 0) {
+      logger("audio list: ", musicFileList);
+      dispatch(setAudioList(musicFileList));
+
+      logger("send signal to the main process to save list.")
+      const saveResult = await saveAudioFileList(musicLibraryPath, musicFileList);
+      logger("save status: ", saveResult);
+    }
+  };
 
   return <></>;
 }

@@ -22,7 +22,7 @@ import {
   setPlayMode,
   setIsPlaying,
   selectIsPlaying,
-  selectTrack,
+  selectCurrent,
   selectSeek,
   selectPlayMode,
 } from "@store/slices/player-status.slice";
@@ -38,13 +38,14 @@ const logger = debug("Page:Cover");
 export default function PageCover() {
   const { t } = useTranslation();
   const seek = useSelector(selectSeek);
-  const track = useSelector(selectTrack);
+  const current = useSelector(selectCurrent);
   const isPlaying = useSelector(selectIsPlaying);
   const playMode = useSelector(selectPlayMode);
+
   const dispatch = useDispatch<AppDispatch>();
 
   const percent = Number(
-    (track?.duration ? seek / track?.duration : 0).toFixed(3)
+    (current?.duration ? seek / current?.duration : 0).toFixed(3)
   );
 
   const renderIcon = (m: PlayMode) => {
@@ -145,15 +146,15 @@ export default function PageCover() {
     getFavorites().then(res => {
       if (res.code === 1) {
         setFavorites(res.data.lists);
-        setIsFavorite(favoritesIncludes(res.data.lists, track));
+        setIsFavorite(favoritesIncludes(res.data.lists, current));
       }
     })
-  }, [track?.src]);
+  }, [current?.src]);
 
   return (
     <div className={"page page-cover"}>
       <div className={"album"}>
-        <span>{track?.album}</span>
+        <span>{current?.album}</span>
       </div>
       <div
         className={"cover"}
@@ -166,7 +167,7 @@ export default function PageCover() {
         <img
           className={"cover-album"}
           alt={"cover-album"}
-          src={generateCover(track?.picture)}
+          src={generateCover(current?.picture)}
           style={{ height: w }}
         />
         <img
@@ -177,14 +178,14 @@ export default function PageCover() {
         />
       </div>
       <div className={"title electron-no-drag"}>
-        <span>{track?.title || t("No Title")}</span>
+        <span>{current?.title || t("No Title")}</span>
         <span className={"add-to-favorite"} onClick={e => {
           e.preventDefault();
           if (!isFavorite) {
-            addFavorite(track?.src).then();
+            addFavorite(current?.src).then();
             setIsFavorite(true);
           } else {
-            removeFavorite(track?.src).then(res => {
+            removeFavorite(current?.src).then(res => {
               console.log(res);
             });
             setIsFavorite(false);
@@ -194,7 +195,7 @@ export default function PageCover() {
         </span>
       </div>
       <div className={"artist"}>
-        <span>{track?.artist || track?.artists || t("No Artist")}</span>
+        <span>{current?.artist || current?.artists || t("No Artist")}</span>
       </div>
 
       <div className={"handlers electron-no-drag"}>

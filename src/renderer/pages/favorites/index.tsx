@@ -5,12 +5,12 @@ import { Favorite } from "../../../main/handlers/audio.handler";
 import { RiHeart3Fill } from "react-icons/ri";
 import Loading from "@components/loading";
 import { useSelector } from "react-redux";
-import { selectTrack, selectIsPlaying } from "@store/slices/player-status.slice";
+import { selectCurrent, selectIsPlaying } from "@store/slices/player-status.slice";
 import {player} from "../../app/DataManager";
 import {Track} from "@plugins/player";
 
 export default function PageFavorites() {
-  const track = useSelector(selectTrack);
+  const current = useSelector(selectCurrent);
   const isPlaying = useSelector(selectIsPlaying);
   const [favorites, setFavorites] = React.useState<Favorite[]>([]);
 
@@ -30,7 +30,7 @@ export default function PageFavorites() {
           return (
             <div className={"favorite-item"} key={src || idx}>
               <span className={"is-playing"}>
-                {track?.src === src && (
+                {current?.src === src && (
                   <Loading type={"dance"} stop={!isPlaying} />
                 )}
               </span>
