@@ -207,7 +207,7 @@ export default function PageCover() {
   );
 }
 
-function favoritesIncludes(arr: any[], favo: any) {
+export function favoritesIncludes(arr: any[], favo: any) {
   if (arr) {
     for (const a of arr) {
       if (a?.src === favo?.src) return true;

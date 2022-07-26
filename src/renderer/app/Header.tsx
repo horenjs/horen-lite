@@ -53,11 +53,12 @@ export default function Header() {
       },
     },
     {
-      key: "favorite",
-      title: "Favorite",
+      key: "favorites",
+      title: "Favorites",
       icon: <MdOutlineFavoriteBorder size={26} />,
       onClick(key: string | number) {
         logger("click: ", key);
+        navi("favorites");
       },
     },
     {

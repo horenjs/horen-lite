@@ -34,13 +34,11 @@ type AudioMeta = Partial<{
   lyric: string;
 }>;
 
+export type Favorite = AudioMeta & { addAt: string | number; }
+
 export type Favorites = {
   updateAt: string | number;
-  lists: Array<
-    AudioMeta & {
-      addAt: string | number;
-    }
-  >;
+  lists: Favorite[];
 };
 
 const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");

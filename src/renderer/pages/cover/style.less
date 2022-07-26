@@ -3,90 +3,89 @@
   justify-content: center;
   flex-wrap: wrap;
   position: relative;
-}
-
-.album {
-  margin-top: 20px;
-  width: 100%;
-  height: 20px;
-  text-align: center;
-  span {
-    color: #797979;
-    display: inline-block;
-    font-size: .8rem;
-    overflow: hidden;
-  }
-}
-
-.cover {
-  height: 60%;
-  width: 60%;
-  margin: 0 auto 8px auto;
-  position: relative;
-  animation: spin_animate 16s linear infinite;
-  img {
+  .album {
+    margin-top: 20px;
     width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    &.cover-album {
-      border-radius: 50%;
+    height: 20px;
+    text-align: center;
+    span {
+      color: #797979;
+      display: inline-block;
+      font-size: .8rem;
+      overflow: hidden;
     }
   }
-}
 
-@keyframes spin_animate {
-  from {
-    transform: rotate(0deg);
+  .cover {
+    height: 60%;
+    width: 60%;
+    margin: 0 auto 8px auto;
+    position: relative;
+    animation: spin_animate 16s linear infinite;
+    img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      &.cover-album {
+        border-radius: 50%;
+      }
+    }
   }
-  to {
-    transform: rotate(360deg);
-  }
-}
 
-.title {
-  width: 100%;
-  height: 32px;
-  text-align: center;
-  color: #f6f6f6;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  .add-to-favorite {
-    cursor: pointer;
-    width: 32px;
+  @keyframes spin_animate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .title {
+    width: 100%;
     height: 32px;
+    text-align: center;
+    color: #f6f6f6;
+    font-size: 1.2rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    .add-to-favorite {
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
-}
 
-.artist {
-  width: 100%;
-  height: 24px;
-  font-size: .8rem;
-  color: #acacac;
-  user-select: none;
-  text-align: center;
-}
+  .artist {
+    width: 100%;
+    height: 24px;
+    font-size: .8rem;
+    color: #acacac;
+    user-select: none;
+    text-align: center;
+  }
 
-.handlers {
-  margin-bottom: 20px;
-  width: 100%;
-  height: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #f6f6f6 !important;
-}
+  .handlers {
+    margin-bottom: 20px;
+    width: 100%;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #f6f6f6 !important;
+  }
 
-.progress {
-  width: 300px;
-  height: 4px;
-  position: absolute;
-  left: 0;
-  bottom: 0;
+  .progress {
+    width: 300px;
+    height: 4px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+  }
 }
