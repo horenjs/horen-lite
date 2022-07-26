@@ -1,14 +1,15 @@
 import "./style.less";
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   selectIsPlaying,
-  selectCurrent, selectQueue, setCurrent
+  selectCurrent, selectQueue
 } from "@store/slices/player-status.slice";
 import { Track } from "@plugins/player";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
+import {player} from "../../app/DataManager";
 
 const logger = debug("Page:PlayList");
 
@@ -17,7 +18,6 @@ export default function PlayQueue() {
   const isPlaying = useSelector(selectIsPlaying);
   const current = useSelector(selectCurrent);
   const queue = useSelector(selectQueue);
-  const dispatch = useDispatch();
 
   const handleDoubleClick = (
     e: React.MouseEvent<HTMLDivElement>,
@@ -27,7 +27,7 @@ export default function PlayQueue() {
     logger("double click: ", src);
     // dispatch(setTrack({ src }));
     logger("to play the select track: ", src);
-    dispatch(setCurrent({src}));
+    player.track = {src};
   };
 
   return (

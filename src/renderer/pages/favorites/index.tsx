@@ -4,16 +4,14 @@ import { getFavorites, removeFavorite } from "../../data";
 import { Favorite } from "../../../main/handlers/audio.handler";
 import { RiHeart3Fill } from "react-icons/ri";
 import Loading from "@components/loading";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   selectCurrent,
   selectIsPlaying,
-  setCurrent,
 } from "@store/slices/player-status.slice";
-import { Track } from "@plugins/player";
+import {player} from "../../app/DataManager";
 
 export default function PageFavorites() {
-  const dispatch = useDispatch();
   const current = useSelector(selectCurrent);
   const isPlaying = useSelector(selectIsPlaying);
   const [favorites, setFavorites] = React.useState<Favorite[]>([]);
@@ -50,7 +48,7 @@ export default function PageFavorites() {
                   }}
                   onDoubleClick={(e) => {
                     e.preventDefault();
-                    dispatch(setCurrent({ src }));
+                    player.track = {src};
                   }}
                 >
                   {title}

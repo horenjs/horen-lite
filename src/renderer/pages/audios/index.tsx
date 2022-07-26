@@ -4,19 +4,18 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   selectIsPlaying,
   selectCurrent,
-  setCurrent, setQueue,
 } from "@store/slices/player-status.slice";
 import { Track } from "@plugins/player";
 import { getAudioFileList, getSetting } from "../../data";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
+import { player } from "../../app/DataManager";
 
 const logger = debug("Page:Audios");
 
 export default function PlayList() {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const isPlaying = useSelector(selectIsPlaying);
   const current = useSelector(selectCurrent);
   const [trackListFull, setTrackListFull] = React.useState<Track[]>([]);
@@ -39,7 +38,7 @@ export default function PlayList() {
     src: string
   ) => {
     logger("to play the select track: ", src);
-    dispatch(setCurrent({src}));
+    player.track = {src};
   };
 
   return (

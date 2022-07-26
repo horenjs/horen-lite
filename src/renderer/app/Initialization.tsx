@@ -59,7 +59,7 @@ export default function InitApp() {
         }
         if (newQueue.length > 0) {
           dispatch(setQueue(newQueue));
-          dispatch(setCurrent(newQueue[lastIdx]));
+          player.track = newQueue[lastIdx];
           player.seek = lastSeek;
         }
       }

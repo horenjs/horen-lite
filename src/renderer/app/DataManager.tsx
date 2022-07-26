@@ -107,24 +107,21 @@ export default function DataManager() {
   }, [queue?.length]);
 
   React.useEffect(() => {
-    player.track = current;
-
-    if (current?.src) {
+    if (player?.track?.src) {
       let exists = false;
 
       for (const q of queue) {
-        if (q.src === current.src) exists = true;
+        if (q.src === player?.track?.src) exists = true;
       }
 
-      getAudioFileMeta(current.src).then(res => {
+      getAudioFileMeta(player?.track?.src).then(res => {
         if (res.code === 1) {
-          console.log(res.data);
           dispatch(setCurrent(res.data));
           if (!exists) dispatch(addToQueue([res.data]));
         }
       })
     }
-  }, [current?.src]);
+  }, [player?.track?.src]);
 
   const _refreshLibrary = async () => {
     const musicLibraryPath = (await getSetting("musicLibraryPath")).data;
