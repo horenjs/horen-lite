@@ -4,12 +4,14 @@
 ## Screen Shoots
 ![main](./screenshoot/main.jpg)
 
+![lyric](./screenshoot/lyric.jpg)
+
 ## To-do's
 - [x] lyric show
 - [x] playing list
 - [ ] albums viewer: hover to show
 - [x] rotate cover
-- [ ] favorites
+- [x] favorites
 - [ ] more setting
 - [x] switch between play modes
 - [ ] add current track to ...
