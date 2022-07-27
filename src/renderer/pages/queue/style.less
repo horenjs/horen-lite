@@ -11,7 +11,7 @@
     user-select: none;
     &:hover {
       color: #f6f6f6 !important;
-      .remove {
+      .remove,.insert-to-top {
         visibility: visible;
       }
     }
@@ -22,6 +22,12 @@
     }
     .info {
       flex-grow: 1;
+    }
+    .insert-to-top {
+      display: flex;
+      align-items: center;
+      margin-left: 8px;
+      visibility: hidden;
     }
     .remove {
       display: flex;
