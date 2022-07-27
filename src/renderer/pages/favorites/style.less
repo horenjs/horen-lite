@@ -9,9 +9,13 @@
       .add-or-cancel {
         visibility: visible;
       }
+      .add-to-queue {
+        visibility: visible;
+      }
     }
     .is-playing {
       min-width: 32px;
+      padding-left: 8px;
     }
     .add-or-cancel {
       padding: 0 8px 0 0;
@@ -24,6 +28,10 @@
       flex-grow: 1;
       cursor: pointer;
       user-select: none;
+    }
+    .add-to-queue {
+      visibility: hidden;
+      cursor: pointer;
     }
   }
 }

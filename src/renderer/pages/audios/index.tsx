@@ -100,7 +100,7 @@ export default function PlayList() {
   );
 }
 
-const queueIndexOf = (queue: Track[], track: Track) => {
+export const queueIndexOf = (queue: Track[], track: Track) => {
   let idx = -1;
   for (let i = 0; i < queue.length; i++) {
     if (queue[i].src === track.src) idx = i;
