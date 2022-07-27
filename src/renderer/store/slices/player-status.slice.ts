@@ -30,7 +30,7 @@ export const playerStatusSlice = createSlice({
       state.audioList = state.audioList.concat(action.payload);
     },
     addToQueue: (state, action: PayloadAction<Track[]>) => {
-      state.queue = Array.from(new Set([...state.queue, ...action.payload]));
+      state.queue = state.queue.concat(action.payload);
     },
     setQueue: (state, action: PayloadAction<Track[]>) => {
       state.queue = action.payload;

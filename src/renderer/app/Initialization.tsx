@@ -50,7 +50,7 @@ export default function InitApp() {
     if (res.code === 1) {
       logger("get the setting-> queue success: ", res.data);
       const queue = res.data;
-      if (queue.length > 0) {
+      if (queue?.length > 0) {
         const newQueue = [];
         for (const q of queue) {
           const resp = await getAudioFileMeta(q?.src, ["title", "src"]);
