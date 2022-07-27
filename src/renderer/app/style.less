@@ -1,6 +1,6 @@
 @width: 300px;
 @footer-height: 40px;
-@title-bar-height: 28px;
+@title-bar-height: 32px;
 
 .app {
   width: 300px;
@@ -27,6 +27,17 @@
   position: relative;
   color: #d0d0d0;
   z-index: 2;
+  .title {
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    color: #5d5d5d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+  }
   .bar-item {
     display: flex;
     justify-content: center;
@@ -55,7 +66,7 @@
   .page {
     width: calc(100% - 40px);
     padding: 0 20px 8px 20px;
-    height: calc(100vh - 68px - 8px);
+    height: calc(100vh -  @footer-height - @title-bar-height - 8px);
     overflow-y: auto;
     overflow-x: hidden;
   }

@@ -10,12 +10,14 @@ import {
 import {Track} from "@plugins/player";
 import debug from "@plugins/debug";
 import {useTranslation} from "react-i18next";
+import {selectTitleKey} from "@store/slices/global.slice";
 
 const logger = debug("App:TitleBar");
 
 export default function TitleBar() {
   const { t } = useTranslation();
   const seek = useSelector(selectSeek);
+  const titleKey = useSelector(selectTitleKey);
   const current = useSelector(selectCurrent);
   const trackList = useSelector(selectQueue);
 
@@ -30,6 +32,9 @@ export default function TitleBar() {
 
   return (
     <div className={"title-bar"}>
+      <div className={"title"}>
+        <span>{titleKey}</span>
+      </div>
       <div className={"close bar-item electron-no-drag"} onClick={e => {
         e.preventDefault();
         (async () => {

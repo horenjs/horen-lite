@@ -6,14 +6,16 @@ import { MdFormatListBulleted } from "react-icons/md";
 import Loading from "@components/loading";
 import { RiSettingsLine } from "react-icons/ri";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import { selectIsPlaying } from "@store/slices/player-status.slice";
 import debug from "@plugins/debug";
+import {setTitleKey} from "@store/slices/global.slice";
 
 const logger = debug("App:Header");
 
 export default function Header() {
   const navi = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
   const isPlaying = useSelector(selectIsPlaying);
 
@@ -34,6 +36,7 @@ export default function Header() {
       onClick: function (key: string | number) {
         logger("click: ", key);
         navi("/audios");
+        dispatch(setTitleKey("audio-list"));
       },
     },
     {
@@ -48,6 +51,7 @@ export default function Header() {
       onClick: function (key: string | number) {
         logger("click: ", key);
         navi("/queue");
+        dispatch(setTitleKey("queue"));
       },
     },
     {
@@ -63,6 +67,7 @@ export default function Header() {
       onClick: function (key: string | number) {
         logger("click: ", key);
         navi("/playing");
+        dispatch(setTitleKey("playing"));
       },
     },
     {
@@ -77,6 +82,7 @@ export default function Header() {
       onClick(key: string | number) {
         logger("click: ", key);
         navi("/lyric");
+        dispatch(setTitleKey("lyric"));
       },
     },
     {
@@ -91,6 +97,7 @@ export default function Header() {
       onClick(key: string | number) {
         logger("click: ", key);
         navi("favorites");
+        dispatch(setTitleKey("favorites"));
       },
     },
     {
@@ -105,6 +112,7 @@ export default function Header() {
       onClick(key: string | number) {
         logger("click: ", key);
         navi("/setting");
+        dispatch(setTitleKey("setting"));
       },
     },
   ];
