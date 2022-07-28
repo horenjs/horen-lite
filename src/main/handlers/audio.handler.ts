@@ -1,5 +1,4 @@
 import path from "path";
-import fs from "fs";
 import crypto from "crypto";
 import * as fse from "fs-extra";
 import * as mm from "music-metadata";
@@ -259,9 +258,7 @@ function generateLibraryFilePath(p: string, flag = "") {
   const hash = crypto.createHash("md5");
   hash.update(p);
 
-  if (!fs.existsSync(MUSIC_LIBRARY_PATH)) {
-    fs.mkdirSync(MUSIC_LIBRARY_PATH);
-  }
+  fse.ensureDir(MUSIC_LIBRARY_PATH).then();
 
   return path.join(MUSIC_LIBRARY_PATH, `${hash.digest("hex")}${flag}.json`);
 }
@@ -281,8 +278,8 @@ async function readMusicFileMeta(
   ]
 ): Promise<AudioMeta> {
   let meta;
-  log.info("try to get the audio meta.");
 
+  log.info("to get the audio meta: ", filepath);
   try {
     meta = await mm.parseFile(filepath);
   } catch (err) {
@@ -329,11 +326,9 @@ async function readMusicFileMeta(
       hash.update(artist + album);
       const picPath = path.join(ALBUM_COVER_PATH, `${hash.digest("hex")}.png`);
 
-      if (!fs.existsSync(ALBUM_COVER_PATH)) {
-        fs.mkdirSync(ALBUM_COVER_PATH);
-      }
+      fse.ensureDir(ALBUM_COVER_PATH).then();
 
-      if (fs.existsSync(picPath)) {
+      if (fse.existsSync(picPath)) {
         finalPic = "file:///" + picPath.replace(/\\/g, "/");
       } else {
         const neteaseApi = new Netease(title, artist, album);

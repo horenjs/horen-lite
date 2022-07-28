@@ -1,6 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
-import fs from "fs";
 import path from "path";
+import fse from "fs-extra";
 import {
   handleGetAudioFileList,
   handleGetAudioFileMeta,
@@ -14,9 +14,9 @@ import {
   handleRemoveFavorite,
 } from "./handlers";
 import {IPC_CODE, LOGS_PATH} from "@constant";
-import {writeFileAsync} from "./utils/fs-promises";
 import Logger from "./utils/logger";
 import Dato from "./utils/dato";
+import {Track} from "@plugins/player";
 
 const log = new Logger("main-index", {
   filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
@@ -92,43 +92,54 @@ ipcMain.handle(IPC_CODE.getAudioFileList, handleGetAudioFileList);
 ipcMain.handle(
   IPC_CODE.saveAudioFileList,
   async (evt, p: string, lists: { src: string }[]) => {
-    const filepath = generateLibraryFilePath(p, "-full");
-    log.debug("try to save audio file list to the library");
-    if (fs.existsSync(filepath)) {
-      log.warning("full music library exists.");
-      return { code: 1, msg: "full music library exists." };
+    const readAllMeta = async (fileLists: Track[]) => {
+      const metas = [];
+      for (let i = 0; i < fileLists.length; i++) {
+        mainWindow.webContents.send(
+          IPC_CODE.saveAudioFileListMsg,
+          i,
+          fileLists.length,
+          path.basename(fileLists[i].src)
+        );
+        const meta = await readMusicFileMeta(fileLists[i].src, [
+          "title",
+          "artist",
+          "artists",
+          "album",
+          "genre",
+          "date",
+          "duration",
+          // "picture",
+          "lyric",
+        ]);
+        metas.push(meta);
+      }
+      return metas;
     }
 
-    log.info("try to get the audio meta for all.");
-    const metas = [];
-    for (let i = 0; i < lists.length; i++) {
-      mainWindow.webContents.send(
-        IPC_CODE.saveAudioFileListMsg,
-        i,
-        lists.length,
-        path.basename(lists[i].src)
-      );
-      const meta = await readMusicFileMeta(lists[i].src, [
-        "title",
-        "artist",
-        "artists",
-        "album",
-        "genre",
-        "date",
-        "duration",
-        // "picture",
-        "lyric",
-      ]);
-      metas.push(meta);
-    }
+    const filepath = generateLibraryFilePath(p, "-full");
+    log.info("to read full music library: ", filepath);
 
     try {
-      await writeFileAsync(filepath, JSON.stringify(metas, null, 2));
-      log.info("save the audio library success: ", filepath);
+      const stat = await fse.stat(filepath);
+      if (stat.isFile()) {
+        log.warning("full music library exists.");
+        return { code: 1, msg: "full music library exists." };
+      }
+    } catch (err) {
+      log.error("read the full music library path failed.");
+    }
+
+    log.info("to get all metas.");
+    const metas = await readAllMeta(lists);
+
+    try {
+      await fse.writeJSON(filepath, metas, {encoding:"utf-8", spaces: 2});
+      log.info("save the full library success: ", filepath);
       return { code: 1, msg: "success" };
     } catch (err) {
-      log.error("save library list full failed");
-      return { code: 0, msg: "save library list full failed" };
+      log.error("save the full library failed");
+      return { code: 0, msg: "save the full library failed" };
     }
   }
 );
@@ -146,7 +157,7 @@ ipcMain.handle(IPC_CODE.setProgress, async (evt, progress: number) => {
 });
 // ipc: open dir
 ipcMain.handle(IPC_CODE.openDir, async () => {
-  log.debug("to open dialog [dir]");
+  log.debug("to open dir.");
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openDirectory"],
   });
