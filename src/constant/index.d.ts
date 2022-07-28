@@ -29,6 +29,10 @@ interface SETTING {
  * in windows7 above: %USER_DATA%/[app_name]/
  */
 export declare const APP_DATA_PATH: string;
+export declare const USER_DATA_PATH: string;
+export declare const ALBUM_COVER_PATH: string;
+export declare const MUSIC_LIBRARY_PATH: string;
+export declare const LOGS_PATH: string;
 /**
  * IPC channel code, from main process and preload
  */

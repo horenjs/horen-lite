@@ -1,13 +1,13 @@
-import SettingStore, { SettingFile } from "../utils/setting-store";
-import { HandlerResponse } from "./index";
-import { SettingValue } from "../utils/setting-store";
-import Logger from "../utils/logger";
 import path from "path";
-import {APP_DATA_PATH} from "@constant";
+import { HandlerResponse } from "./index";
+import {LOGS_PATH} from "@constant";
+import Logger from "../utils/logger";
 import Dato from "../utils/dato";
+import SettingStore, { SettingFile } from "../utils/setting-store";
+import { SettingValue } from "../utils/setting-store";
 
 const log = new Logger("setting-handlers", {
-  filePath: path.join(APP_DATA_PATH, "logs", `${Dato.now("YYYY-MM-DD")}.log`),
+  filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
 });
 
 export async function handleSaveSetting(

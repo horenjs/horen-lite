@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { DEFAULT_SETTING } from "../../constant";
-import pack from "../../../package.json";
+import { DEFAULT_SETTING, USER_DATA_PATH } from "@constant";
 
 export type SettingValue = object | string | number | boolean;
 
@@ -15,13 +14,11 @@ export default class SettingStore {
   private readonly encoding = "utf-8";
 
   constructor() {
-    const appPath = path.join(process.env.APPDATA, pack.name, "UserData");
+    this.defaultSettingPath = path.join(USER_DATA_PATH, this.defaultSettingFileName);
+    this.userSettingPath = path.join(USER_DATA_PATH, this.userSettingFileName);
 
-    this.defaultSettingPath = path.join(appPath, this.defaultSettingFileName);
-    this.userSettingPath = path.join(appPath, this.userSettingFileName);
-
-    if (!fs.existsSync(appPath)) {
-      fs.mkdirSync(appPath);
+    if (!fs.existsSync(USER_DATA_PATH)) {
+      fs.mkdirSync(USER_DATA_PATH);
     }
 
     try {

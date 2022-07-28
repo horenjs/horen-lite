@@ -1,4 +1,3 @@
-import fs from "fs";
 import fse from "fs-extra";
 import path from "path";
 import * as Chalk from "chalk";
@@ -42,7 +41,7 @@ export default class Logger {
 
     if (this.config.filePath) {
       fse.ensureDir(path.dirname(this.config.filePath)).then();
-      fs.appendFile(this.config.filePath, toWrite, (err) => {
+      fse.appendFile(this.config.filePath, toWrite, (err) => {
         if (err)
           throw new Error(
             "cannot write log msg to the file: " + this.config.filePath

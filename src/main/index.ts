@@ -13,13 +13,13 @@ import {
   handleAddFavorite,
   handleRemoveFavorite,
 } from "./handlers";
-import {APP_DATA_PATH, IPC_CODE} from "../constant";
+import {IPC_CODE, LOGS_PATH} from "@constant";
 import {writeFileAsync} from "./utils/fs-promises";
 import Logger from "./utils/logger";
 import Dato from "./utils/dato";
 
 const log = new Logger("main-index", {
-  filePath: path.join(APP_DATA_PATH, "logs", `${Dato.now("YYYY-MM-DD")}.log`),
+  filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
 });
 
 const isDev = process.env["NODE_ENV"] === "development";

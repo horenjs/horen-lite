@@ -1,11 +1,8 @@
 import path from "path";
 import fs from "fs";
-import * as fse from "fs-extra";
-import { AUDIO_EXTS, APP_DATA_PATH } from "@constant";
 import crypto from "crypto";
-import pack from "../../../package.json";
+import * as fse from "fs-extra";
 import * as mm from "music-metadata";
-import { Netease } from "../apis";
 import axios from "axios";
 import { HandlerResponse } from "./index";
 import {
@@ -16,9 +13,17 @@ import {
 import { arrayBufferToBase64 } from "../utils";
 import Logger from "../utils/logger";
 import Dato from "../utils/dato";
+import { Netease } from "../apis";
+import {
+  AUDIO_EXTS,
+  USER_DATA_PATH,
+  MUSIC_LIBRARY_PATH,
+  ALBUM_COVER_PATH,
+  LOGS_PATH,
+} from "@constant";
 
 const log = new Logger("audio-handlers", {
-  filePath: path.join(APP_DATA_PATH, "logs", `${Dato.now("YYYY-MM-DD")}.log`),
+  filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
 });
 
 type AudioMeta = Partial<{
@@ -40,8 +45,6 @@ export type Favorites = {
   updateAt: string | number;
   lists: Favorite[];
 };
-
-const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");
 
 async function handleGetAudioFileMeta(
   evt,
@@ -256,14 +259,11 @@ function generateLibraryFilePath(p: string, flag = "") {
   const hash = crypto.createHash("md5");
   hash.update(p);
 
-  const appPath = path.join(process.env.APPDATA, pack.name);
-  const musicLibraryPath = path.join(appPath, "MusicLibrary");
-
-  if (!fs.existsSync(musicLibraryPath)) {
-    fs.mkdirSync(musicLibraryPath);
+  if (!fs.existsSync(MUSIC_LIBRARY_PATH)) {
+    fs.mkdirSync(MUSIC_LIBRARY_PATH);
   }
 
-  return path.join(musicLibraryPath, `${hash.digest("hex")}${flag}.json`);
+  return path.join(MUSIC_LIBRARY_PATH, `${hash.digest("hex")}${flag}.json`);
 }
 
 async function readMusicFileMeta(
@@ -327,11 +327,10 @@ async function readMusicFileMeta(
     } else {
       const hash = crypto.createHash("md5");
       hash.update(artist + album);
-      const picDir = path.join(process.env.APPDATA, pack.name, "AlbumCover");
-      const picPath = path.join(picDir, `${hash.digest("hex")}.png`);
+      const picPath = path.join(ALBUM_COVER_PATH, `${hash.digest("hex")}.png`);
 
-      if (!fs.existsSync(picDir)) {
-        fs.mkdirSync(picDir);
+      if (!fs.existsSync(ALBUM_COVER_PATH)) {
+        fs.mkdirSync(ALBUM_COVER_PATH);
       }
 
       if (fs.existsSync(picPath)) {

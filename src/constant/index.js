@@ -3,6 +3,10 @@ const pack = require("../../package.json");
 const path = require("path");
 
 const APP_DATA_PATH = path.join(process.env.APPDATA, pack.name);
+const LOGS_PATH = path.join(APP_DATA_PATH, "logs");
+const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");
+const ALBUM_COVER_PATH = path.join(USER_DATA_PATH, "AlbumCover");
+const MUSIC_LIBRARY_PATH = path.join(USER_DATA_PATH, "MusicLibrary");
 
 const IPC_CODE = {
   getAudioFileMeta: "get-music-file-meta",
@@ -66,4 +70,8 @@ module.exports = {
   DEFAULT_SETTING,
   AUDIO_EXTS,
   APP_DATA_PATH,
+  LOGS_PATH,
+  USER_DATA_PATH,
+  ALBUM_COVER_PATH,
+  MUSIC_LIBRARY_PATH,
 }
