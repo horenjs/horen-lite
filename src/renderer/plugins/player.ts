@@ -9,7 +9,7 @@ export type PictureType = string;
 
 export type PlayMode = "repeat" | "in-turn" | "random" | "in-turn-loop";
 
-type TrackType = {
+export type Track = Partial<{
   src: string;
   title: string;
   artist: string;
@@ -20,9 +20,7 @@ type TrackType = {
   genre: string;
   picture: PictureType;
   lyric: string;
-}
-
-export type Track = Partial<TrackType>;
+}>;
 
 export type PlayerConfig = {
   autoPlay?: boolean;
@@ -90,7 +88,7 @@ export default class Player {
     // value can be null;
     if (value && value.src) {
       if (this._trackList) {
-        logger("current track index: ", this._indexOf(this._trackList, value));
+        logger("current track index: ", Player._indexOf(this._trackList, value));
       }
 
       this._playFromSource(value.src);
@@ -263,7 +261,7 @@ export default class Player {
     }
   }
 
-  private _indexOf(arr: Track[], target: Track) {
+  private static _indexOf(arr: Track[], target: Track) {
     for (const a of arr) {
       if (a.src === target.src) {
         return arr.indexOf(a);
