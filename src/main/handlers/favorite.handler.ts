@@ -5,13 +5,13 @@ import * as fse from "fs-extra";
 import {Favorites} from "./audio.handler";
 import {Handler, IpcInvoke} from "../decorators";
 import Logger from "../utils/logger";
-import {readMusicFileMeta} from "./audio.handler";
+import {AudioService} from "../services/audio.service";
 
 const log = new Logger("handler:favorite");
 
 @Handler()
 export class FavoriteHandler {
-  constructor() {
+  constructor(private audioService: AudioService) {
     // do nothing;
   }
 
@@ -59,7 +59,7 @@ export class FavoriteHandler {
       });
     }
 
-    const meta = await readMusicFileMeta(src, ["title", "src", "artist"]);
+    const meta = await this.audioService.readMusicFileMeta(src, ["title", "src", "artist"]);
     const favorite = { ...meta, addAt: new Date().valueOf() };
     data.lists.push(favorite);
     log.debug("try to write the favorites to the file.");

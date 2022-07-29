@@ -1,13 +1,11 @@
 import path from "path";
-import { HandlerResponse } from "./index";
-import { EVENTS, LOGS_PATH } from "@constant";
+import {HandlerResponse, HandlerResponseCode, Resp} from "./index";
+import {EVENTS, LOGS_PATH} from "@constant";
 import Logger from "../utils/logger";
 import Dato from "../utils/dato";
-import SettingStore, {
-  type SettingFile,
-  type SettingValue,
-} from "../utils/setting-store";
-import { Handler, IpcInvoke } from "../decorators";
+import {type SettingFile, type SettingValue} from "../utils/setting-store";
+import {Handler, IpcInvoke} from "../decorators";
+import {SettingService} from "../services/setting.service";
 
 const log = new Logger("setting-handlers", {
   filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
@@ -15,7 +13,7 @@ const log = new Logger("setting-handlers", {
 
 @Handler()
 export class SettingHandler {
-  constructor() {
+  constructor(private settingService: SettingService) {
     // do nothing;
   }
 
@@ -25,14 +23,13 @@ export class SettingHandler {
     item: string,
     value: SettingValue
   ): Promise<HandlerResponse<SettingFile>> {
-    const store = new SettingStore();
+    log.info("to save the setting item: ", item);
     try {
-      log.debug("try to save the setting item: ", item);
-      const data = store.save(item, value);
-      return { code: 1, msg: "save success.", data: data };
+      const data = this.settingService.saveItem(item, value);
+      return Resp(HandlerResponseCode.SUCCESS, data);
     } catch (err) {
-      log.error("save the setting failed.");
-      return { code: 0, msg: "save failed.", err: err };
+      log.warning(err);
+      return Resp(HandlerResponseCode.ERROR, null, err);
     }
   }
 
@@ -41,27 +38,25 @@ export class SettingHandler {
     evt,
     item: string
   ): Promise<HandlerResponse<SettingValue>> {
-    const store = new SettingStore();
+    log.info("to get setting item: ", item);
     try {
-      log.debug("try to get the setting item: ", item);
-      const value = store.get(item);
-      return { code: 1, msg: "get setting success.", data: value };
+      const data = this.settingService.getItem(item);
+      return Resp(HandlerResponseCode.SUCCESS, data);
     } catch (err) {
-      log.error("get the setting item failed.");
-      return { code: 0, msg: "get setting failed", err: err };
+      log.warning(err);
+      return Resp(HandlerResponseCode.ERROR, null, err);
     }
   }
 
   @IpcInvoke(EVENTS.GET_ALL_SETTINGS)
   public async handleGetAllSettings(): Promise<HandlerResponse<SettingFile>> {
-    const store = new SettingStore();
+    log.info("to get all setting items");
     try {
-      log.debug("try to get all settings");
-      const result = store.getAll();
-      return { code: 1, msg: "get all setting success.", data: result };
+      const data = this.settingService.getAllItems();
+      return Resp(HandlerResponseCode.SUCCESS, data);
     } catch (err) {
-      log.error("get the all settings failed");
-      return { code: 0, msg: "get setting failed", err: err };
+      log.warning(err);
+      return Resp(HandlerResponseCode.ERROR, null, err);
     }
   }
 }

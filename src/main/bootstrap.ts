@@ -50,6 +50,7 @@ export async function bootstrap(config: BootstrapConfig) {
       if (event) {
         ipcMain.handle(event, async (evt, ...args) => {
           try {
+            // put the evt to the args.
             return await handler[funcName].call(handler, evt, ...args);
           } catch (err) {
             return { err };

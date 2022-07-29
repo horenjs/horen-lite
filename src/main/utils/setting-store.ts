@@ -4,7 +4,7 @@ import { DEFAULT_SETTING, USER_DATA_PATH } from "@constant";
 
 export type SettingValue = object | string | number | boolean;
 
-export type SettingFile = object;
+export type SettingFile = Partial<typeof DEFAULT_SETTING>;
 
 export default class SettingStore {
   private readonly defaultSettingFileName = "setting.default.json";
@@ -77,7 +77,7 @@ export default class SettingStore {
     }
   }
 
-  public getAll() :SettingValue {
+  public getAll() :SettingFile {
     return this.getCombineSetting();
   }
 

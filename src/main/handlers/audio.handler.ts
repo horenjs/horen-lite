@@ -1,24 +1,13 @@
 import path from "path";
-import crypto from "crypto";
 import * as fse from "fs-extra";
-import * as mm from "music-metadata";
-import axios from "axios";
-import {HandlerResponse} from "./index";
-import {readFileAsync, walksAsync, writeFileAsync,} from "../utils/fs-promises";
-import {arrayBufferToBase64} from "../utils";
+import { HandlerResponse } from "./index";
 import Logger from "../utils/logger";
 import Dato from "../utils/dato";
-import {Netease} from "../apis";
-import {
-  ALBUM_COVER_PATH,
-  AUDIO_EXTS,
-  EVENTS,
-  LOGS_PATH,
-  MUSIC_LIBRARY_PATH,
-} from "@constant";
-import {Handler, IpcInvoke} from "../decorators";
-import {Track} from "@plugins/player";
-import {mainWindow} from "../index";
+import { EVENTS, LOGS_PATH } from "@constant";
+import { Handler, IpcInvoke } from "../decorators";
+import { Track } from "@plugins/player";
+import { mainWindow } from "../index";
+import { AudioService } from "../services/audio.service";
 
 const log = new Logger("audio-handlers", {
   filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
@@ -37,7 +26,7 @@ type AudioMeta = Partial<{
   lyric: string;
 }>;
 
-export type Favorite = AudioMeta & { addAt: string | number; }
+export type Favorite = AudioMeta & { addAt: string | number };
 
 export type Favorites = {
   updateAt: string | number;
@@ -46,7 +35,7 @@ export type Favorites = {
 
 @Handler()
 export class AudioHandler {
-  constructor() {
+  constructor(private audioService: AudioService) {
     // do nothing;
   }
 
@@ -59,10 +48,10 @@ export class AudioHandler {
     let meta: AudioMeta;
     if (items) {
       log.debug("try to get audio meta, src: ", src, ", items: ", ...items);
-      meta = await readMusicFileMeta(src, items);
+      meta = await this.audioService.readMusicFileMeta(src, items);
     } else {
       log.debug("try to get audio meta, src: ", src);
-      meta = await readMusicFileMeta(src);
+      meta = await this.audioService.readMusicFileMeta(src);
     }
     return { code: 1, msg: "success", data: meta };
   }
@@ -70,10 +59,14 @@ export class AudioHandler {
   @IpcInvoke(EVENTS.GET_AUDIO_LIST)
   public async handleGetAudioList(evt, p: string) {
     log.debug("try to get audio file list from full library file: ", p);
-    const audioFileListFull = await getAudioFileListFromLibraryFile(p, "full");
+    const audioFileListFull =
+      await this.audioService.getAudioFileListFromLibraryFile(p, "full");
 
     if (audioFileListFull.length > 0) {
-      log.debug("get file list from the full library file success, length: ", audioFileListFull.length);
+      log.debug(
+        "get file list from the full library file success, length: ",
+        audioFileListFull.length
+      );
       return {
         code: 1,
         msg: "success",
@@ -82,12 +75,13 @@ export class AudioHandler {
     } else {
       log.debug("get file list from the full library file failed.");
       log.debug("try to get audio list from the short library file.");
-      const audioFileListShort = await getAudioFileListFromLibraryFile(
-        p,
-        "short"
-      );
+      const audioFileListShort =
+        await this.audioService.getAudioFileListFromLibraryFile(p, "short");
       if (audioFileListShort.length > 0) {
-        log.debug("get file list from the short library file success, length: ", audioFileListShort.length);
+        log.debug(
+          "get file list from the short library file success, length: ",
+          audioFileListShort.length
+        );
         return {
           code: 1,
           msg: "success",
@@ -97,7 +91,7 @@ export class AudioHandler {
     }
     // if library file doesn't exist, rebuild it.
     log.debug("library file doesn't exist, rebuild it.");
-    const originFileList = await getOriginFileList(p);
+    const originFileList = await this.audioService.readFileList(p);
 
     if (originFileList.length === 0) {
       log.debug("rebuild from the path: ", p, " failed.");
@@ -109,11 +103,14 @@ export class AudioHandler {
     }
 
     log.debug("filter the audio file from origin file list.");
-    const lists = filterAudioFile(originFileList);
+    const lists = this.audioService.filterAudioFile(originFileList);
     // save to the library file.
     try {
       log.debug("try to save the audio file list to the file.");
-      await writeFileAsync(generateLibraryFilePath(p), JSON.stringify(lists, null, 2));
+      await fse.writeJSON(this.audioService.generateLibraryFilePath(p), lists, {
+        spaces: 2,
+        encoding: "utf-8",
+      });
     } catch (err) {
       log.error("save the library file failed.");
       log.error(err);
@@ -137,23 +134,26 @@ export class AudioHandler {
           fileLists.length,
           path.basename(fileLists[i].src)
         );
-        const meta = await readMusicFileMeta(fileLists[i].src, [
-          "title",
-          "artist",
-          "artists",
-          "album",
-          "genre",
-          "date",
-          "duration",
-          // "picture",
-          "lyric",
-        ]);
+        const meta = await this.audioService.readMusicFileMeta(
+          fileLists[i].src,
+          [
+            "title",
+            "artist",
+            "artists",
+            "album",
+            "genre",
+            "date",
+            "duration",
+            // "picture",
+            "lyric",
+          ]
+        );
         metas.push(meta);
       }
       return metas;
-    }
+    };
 
-    const filepath = generateLibraryFilePath(p, "-full");
+    const filepath = this.audioService.generateLibraryFilePath(p, "-full");
     log.info("to read full music library: ", filepath);
 
     try {
@@ -170,7 +170,7 @@ export class AudioHandler {
     const metas = await readAllMeta(lists);
 
     try {
-      await fse.writeJSON(filepath, metas, {encoding:"utf-8", spaces: 2});
+      await fse.writeJSON(filepath, metas, { encoding: "utf-8", spaces: 2 });
       log.info("save the full library success: ", filepath);
       return { code: 1, msg: "success" };
     } catch (err) {
@@ -178,153 +178,6 @@ export class AudioHandler {
       return { code: 0, msg: "save the full library failed" };
     }
   }
-}
-
-// tools function
-
-function filterAudioFile(originFileList: string[]) {
-  const tmp = [];
-  for (const m of originFileList) {
-    const extname = path.extname(m).replace(".", "");
-    if (AUDIO_EXTS.includes(extname)) tmp.push({ src: m });
-  }
-  return tmp;
-}
-
-async function getAudioFileListFromLibraryFile(
-  p: string,
-  flag: "short" | "full"
-) {
-  let libraryFilePath: string;
-  switch (flag) {
-  case "short":
-    libraryFilePath = generateLibraryFilePath(p);
-    break;
-  case "full":
-    libraryFilePath = generateLibraryFilePath(p, "-full");
-    break;
-  }
-  try {
-    const jsonStr = await readFileAsync(libraryFilePath);
-    return JSON.parse(jsonStr);
-  } catch (err) {
-    return [];
-  }
-}
-
-async function getOriginFileList(p: string) {
-  const tmp = [];
-  try {
-    return await walksAsync(path.resolve(p), tmp);
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-}
-
-export function generateLibraryFilePath(p: string, flag = "") {
-  const hash = crypto.createHash("md5");
-  hash.update(p);
-
-  fse.ensureDir(MUSIC_LIBRARY_PATH).then();
-
-  return path.join(MUSIC_LIBRARY_PATH, `${hash.digest("hex")}${flag}.json`);
-}
-
-export async function readMusicFileMeta(
-  filepath: string,
-  items = [
-    "title",
-    "artist",
-    "artists",
-    "album",
-    "genre",
-    "date",
-    "duration",
-    "picture",
-    "lyric",
-  ]
-): Promise<AudioMeta> {
-  let meta;
-
-  log.info("to get the audio meta: ", filepath);
-  try {
-    meta = await mm.parseFile(filepath);
-  } catch (err) {
-    meta = null;
-  }
-
-  const { title, artist, artists, album, genre, date, picture } =
-    meta?.common || {};
-
-  const extname = path.extname(filepath);
-  const finalTitle = title || path.basename(filepath, extname);
-
-  const { duration } = meta?.format || {};
-
-  let lyric: string;
-  if (items.includes("lyric")) {
-    log.debug("include lyric, try to get it.");
-    const lrcPath = filepath.replace(extname, ".lrc");
-    try {
-      lyric = await readFileAsync(lrcPath);
-    } catch (err) {
-      log.warning("there is no local lrc file, try to get from internet.");
-
-      const neteaseApi = new Netease(title, artist, album);
-      try {
-        lyric = await neteaseApi.getLyric();
-        log.info("get the lyric from internet success, save it to file.");
-        if (lyric) await writeFileAsync(lrcPath, lyric);
-      } catch (err) {
-        log.error("get the lyric from internet failed.");
-        lyric = String(err);
-      }
-    }
-  }
-
-  let finalPic: string;
-  if (items.includes("picture")) {
-    log.debug("include picture, try to get it.");
-    if (picture) {
-      const data = picture[0]?.data;
-      finalPic = arrayBufferToBase64(data);
-    } else {
-      const hash = crypto.createHash("md5");
-      hash.update(artist + album);
-      const picPath = path.join(ALBUM_COVER_PATH, `${hash.digest("hex")}.png`);
-
-      fse.ensureDir(ALBUM_COVER_PATH).then();
-
-      if (fse.existsSync(picPath)) {
-        finalPic = "file:///" + picPath.replace(/\\/g, "/");
-      } else {
-        const neteaseApi = new Netease(title, artist, album);
-        const picUrl = await neteaseApi.getAlbumPic();
-        finalPic = picUrl;
-
-        if (picUrl) {
-          const resp = await axios.get(picUrl, { responseType: "arraybuffer" });
-          if (resp.data) {
-            await writeFileAsync(picPath, resp.data);
-          }
-        }
-      }
-    }
-  }
-
-  return {
-    src: filepath,
-    title: items.includes("title") ? finalTitle : null,
-    artist: items.includes("artist") ? artist : null,
-    artists: items.includes("artists") ? artists : null,
-    album: items.includes("album") ? album : null,
-    genre: items.includes("genre") ? genre : null,
-    date: items.includes("date") ? date : null,
-    duration: items.includes("duration") ? duration : null,
-    picture: items.includes("lyric") ? finalPic : null,
-    lyric: items.includes("lyric") ? lyric : null,
-  };
 }
 
 export type { AudioMeta };
