@@ -3,23 +3,22 @@ import crypto from "crypto";
 import * as fse from "fs-extra";
 import * as mm from "music-metadata";
 import axios from "axios";
-import { HandlerResponse } from "./index";
-import {
-  walksAsync,
-  readFileAsync,
-  writeFileAsync,
-} from "../utils/fs-promises";
-import { arrayBufferToBase64 } from "../utils";
+import {HandlerResponse} from "./index";
+import {readFileAsync, walksAsync, writeFileAsync,} from "../utils/fs-promises";
+import {arrayBufferToBase64} from "../utils";
 import Logger from "../utils/logger";
 import Dato from "../utils/dato";
-import { Netease } from "../apis";
+import {Netease} from "../apis";
 import {
-  AUDIO_EXTS,
-  USER_DATA_PATH,
-  MUSIC_LIBRARY_PATH,
   ALBUM_COVER_PATH,
+  AUDIO_EXTS,
+  EVENTS,
   LOGS_PATH,
+  MUSIC_LIBRARY_PATH,
 } from "@constant";
+import {Handler, IpcInvoke} from "../decorators";
+import {Track} from "@plugins/player";
+import {mainWindow} from "../index";
 
 const log = new Logger("audio-handlers", {
   filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
@@ -45,170 +44,139 @@ export type Favorites = {
   lists: Favorite[];
 };
 
-async function handleGetAudioFileMeta(
-  evt,
-  src: string,
-  items?: string[]
-): Promise<HandlerResponse<AudioMeta>> {
-  let meta: AudioMeta;
-  if (items) {
-    log.debug("try to get audio meta, src: ", src, ", items: ", ...items);
-    meta = await readMusicFileMeta(src, items);
-  } else {
-    log.debug("try to get audio meta, src: ", src);
-    meta = await readMusicFileMeta(src);
+@Handler()
+export class AudioHandler {
+  constructor() {
+    // do nothing;
   }
-  return { code: 1, msg: "success", data: meta };
-}
 
-async function handleGetAudioFileList(evt, p: string) {
-  log.debug("try to get audio file list from full library file: ", p);
-  const audioFileListFull = await getAudioFileListFromLibraryFile(p, "full");
+  @IpcInvoke(EVENTS.GET_AUDIO_META)
+  public async handleGetAudioMeta(
+    evt,
+    src: string,
+    items?: string[]
+  ): Promise<HandlerResponse<AudioMeta>> {
+    let meta: AudioMeta;
+    if (items) {
+      log.debug("try to get audio meta, src: ", src, ", items: ", ...items);
+      meta = await readMusicFileMeta(src, items);
+    } else {
+      log.debug("try to get audio meta, src: ", src);
+      meta = await readMusicFileMeta(src);
+    }
+    return { code: 1, msg: "success", data: meta };
+  }
 
-  if (audioFileListFull.length > 0) {
-    log.debug("get file list from the full library file success, length: ", audioFileListFull.length);
-    return {
-      code: 1,
-      msg: "success",
-      data: { lists: audioFileListFull },
-    };
-  } else {
-    log.debug("get file list from the full library file failed.");
-    log.debug("try to get audio list from the short library file.");
-    const audioFileListShort = await getAudioFileListFromLibraryFile(
-      p,
-      "short"
-    );
-    if (audioFileListShort.length > 0) {
-      log.debug("get file list from the short library file success, length: ", audioFileListShort.length);
+  @IpcInvoke(EVENTS.GET_AUDIO_LIST)
+  public async handleGetAudioList(evt, p: string) {
+    log.debug("try to get audio file list from full library file: ", p);
+    const audioFileListFull = await getAudioFileListFromLibraryFile(p, "full");
+
+    if (audioFileListFull.length > 0) {
+      log.debug("get file list from the full library file success, length: ", audioFileListFull.length);
       return {
         code: 1,
         msg: "success",
-        data: { lists: audioFileListShort },
+        data: { lists: audioFileListFull },
+      };
+    } else {
+      log.debug("get file list from the full library file failed.");
+      log.debug("try to get audio list from the short library file.");
+      const audioFileListShort = await getAudioFileListFromLibraryFile(
+        p,
+        "short"
+      );
+      if (audioFileListShort.length > 0) {
+        log.debug("get file list from the short library file success, length: ", audioFileListShort.length);
+        return {
+          code: 1,
+          msg: "success",
+          data: { lists: audioFileListShort },
+        };
+      }
+    }
+    // if library file doesn't exist, rebuild it.
+    log.debug("library file doesn't exist, rebuild it.");
+    const originFileList = await getOriginFileList(p);
+
+    if (originFileList.length === 0) {
+      log.debug("rebuild from the path: ", p, " failed.");
+      return {
+        code: 0,
+        msg: "failed",
+        err: "target path is empty: " + p,
       };
     }
-  }
-  // if library file doesn't exist, rebuild it.
-  log.debug("library file doesn't exist, rebuild it.");
-  const originFileList = await getOriginFileList(p);
 
-  if (originFileList.length === 0) {
-    log.debug("rebuild from the path: ", p, " failed.");
-    return {
-      code: 0,
-      msg: "failed",
-      err: "target path is empty: " + p,
-    };
-  }
-
-  log.debug("filter the audio file from origin file list.");
-  const lists = filterAudioFile(originFileList);
-  // save to the library file.
-  try {
-    log.debug("try to save the audio file list to the file.");
-    await writeFileAsync(generateLibraryFilePath(p), JSON.stringify(lists, null, 2));
-  } catch (err) {
-    log.error("save the library file failed.");
-    log.error(err);
-  }
-
-  return {
-    code: 1,
-    msg: "success",
-    data: { lists },
-  };
-}
-
-async function handleGetFavorites(): Promise<HandlerResponse<Favorites>> {
-  const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
-  try {
-    log.debug("ensure the favorite dir: ", favoritesFilePath);
-    await fse.ensureDir(USER_DATA_PATH);
-  } catch (err) {
-    log.error("cannot make path: ", USER_DATA_PATH);
-  }
-  try {
-    log.debug("try to get the favorites from existed file.");
-    const jsonStr = await fse.readJSON(favoritesFilePath, {
-      encoding: "utf-8",
-    });
-    return { code: 1, msg: "success", data: jsonStr };
-  } catch (err) {
-    log.error("get the favorites from file failed.");
-    return { code: 0, msg: "get favorites failed", err: err };
-  }
-}
-
-async function handleAddFavorite(
-  evt,
-  src: string
-): Promise<HandlerResponse<any>> {
-  const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
-  let data: Favorites;
-  try {
-    log.debug("try to get the favorites from existed file: ", favoritesFilePath);
-    data = await fse.readJSON(favoritesFilePath, { encoding: "utf-8" });
-  } catch (err) {
-    log.debug("there is no favorites file, create it.");
-    data = {
-      updateAt: new Date().valueOf(),
-      lists: [],
-    };
-    log.debug("try to write new favorites to the file.");
-    await fse.writeJSON(favoritesFilePath, data, {
-      encoding: "utf-8",
-      spaces: 2,
-    });
-  }
-
-  const meta = await readMusicFileMeta(src, ["title", "src", "artist"]);
-  const favorite = { ...meta, addAt: new Date().valueOf() };
-  data.lists.push(favorite);
-  log.debug("try to write the favorites to the file.");
-  try {
-    await fse.writeJSON(favoritesFilePath, data, {
-      encoding: "utf-8",
-      spaces: 2,
-    });
-    log.info("add favorite success: ", src);
-    return { code: 1, msg: "add favorite success", data: data };
-  } catch (err) {
-    log.error("add favorite failed.");
-    return { code: 0, msg: "add favorite failed" };
-  }
-}
-
-async function handleRemoveFavorite(
-  evt,
-  src: string
-): Promise<HandlerResponse<any>> {
-  log.warning("try to remove the favorite item: ", src);
-  const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
-  let data: Favorites;
-  try {
-    data = await fse.readJSON(favoritesFilePath, { encoding: "utf-8" });
-  } catch (err) {
-    log.warning("there is no favorites file, create it.");
-    return { code: 0, msg: "no favorites" };
-  }
-
-  for (let i = 0; i < data.lists.length; i++) {
-    const item = data.lists[i];
-    if (item?.src === src) {
-      data.lists.splice(i, 1);
+    log.debug("filter the audio file from origin file list.");
+    const lists = filterAudioFile(originFileList);
+    // save to the library file.
+    try {
+      log.debug("try to save the audio file list to the file.");
+      await writeFileAsync(generateLibraryFilePath(p), JSON.stringify(lists, null, 2));
+    } catch (err) {
+      log.error("save the library file failed.");
+      log.error(err);
     }
+
+    return {
+      code: 1,
+      msg: "success",
+      data: { lists },
+    };
   }
 
-  data.updateAt = new Date().valueOf();
+  @IpcInvoke(EVENTS.SAVE_AUDIO_LIST)
+  public async handleSaveAudioList(evt, p: string, lists: { src: string }[]) {
+    const readAllMeta = async (fileLists: Track[]) => {
+      const metas = [];
+      for (let i = 0; i < fileLists.length; i++) {
+        mainWindow.webContents.send(
+          EVENTS.SAVE_AUDIO_LIST_REPLY_MSG.toString(),
+          i,
+          fileLists.length,
+          path.basename(fileLists[i].src)
+        );
+        const meta = await readMusicFileMeta(fileLists[i].src, [
+          "title",
+          "artist",
+          "artists",
+          "album",
+          "genre",
+          "date",
+          "duration",
+          // "picture",
+          "lyric",
+        ]);
+        metas.push(meta);
+      }
+      return metas;
+    }
 
-  try {
-    await fse.writeJSON(favoritesFilePath, data, {
-      encoding: "utf-8",
-      spaces: 2,
-    });
-    return { code: 1, msg: "remove success", data: data };
-  } catch (err) {
-    return { code: 0, msg: "remove failed" };
+    const filepath = generateLibraryFilePath(p, "-full");
+    log.info("to read full music library: ", filepath);
+
+    try {
+      const stat = await fse.stat(filepath);
+      if (stat.isFile()) {
+        log.warning("full music library exists.");
+        return { code: 1, msg: "full music library exists." };
+      }
+    } catch (err) {
+      log.error("read the full music library path failed.");
+    }
+
+    log.info("to get all metas.");
+    const metas = await readAllMeta(lists);
+
+    try {
+      await fse.writeJSON(filepath, metas, {encoding:"utf-8", spaces: 2});
+      log.info("save the full library success: ", filepath);
+      return { code: 1, msg: "success" };
+    } catch (err) {
+      log.error("save the full library failed");
+      return { code: 0, msg: "save the full library failed" };
+    }
   }
 }
 
@@ -254,7 +222,7 @@ async function getOriginFileList(p: string) {
   }
 }
 
-function generateLibraryFilePath(p: string, flag = "") {
+export function generateLibraryFilePath(p: string, flag = "") {
   const hash = crypto.createHash("md5");
   hash.update(p);
 
@@ -263,7 +231,7 @@ function generateLibraryFilePath(p: string, flag = "") {
   return path.join(MUSIC_LIBRARY_PATH, `${hash.digest("hex")}${flag}.json`);
 }
 
-async function readMusicFileMeta(
+export async function readMusicFileMeta(
   filepath: string,
   items = [
     "title",
@@ -360,13 +328,3 @@ async function readMusicFileMeta(
 }
 
 export type { AudioMeta };
-
-export {
-  handleGetAudioFileList,
-  handleGetAudioFileMeta,
-  readMusicFileMeta,
-  generateLibraryFilePath,
-  handleGetFavorites,
-  handleAddFavorite,
-  handleRemoveFavorite,
-};

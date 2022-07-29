@@ -21,7 +21,7 @@ interface LyricScript {
 }
 
 function lrcParser(data: string) {
-  // if (typeof data !== 'string') {
+  // if (typeof api !== 'string') {
   //   throw new TypeError('expect first argument to be a string');
   // }
   // split a long string into lines by system's end-of-line marker line

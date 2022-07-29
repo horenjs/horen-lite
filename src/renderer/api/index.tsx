@@ -1,5 +1,5 @@
 import {Track} from "@plugins/player";
-import { SettingValue } from "../../main/utils/setting-store";
+import { type SettingValue } from "../../main/utils/setting-store";
 
 export async function addFavorite(src: string) {
   return await window.ipc.addFavorite(src);

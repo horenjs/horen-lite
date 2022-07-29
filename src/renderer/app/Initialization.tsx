@@ -3,7 +3,7 @@ import "@i18n";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@store/index";
 import React from "react";
-import {getSetting, getAudioFileMeta} from "../data";
+import {getSetting, getAudioFileMeta} from "../api";
 import {
   setCurrent,
   setIsPlaying,

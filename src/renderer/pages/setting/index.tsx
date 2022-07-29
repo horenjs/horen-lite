@@ -5,7 +5,7 @@ import {
   getAllSetting,
   openDir,
   saveAudioFileListMsg,
-} from "../../data";
+} from "../../api";
 import "./style.less";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";

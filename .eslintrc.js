@@ -32,8 +32,8 @@ module.exports = {
     "config/",
     "dist/",
     "out/",
-    "./src/constant/index.js",
-    "./src/preload/index.js"
+    "./src/constant/index.ts",
+    "./src/preload/index.ts"
   ],
   rules: {
     indent: ["error", 2],

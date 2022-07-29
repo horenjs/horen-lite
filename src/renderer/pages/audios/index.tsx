@@ -10,7 +10,7 @@ import {
 import { RiPlayListAddFill } from "react-icons/ri";
 import { MdOutlineDownloadDone } from "react-icons/md";
 import { Track } from "@plugins/player";
-import { getAudioFileList, getSetting } from "../../data";
+import { getAudioFileList, getSetting } from "../../api";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";

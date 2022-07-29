@@ -1,6 +1,6 @@
 import React from "react";
 import { RiCloseFill } from "react-icons/ri";
-import { closeAllWindows, saveSetting } from "../data";
+import { closeAllWindows, saveSetting } from "../api";
 import { useSelector } from "react-redux";
 import {
   selectSeek,

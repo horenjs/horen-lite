@@ -1,3 +1,32 @@
+export enum EVENTS {
+  /**
+   * audio
+   */
+  GET_AUDIO_META = 111,
+  GET_AUDIO_LIST,
+  SAVE_AUDIO_LIST,
+  SAVE_AUDIO_LIST_REPLY_MSG,
+  /**
+   * setting
+   */
+  SAVE_SETTING_ITEM,
+  GET_SETTING_ITEM,
+  GET_ALL_SETTINGS,
+  /**
+   * favorites
+   */
+  GET_FAVORITES,
+  ADD_FAVORITES,
+  REMOVE_FAVORITE,
+  /**
+   * others
+   */
+  OPEN_DIR,
+  SET_TITLE,
+  SET_PROGRESS,
+  CLOSE_ALL_WINDOWS,
+}
+
 /* eslint-disable */
 const pack = require("../../package.json");
 const path = require("path");
@@ -7,23 +36,6 @@ const LOGS_PATH = path.join(APP_DATA_PATH, "logs");
 const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");
 const ALBUM_COVER_PATH = path.join(USER_DATA_PATH, "AlbumCover");
 const MUSIC_LIBRARY_PATH = path.join(USER_DATA_PATH, "MusicLibrary");
-
-const IPC_CODE = {
-  getAudioFileMeta: "get-music-file-meta",
-  getAudioFileList: "get-music-file-list",
-  saveAudioFileList: "save-music-file-list",
-  saveAudioFileListMsg: "save-music-file-list-msg",
-  saveSetting: "save-setting",
-  getSetting: "get-setting",
-  getAllSetting: "get-all-setting",
-  openDir: "open-dir",
-  setTitle: "set-title",
-  setProgress: "set-progress",
-  closeAllWindows: "close-all-windows",
-  getFavorites: "get-favorites",
-  addFavorite: "add-favorite",
-  remoteFavorite: "remove-favorite",
-}
 
 const DEFAULT_SETTING = {
   "promptCN": "请勿修改默认设置",
@@ -65,8 +77,7 @@ const AUDIO_EXTS = [
 ];
 
 // eslint-disable-next-line no-undef
-module.exports = {
-  IPC_CODE,
+export {
   DEFAULT_SETTING,
   AUDIO_EXTS,
   APP_DATA_PATH,

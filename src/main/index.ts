@@ -1,22 +1,10 @@
+import "reflect-metadata";
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
-import fse from "fs-extra";
-import {
-  handleGetAudioFileList,
-  handleGetAudioFileMeta,
-  handleGetAllSetting,
-  handleGetSettingItem,
-  handleSaveSetting,
-  generateLibraryFilePath,
-  readMusicFileMeta,
-  handleGetFavorites,
-  handleAddFavorite,
-  handleRemoveFavorite,
-} from "./handlers";
-import {IPC_CODE, LOGS_PATH} from "@constant";
+import {LOGS_PATH, EVENTS} from "@constant";
 import Logger from "./utils/logger";
 import Dato from "./utils/dato";
-import {Track} from "@plugins/player";
+import {destroy, bootstrap} from "./bootstrap";
 
 const log = new Logger("main-index", {
   filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
@@ -26,7 +14,7 @@ const isDev = process.env["NODE_ENV"] === "development";
 
 export let mainWindow: BrowserWindow;
 
-function createWindow() {
+async function createWindow() {
   const w = new BrowserWindow({
     width: 300,
     height: 488,
@@ -42,17 +30,30 @@ function createWindow() {
     },
   });
 
+  await bootstrap({
+    webContents: w.webContents,
+    mainWindow: w,
+    app: app,
+  });
+
   if (isDev) w.loadURL("http://localhost:9000/").then();
   // 生产环境应使用相对地址
   // 打包后的根目录为 app/
   else w.loadFile("./dist/index.html").then();
 
+  if (isDev) w.webContents.openDevTools();
+
+  w.on("closed", () => {
+    destroy();
+    w.destroy();
+  });
+
   return w;
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   // create main window
-  mainWindow = createWindow();
+  mainWindow = await createWindow();
 
   // only in macOS
   app.on("activate", function () {
@@ -65,107 +66,5 @@ app.whenReady().then(() => {
 app.on("window-all-closed", function () {
   if (process.platform !== "darwin") {
     app.quit();
-  }
-});
-
-/**
- * ipc handlers
- * some handlers need mainWindow and app instance,
- * so you cannot move it to the another file.
- * otherwise you should move it to a single file.
- */
-// ipc: close all windows
-ipcMain.handle(IPC_CODE.closeAllWindows, async () => {
-  mainWindow.close();
-});
-// ipc: save setting
-ipcMain.handle(IPC_CODE.saveSetting, handleSaveSetting);
-// ipc: get setting
-ipcMain.handle(IPC_CODE.getSetting, handleGetSettingItem);
-// ipc: get all setting item
-ipcMain.handle(IPC_CODE.getAllSetting, handleGetAllSetting);
-// ipc: get music file
-ipcMain.handle(IPC_CODE.getAudioFileMeta, handleGetAudioFileMeta);
-// ipc: get music file list
-ipcMain.handle(IPC_CODE.getAudioFileList, handleGetAudioFileList);
-// ipc: save music file list
-ipcMain.handle(
-  IPC_CODE.saveAudioFileList,
-  async (evt, p: string, lists: { src: string }[]) => {
-    const readAllMeta = async (fileLists: Track[]) => {
-      const metas = [];
-      for (let i = 0; i < fileLists.length; i++) {
-        mainWindow.webContents.send(
-          IPC_CODE.saveAudioFileListMsg,
-          i,
-          fileLists.length,
-          path.basename(fileLists[i].src)
-        );
-        const meta = await readMusicFileMeta(fileLists[i].src, [
-          "title",
-          "artist",
-          "artists",
-          "album",
-          "genre",
-          "date",
-          "duration",
-          // "picture",
-          "lyric",
-        ]);
-        metas.push(meta);
-      }
-      return metas;
-    }
-
-    const filepath = generateLibraryFilePath(p, "-full");
-    log.info("to read full music library: ", filepath);
-
-    try {
-      const stat = await fse.stat(filepath);
-      if (stat.isFile()) {
-        log.warning("full music library exists.");
-        return { code: 1, msg: "full music library exists." };
-      }
-    } catch (err) {
-      log.error("read the full music library path failed.");
-    }
-
-    log.info("to get all metas.");
-    const metas = await readAllMeta(lists);
-
-    try {
-      await fse.writeJSON(filepath, metas, {encoding:"utf-8", spaces: 2});
-      log.info("save the full library success: ", filepath);
-      return { code: 1, msg: "success" };
-    } catch (err) {
-      log.error("save the full library failed");
-      return { code: 0, msg: "save the full library failed" };
-    }
-  }
-);
-// ipc: get the favorites
-ipcMain.handle(IPC_CODE.getFavorites, handleGetFavorites);
-ipcMain.handle(IPC_CODE.addFavorite, handleAddFavorite);
-ipcMain.handle(IPC_CODE.remoteFavorite, handleRemoveFavorite);
-// ipc: set the main window title
-ipcMain.handle(IPC_CODE.setTitle, async (evt, title: string) => {
-  mainWindow.setTitle(title);
-});
-// ipc: set the status bar progress
-ipcMain.handle(IPC_CODE.setProgress, async (evt, progress: number) => {
-  mainWindow.setProgressBar(progress);
-});
-// ipc: open dir
-ipcMain.handle(IPC_CODE.openDir, async () => {
-  log.debug("to open dir.");
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ["openDirectory"],
-  });
-  if (result.filePaths.length) {
-    log.debug("open dir success: ", result.filePaths);
-    return { code: 1, msg: "open dir success.", data: result.filePaths };
-  } else {
-    log.error("open dir failed.");
-    return { code: 0, msg: "open dir failed." };
   }
 });

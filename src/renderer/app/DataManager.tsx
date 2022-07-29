@@ -21,7 +21,7 @@ import {
   setProgress,
   setTitle,
   saveSetting,
-} from "../data";
+} from "../api";
 import Player from "@plugins/player";
 import debug from "@plugins/debug";
 import {selectRefreshMusicLibraryTimeStamp} from "@store/slices/setting.slice";

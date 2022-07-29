@@ -48,19 +48,21 @@ function jsRules(includePath) {
   }
 }
 
-function babelTsLoader(p) {
+function babelTsLoader(...p) {
   return {
-    test: /\.(js|ts)?$/,
-    include: p,
+    test: /\.ts$/,
+    include: [...p],
     use: {
       loader: 'babel-loader',
       options: {
         presets: [
           '@babel/preset-env',
-          '@babel/preset-typescript',
+          ['@babel/preset-typescript', {optimizeConstEnums: true,}],
         ],
         plugins: [
           '@babel/plugin-transform-runtime',
+          "babel-plugin-transform-typescript-metadata",
+          ["@babel/plugin-proposal-decorators", { "legacy": true }],
         ]
       }
     }

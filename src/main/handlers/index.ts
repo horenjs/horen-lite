@@ -1,17 +1,7 @@
-export {
-  handleSaveSetting,
-  handleGetAllSetting,
-  handleGetSettingItem,
-} from "./setting.handler";
-export {
-  handleGetAudioFileList,
-  handleGetAudioFileMeta,
-  generateLibraryFilePath,
-  readMusicFileMeta,
-  handleGetFavorites,
-  handleAddFavorite,
-  handleRemoveFavorite,
-} from "./audio.handler";
+export { AudioHandler } from "./audio.handler";
+export { FavoriteHandler } from "./favorite.handler";
+export { SettingHandler } from "./setting.handler";
+export { WindowHandler } from "./window.handler";
 
 export type HandlerResponseCode =
   | 0

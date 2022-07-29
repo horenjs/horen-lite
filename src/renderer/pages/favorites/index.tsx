@@ -1,6 +1,6 @@
 import React from "react";
 import "./style.less";
-import { getFavorites, removeFavorite } from "../../data";
+import { getFavorites, removeFavorite } from "../../api";
 import { Favorite } from "../../../main/handlers/audio.handler";
 import {RiHeart3Fill, RiPlayListAddFill} from "react-icons/ri";
 import Loading from "@components/loading";
