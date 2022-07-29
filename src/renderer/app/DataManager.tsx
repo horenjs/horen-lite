@@ -15,12 +15,12 @@ import {
 } from "@store/slices/player-status.slice";
 import React from "react";
 import {
-  getAudioFileList,
-  getAudioFileMeta,
-  getSetting, saveAudioFileList,
+  getAudioList,
+  getAudioMeta,
+  getSettingItem, saveAudioList,
   setProgress,
   setTitle,
-  saveSetting,
+  saveSettingItem,
 } from "../api";
 import Player from "@plugins/player";
 import debug from "@plugins/debug";
@@ -103,7 +103,7 @@ export default function DataManager() {
 
   React.useEffect(() => {
     player.trackList = queue;
-    saveSetting("queue", queue.map(q => ({src: q.src}))).then();
+    saveSettingItem("queue", queue.map(q => ({src: q.src}))).then();
   }, [queue?.length]);
 
   React.useEffect(() => {
@@ -114,7 +114,7 @@ export default function DataManager() {
         if (q.src === player?.track?.src) exists = true;
       }
 
-      getAudioFileMeta(player?.track?.src).then(res => {
+      getAudioMeta(player?.track?.src).then(res => {
         if (res.code === 1) {
           dispatch(setCurrent(res.data));
           if (!exists) dispatch(addToQueue([res.data]));
@@ -124,15 +124,15 @@ export default function DataManager() {
   }, [player?.track?.src]);
 
   const _refreshLibrary = async () => {
-    const musicLibraryPath = (await getSetting("musicLibraryPath")).data;
-    const musicFileList = (await getAudioFileList(musicLibraryPath)).data?.lists;
+    const musicLibraryPath = (await getSettingItem("musicLibraryPath")).data;
+    const musicFileList = (await getAudioList(musicLibraryPath)).data?.lists;
 
     if (musicFileList?.length > 0) {
       logger("audio list: ", musicFileList);
       dispatch(setAudioList(musicFileList));
 
       logger("send signal to the main process to save list.")
-      const saveResult = await saveAudioFileList(musicLibraryPath, musicFileList);
+      const saveResult = await saveAudioList(musicLibraryPath, musicFileList);
       logger("save status: ", saveResult);
     }
   };

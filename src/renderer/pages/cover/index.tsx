@@ -31,7 +31,7 @@ import DefaultCover from "@static/default-cover";
 import "./style.less";
 import { PlayMode } from "@plugins/player";
 import debug from "@plugins/debug";
-import { saveSetting, getFavorites, addFavorite, removeFavorite } from "../../api";
+import { saveSettingItem, getFavorites, addFavorite, removeFavorite } from "../../api";
 
 const logger = debug("Page:Cover");
 
@@ -119,7 +119,7 @@ export default function PageCover() {
         }
         dispatch(setPlayMode(newPlayMode));
         (async () => {
-          await saveSetting("playMode", newPlayMode);
+          await saveSettingItem("playMode", newPlayMode);
         })();
       },
     },

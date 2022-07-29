@@ -3,7 +3,7 @@ import "@i18n";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@store/index";
 import React from "react";
-import {getSetting, getAudioFileMeta} from "../api";
+import {getSettingItem, getAudioMeta} from "../api";
 import {
   setCurrent,
   setIsPlaying,
@@ -24,7 +24,7 @@ export default function InitApp() {
   }, []);
 
   const _syncAutoPlay = async () => {
-    const res = await getSetting("autoPlay");
+    const res = await getSettingItem("autoPlay");
     if (res.code === 1) {
       logger("get the setting->autoPlay success: ", res.data);
       player.isAutoPlay = res.data;
@@ -33,7 +33,7 @@ export default function InitApp() {
   };
 
   const _syncPlayMode = async () => {
-    const res = await getSetting("playMode");
+    const res = await getSettingItem("playMode");
     if (res.code === 1) {
       logger("get the setting->playMode success: ", res.data);
       player.playMode = res.data;
@@ -42,10 +42,10 @@ export default function InitApp() {
   };
 
   const _syncQueue = async () => {
-    const res = await getSetting("queue");
-    const lastIdx = (await getSetting("lastIndex")).data;
+    const res = await getSettingItem("queue");
+    const lastIdx = (await getSettingItem("lastIndex")).data;
 
-    const lastSeek = (await getSetting("lastSeek")).data;
+    const lastSeek = (await getSettingItem("lastSeek")).data;
 
     if (res.code === 1) {
       logger("get the setting-> queue success: ", res.data);
@@ -53,7 +53,7 @@ export default function InitApp() {
       if (queue?.length > 0) {
         const newQueue = [];
         for (const q of queue) {
-          const resp = await getAudioFileMeta(q?.src, ["title", "src"]);
+          const resp = await getAudioMeta(q?.src, ["title", "src"]);
           console.log(resp);
           if (resp.code === 1) newQueue.push(resp.data);
         }

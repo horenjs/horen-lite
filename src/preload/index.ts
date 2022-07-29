@@ -20,7 +20,7 @@ const IPC_API = {
     return await ipcRenderer.invoke(EVENTS.REMOVE_FAVORITE.toString(), src);
   },
 
-  saveAudioFileListMsg: async () => {
+  saveAudioListReplyMsg: async () => {
     return new Promise((res, rej) => {
       try {
         ipcRenderer.on(EVENTS.SAVE_AUDIO_LIST_REPLY_MSG.toString(), (evt, idx, totals, src) => {
@@ -32,15 +32,15 @@ const IPC_API = {
     })
   },
 
-  getAudioFileList: async (p) => {
+  getAudioList: async (p) => {
     return await ipcRenderer.invoke(EVENTS.GET_AUDIO_LIST.toString(), p);
   },
 
-  saveAudioFileList: async (p, lists) => {
+  saveAudioList: async (p, lists) => {
     return await ipcRenderer.invoke(EVENTS.SAVE_AUDIO_LIST.toString(), p, lists);
   },
 
-  getAudioFileMeta: async (p, items) => {
+  getAudioMeta: async (p, items) => {
     return await ipcRenderer.invoke(EVENTS.GET_AUDIO_META.toString(), p, items);
   },
 
@@ -48,15 +48,15 @@ const IPC_API = {
     return await ipcRenderer.invoke(EVENTS.CLOSE_ALL_WINDOWS.toString());
   },
 
-  saveSetting: async (item, value) => {
+  saveSettingItem: async (item, value) => {
     return await ipcRenderer.invoke(EVENTS.SAVE_SETTING_ITEM.toString(), item ,value);
   },
 
-  getSetting: async (item: string) => {
+  getSettingItem: async (item: string) => {
     return await ipcRenderer.invoke(EVENTS.GET_SETTING_ITEM.toString(), item);
   },
 
-  getAllSetting: async () => {
+  getAllSettingItems: async () => {
     return await ipcRenderer.invoke(EVENTS.GET_ALL_SETTINGS.toString());
   },
 

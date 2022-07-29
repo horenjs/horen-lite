@@ -13,36 +13,36 @@ export async function removeFavorite(src: string) {
   return await window.ipc.removeFavorite(src);
 }
 
-export async function saveAudioFileListMsg() {
-  return await window.ipc.saveAudioFileListMsg();
+export async function saveAudioListReplyMsg() {
+  return await window.ipc.saveAudioListReplyMsg();
 }
 
-export async function getAudioFileList(p: string) {
-  return await window.ipc.getAudioFileList(p);
+export async function getAudioList(p: string) {
+  return await window.ipc.getAudioList(p);
 }
 
-export async function saveAudioFileList(p: string, lists: Track[]) {
-  return await window.ipc.saveAudioFileList(p, lists);
+export async function saveAudioList(p: string, lists: Track[]) {
+  return await window.ipc.saveAudioList(p, lists);
 }
 
-export async function getAudioFileMeta(p: string, items?: string[]) {
-  return await window.ipc.getAudioFileMeta(p, items);
+export async function getAudioMeta(p: string, items?: string[]) {
+  return await window.ipc.getAudioMeta(p, items);
 }
 
 export async function closeAllWindows() {
   return await window.ipc.closeAllWindows();
 }
 
-export async function saveSetting(item: string, value: SettingValue) {
-  return await window.ipc.saveSetting(item, value);
+export async function saveSettingItem(item: string, value: SettingValue) {
+  return await window.ipc.saveSettingItem(item, value);
 }
 
-export async function getSetting(item: string) {
-  return await window.ipc.getSetting(item);
+export async function getSettingItem(item: string) {
+  return await window.ipc.getSettingItem(item);
 }
 
-export async function getAllSetting() {
-  return await window.ipc.getAllSetting();
+export async function getAllSettingItems() {
+  return await window.ipc.getAllSettingItems();
 }
 
 export async function openDir() {

@@ -1,6 +1,6 @@
 import React from "react";
 import { RiCloseFill } from "react-icons/ri";
-import { closeAllWindows, saveSetting } from "../api";
+import { closeAllWindows, saveSettingItem } from "../api";
 import { useSelector } from "react-redux";
 import {
   selectSeek,
@@ -38,13 +38,13 @@ export default function TitleBar() {
       <div className={"close bar-item electron-no-drag"} onClick={e => {
         e.preventDefault();
         (async () => {
-          saveSetting("lastSeek", seek).then();
+          saveSettingItem("lastSeek", seek).then();
 
           const lastIdx = indexOf(trackList, current);
           logger("track list: ", trackList);
           logger("track: ", current);
           logger("save the last index to setting:", lastIdx);
-          saveSetting("lastIndex", lastIdx).then();
+          saveSettingItem("lastIndex", lastIdx).then();
 
           if (window.confirm(t("Confirm Exit"))) {
             logger("try to exit.");

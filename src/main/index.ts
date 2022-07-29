@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow } from "electron";
 import path from "path";
-import {LOGS_PATH, EVENTS} from "@constant";
+import {LOGS_PATH} from "@constant";
 import Logger from "./utils/logger";
 import Dato from "./utils/dato";
 import {destroy, bootstrap} from "./bootstrap";
@@ -25,23 +25,31 @@ async function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
-      contextIsolation: true, // this config make react use electron.
+      contextIsolation: true, // make this true for security.
       webSecurity: false,
     },
   });
 
+  log.info("to bootstrap all handlers...");
   await bootstrap({
     webContents: w.webContents,
     mainWindow: w,
     app: app,
   });
 
-  if (isDev) w.loadURL("http://localhost:9000/").then();
+
+  if (isDev) {
+    log.info("env: development, load http://localhost:9000");
+    w.loadURL("http://localhost:9000/").then();
+    log.debug("open the dev tools...");
+    w.webContents.openDevTools();
+  }
   // 生产环境应使用相对地址
   // 打包后的根目录为 app/
-  else w.loadFile("./dist/index.html").then();
-
-  if (isDev) w.webContents.openDevTools();
+  else {
+    log.info("env: production, load the index.html");
+    w.loadFile("./dist/index.html").then();
+  }
 
   w.on("closed", () => {
     destroy();
@@ -53,6 +61,7 @@ async function createWindow() {
 
 app.whenReady().then(async () => {
   // create main window
+  log.debug("create the main window.");
   mainWindow = await createWindow();
 
   // only in macOS
@@ -64,7 +73,9 @@ app.whenReady().then(async () => {
 });
 
 app.on("window-all-closed", function () {
+  log.debug("all windows is closed, quit.")
   if (process.platform !== "darwin") {
+    log.debug("I am in darwin, don't quit.");
     app.quit();
   }
 });

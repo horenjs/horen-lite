@@ -39,6 +39,12 @@ export class AudioHandler {
     // do nothing;
   }
 
+  /**
+   * get audio metadata by file path.
+   * @param evt Ipc Invoke Event.
+   * @param src audio file path.
+   * @param items item to be included.
+   */
   @IpcInvoke(EVENTS.GET_AUDIO_META)
   public async handleGetAudioMeta(
     evt,
@@ -56,6 +62,11 @@ export class AudioHandler {
     return { code: 1, msg: "success", data: meta };
   }
 
+  /**
+   * get audio list
+   * @param evt Ipc Invoke Event.
+   * @param p audio library path.
+   */
   @IpcInvoke(EVENTS.GET_AUDIO_LIST)
   public async handleGetAudioList(evt, p: string) {
     log.debug("try to get audio file list from full library file: ", p);
@@ -123,6 +134,12 @@ export class AudioHandler {
     };
   }
 
+  /**
+   * save audio list to file.
+   * @param evt Ipc Invoke Event.
+   * @param p audio library path.
+   * @param lists audio list to be saving.
+   */
   @IpcInvoke(EVENTS.SAVE_AUDIO_LIST)
   public async handleSaveAudioList(evt, p: string, lists: { src: string }[]) {
     const readAllMeta = async (fileLists: Track[]) => {

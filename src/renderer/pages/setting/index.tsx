@@ -1,10 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  saveSetting,
-  getAllSetting,
+  saveSettingItem,
+  getAllSettingItems,
   openDir,
-  saveAudioFileListMsg,
+  saveAudioListReplyMsg,
 } from "../../api";
 import "./style.less";
 import { useDispatch } from "react-redux";
@@ -32,7 +32,7 @@ export default function SettingPage() {
   React.useEffect(() => {
     (async () => {
       logger("try to get all setting.");
-      const result = await getAllSetting();
+      const result = await getAllSettingItems();
       if (result.code === 1) {
         logger("get all setting success: ", result.data);
         const { musicLibraryPath, autoPlay, language } = result.data;
@@ -44,7 +44,7 @@ export default function SettingPage() {
   }, []);
 
   React.useEffect(() => {
-    saveAudioFileListMsg().then((result: [number, number, string]) => {
+    saveAudioListReplyMsg().then((result: [number, number, string]) => {
       logger("save progress: ", result);
       setProgressIdx(result[0]);
       setProgressSrc(result[2]);
@@ -64,12 +64,12 @@ export default function SettingPage() {
           window.alert(t("Dont Change Music Library When Saving"));
         } else {
           setForm({ ...form, musicLibraryPath: result.data[0] });
-          const res = await saveSetting("musicLibraryPath", result.data[0]);
+          const res = await saveSettingItem("musicLibraryPath", result.data[0]);
           if (res.code === 1) {
             if (window.confirm(t("Refresh Music Library"))) {
               // set the lastIndex and lastSeek to 0 when refresh
-              saveSetting("lastIndex", 0).then();
-              saveSetting("lastSeek", 0).then();
+              saveSettingItem("lastIndex", 0).then();
+              saveSettingItem("lastSeek", 0).then();
               dispatch(refreshMusicLibrary());
             }
           }
@@ -111,7 +111,7 @@ export default function SettingPage() {
             onChange={(e) => {
               // e.preventDefault();
               setForm({ ...form, autoPlay: e.target.checked });
-              (async () => await saveSetting("autoPlay", e.target.checked))();
+              (async () => await saveSettingItem("autoPlay", e.target.checked))();
             }}
           />
         </div>
@@ -126,7 +126,7 @@ export default function SettingPage() {
               const value = e.target.value;
               setForm({...form, language: value});
               i18n.changeLanguage(value).then();
-              saveSetting("language", value).then();
+              saveSettingItem("language", value).then();
             }}
           >
             <option value={"cn"}>中文</option>
