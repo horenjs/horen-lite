@@ -1,14 +1,10 @@
 import "reflect-metadata";
 import { app, BrowserWindow } from "electron";
 import path from "path";
-import {LOGS_PATH} from "@constant";
 import Logger from "./utils/logger";
-import Dato from "./utils/dato";
 import {destroy, bootstrap} from "./bootstrap";
 
-const log = new Logger("main-index", {
-  filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
-});
+const log = new Logger("main::init");
 
 const isDev = process.env["NODE_ENV"] === "development";
 
@@ -37,7 +33,6 @@ async function createWindow() {
     app: app,
   });
 
-
   if (isDev) {
     log.info("env: development, load http://localhost:9000");
     w.loadURL("http://localhost:9000/").then();
@@ -63,13 +58,13 @@ app.whenReady().then(async () => {
   // create main window
   log.debug("create the main window.");
   mainWindow = await createWindow();
+});
 
-  // only in macOS
-  app.on("activate", function () {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
+// only in macOS
+app.on("activate", async () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    await createWindow();
+  }
 });
 
 app.on("window-all-closed", function () {

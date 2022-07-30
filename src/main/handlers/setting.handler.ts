@@ -1,15 +1,11 @@
-import path from "path";
 import {HandlerResponse, HandlerResponseCode, Resp} from "./index";
-import {EVENTS, LOGS_PATH} from "@constant";
+import {EVENTS} from "@constant";
 import Logger from "../utils/logger";
-import Dato from "../utils/dato";
 import {type SettingFile, type SettingValue} from "../utils/setting-store";
 import {Handler, IpcInvoke} from "../decorators";
 import {SettingService} from "../services/setting.service";
 
-const log = new Logger("setting-handlers", {
-  filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
-});
+const log = new Logger("handler::setting");
 
 @Handler()
 export class SettingHandler {

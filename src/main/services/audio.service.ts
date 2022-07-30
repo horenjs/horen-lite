@@ -1,5 +1,5 @@
 import { Injectable } from "../decorators";
-import {readFileAsync, walksAsync, writeFileAsync} from "../utils/fs-promises";
+import {walksAsync} from "../utils/fs-promises";
 import {AudioMeta} from "../handlers/audio.handler";
 import * as mm from "music-metadata";
 import path from "path";
@@ -9,20 +9,19 @@ import crypto from "crypto";
 import {
   ALBUM_COVER_PATH,
   AUDIO_EXTS,
-  LOGS_PATH,
   MUSIC_LIBRARY_PATH
 } from "@constant";
 import * as fse from "fs-extra";
 import axios from "axios";
 import Logger from "../utils/logger";
-import Dato from "../utils/dato";
+import {Track} from "@plugins/player";
 
-const log = new Logger("audio-service", {
-  filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
-});
+const log = new Logger("service::audio");
 
 @Injectable("AudioService")
 export class AudioService {
+  private encoding = "utf-8";
+
   constructor() {
     // do nothing
     // don't delete this.
@@ -57,62 +56,21 @@ export class AudioService {
     }
 
     const { title, artist, artists, album, genre, date, picture } =
-    meta?.common || {};
+      meta?.common || {};
+    const { duration } = meta?.format || {};
 
     const extname = path.extname(filepath);
     const finalTitle = title || path.basename(filepath, extname);
 
-    const { duration } = meta?.format || {};
-
-    let lyric: string;
+    let lyric = "";
     if (items.includes("lyric")) {
-      log.debug("include lyric, try to get it.");
-      const lrcPath = filepath.replace(extname, ".lrc");
-      try {
-        lyric = await readFileAsync(lrcPath);
-      } catch (err) {
-        log.warning("there is no local lrc file, try to get from internet.");
-
-        const neteaseApi = new Netease(title, artist, album);
-        try {
-          lyric = await neteaseApi.getLyric();
-          log.info("get the lyric from internet success, save it to file.");
-          if (lyric) await writeFileAsync(lrcPath, lyric);
-        } catch (err) {
-          log.error("get the lyric from internet failed.");
-          lyric = String(err);
-        }
-      }
+      lyric = await this.getLyric(filepath, title, artist, album);
     }
 
     let finalPic: string;
     if (items.includes("picture")) {
       log.debug("include picture, try to get it.");
-      if (picture) {
-        const data = picture[0]?.data;
-        finalPic = arrayBufferToBase64(data);
-      } else {
-        const hash = crypto.createHash("md5");
-        hash.update(artist + album);
-        const picPath = path.join(ALBUM_COVER_PATH, `${hash.digest("hex")}.png`);
-
-        fse.ensureDir(ALBUM_COVER_PATH).then();
-
-        if (fse.existsSync(picPath)) {
-          finalPic = "file:///" + picPath.replace(/\\/g, "/");
-        } else {
-          const neteaseApi = new Netease(title, artist, album);
-          const picUrl = await neteaseApi.getAlbumPic();
-          finalPic = picUrl;
-
-          if (picUrl) {
-            const resp = await axios.get(picUrl, { responseType: "arraybuffer" });
-            if (resp.data) {
-              await writeFileAsync(picPath, resp.data);
-            }
-          }
-        }
-      }
+      finalPic = await AudioService.getPicture(picture, title, artist, album);
     }
 
     return {
@@ -147,24 +105,20 @@ export class AudioService {
    * @param p library path
    * @param flag short or full
    */
-  public async getAudioFileListFromLibraryFile(
-    p: string,
-    flag: "short" | "full"
-  ) {
-    let libraryFilePath: string;
+  public async parseLibraryFile(p: string, flag: "short" | "full") :Promise<Track[]> {
+    let libraryPath: string;
     switch (flag) {
     case "short":
-      libraryFilePath = this.generateLibraryFilePath(p);
+      libraryPath = this.getLibraryFilePath(p);
       break;
     case "full":
-      libraryFilePath = this.generateLibraryFilePath(p, "-full");
+      libraryPath = this.getLibraryFilePath(p, "-full");
       break;
     }
     try {
-      const jsonStr = await readFileAsync(libraryFilePath);
-      return JSON.parse(jsonStr);
+      return await fse.readJSON(libraryPath, { encoding: this.encoding });
     } catch (err) {
-      return [];
+      log.error("can't parse library file.");
     }
   }
 
@@ -177,8 +131,7 @@ export class AudioService {
     try {
       return await walksAsync(path.resolve(p), tmp);
     } catch (err) {
-      console.error(err);
-      return [];
+      log.error("can't walks the path: ", p);
     }
   }
 
@@ -187,12 +140,67 @@ export class AudioService {
    * @param p library path
    * @param flag short or full
    */
-  public generateLibraryFilePath(p: string, flag = "") {
+  public getLibraryFilePath(p: string, flag = "") {
     const hash = crypto.createHash("md5");
     hash.update(p);
-
-    fse.ensureDir(MUSIC_LIBRARY_PATH).then();
-
     return path.join(MUSIC_LIBRARY_PATH, `${hash.digest("hex")}${flag}.json`);
+  }
+
+  /**
+   * get lyric from built-in or internet
+   * @param src audio path
+   * @param title audio title
+   * @param artist audio artist
+   * @param album audio album
+   * @private
+   */
+  private async getLyric(src, title, artist, album) {
+    let lyric;
+    const extname = path.extname(src);
+    const lrcPath = src.replace(extname, ".lrc");
+    try {
+      return await fse.readFile(lrcPath, {encoding: this.encoding});
+    } catch (err) {
+      log.warning("there is no local lrc file");
+    }
+
+    try {
+      const neteaseApi = new Netease(title, artist, album);
+      lyric = await neteaseApi.getLyric();
+      if (lyric) await fse.writeFile(lrcPath, lyric);
+      return lyric;
+    } catch (err) {
+      log.error("get the lyric from internet failed.");
+    }
+  }
+
+  private static async getPicture(builtInPicture: any, title, artist, album) {
+    if (builtInPicture) {
+      const data = builtInPicture[0]?.data;
+      return arrayBufferToBase64(data);
+    } else {
+      const hash = crypto.createHash("md5");
+      hash.update(artist + album);
+      const albumPath = path.join(
+        ALBUM_COVER_PATH,
+        `${hash.digest("hex")}.png`
+      );
+
+      if (fse.existsSync(albumPath)) {
+        return "file:///" + albumPath.replace(/\\/g, "/");
+      } else {
+        const neteaseApi = new Netease(title, artist, album);
+        const picUrl = await neteaseApi.getAlbumPic();
+        await AudioService.saveAlbumCover(picUrl, albumPath);
+        return picUrl;
+      }
+    }
+  }
+
+  private static async saveAlbumCover(url: string, coverPath: string) {
+    const resp = await axios.get(url, { responseType: "arraybuffer" });
+    if (resp.data) {
+      await fse.writeFile(coverPath, resp.data);
+    }
   }
 }

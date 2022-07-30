@@ -2,6 +2,7 @@ import fse from "fs-extra";
 import path from "path";
 import * as Chalk from "chalk";
 import Dato from "./dato";
+import { LOGS_PATH } from "@constant";
 
 export interface LoggerConfig {
   logLevel?: string;
@@ -14,7 +15,7 @@ export default class Logger {
   private _defaultConfig: LoggerConfig = {
     logLevel: "DEBUG",
     dateFormat: "YYYY-MM-DD",
-    filePath: null,
+    filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
   };
 
   constructor(private logName: string, private config?: LoggerConfig) {

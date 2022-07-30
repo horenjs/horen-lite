@@ -1,14 +1,10 @@
 import {Handler, IpcInvoke} from "../decorators";
-import {EVENTS, LOGS_PATH} from "@constant";
+import {EVENTS} from "@constant";
 import {mainWindow} from "../index";
 import {dialog} from "electron";
 import Logger from "../utils/logger";
-import path from "path";
-import Dato from "../utils/dato";
 
-const log = new Logger("main-index", {
-  filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
-});
+const log = new Logger("handler::window");
 
 @Handler()
 export class WindowHandler {

@@ -7,7 +7,7 @@ import {Handler, IpcInvoke} from "../decorators";
 import Logger from "../utils/logger";
 import {AudioService} from "../services/audio.service";
 
-const log = new Logger("handler:favorite");
+const log = new Logger("handler::favorite");
 
 @Handler()
 export class FavoriteHandler {

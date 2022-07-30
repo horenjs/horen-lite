@@ -2,16 +2,13 @@ import path from "path";
 import * as fse from "fs-extra";
 import { HandlerResponse } from "./index";
 import Logger from "../utils/logger";
-import Dato from "../utils/dato";
-import { EVENTS, LOGS_PATH } from "@constant";
+import { EVENTS } from "@constant";
 import { Handler, IpcInvoke } from "../decorators";
 import { Track } from "@plugins/player";
 import { mainWindow } from "../index";
 import { AudioService } from "../services/audio.service";
 
-const log = new Logger("audio-handlers", {
-  filePath: path.join(LOGS_PATH, `${Dato.now("YYYY-MM-DD")}.log`),
-});
+const log = new Logger("handler::audio");
 
 type AudioMeta = Partial<{
   src: string;
@@ -53,7 +50,7 @@ export class AudioHandler {
   ): Promise<HandlerResponse<AudioMeta>> {
     let meta: AudioMeta;
     if (items) {
-      log.debug("try to get audio meta, src: ", src, ", items: ", ...items);
+      log.debug("try to get audio meta, src: ", src, ", items: ", items.join(", "));
       meta = await this.audioService.readMusicFileMeta(src, items);
     } else {
       log.debug("try to get audio meta, src: ", src);
@@ -71,9 +68,9 @@ export class AudioHandler {
   public async handleGetAudioList(evt, p: string) {
     log.debug("try to get audio file list from full library file: ", p);
     const audioFileListFull =
-      await this.audioService.getAudioFileListFromLibraryFile(p, "full");
+      await this.audioService.parseLibraryFile(p, "full");
 
-    if (audioFileListFull.length > 0) {
+    if (audioFileListFull?.length > 0) {
       log.debug(
         "get file list from the full library file success, length: ",
         audioFileListFull.length
@@ -87,8 +84,8 @@ export class AudioHandler {
       log.debug("get file list from the full library file failed.");
       log.debug("try to get audio list from the short library file.");
       const audioFileListShort =
-        await this.audioService.getAudioFileListFromLibraryFile(p, "short");
-      if (audioFileListShort.length > 0) {
+        await this.audioService.parseLibraryFile(p, "short");
+      if (audioFileListShort?.length > 0) {
         log.debug(
           "get file list from the short library file success, length: ",
           audioFileListShort.length
@@ -104,7 +101,7 @@ export class AudioHandler {
     log.debug("library file doesn't exist, rebuild it.");
     const originFileList = await this.audioService.readFileList(p);
 
-    if (originFileList.length === 0) {
+    if (originFileList?.length === 0) {
       log.debug("rebuild from the path: ", p, " failed.");
       return {
         code: 0,
@@ -118,7 +115,7 @@ export class AudioHandler {
     // save to the library file.
     try {
       log.debug("try to save the audio file list to the file.");
-      await fse.writeJSON(this.audioService.generateLibraryFilePath(p), lists, {
+      await fse.writeJSON(this.audioService.getLibraryFilePath(p), lists, {
         spaces: 2,
         encoding: "utf-8",
       });
@@ -170,7 +167,7 @@ export class AudioHandler {
       return metas;
     };
 
-    const filepath = this.audioService.generateLibraryFilePath(p, "-full");
+    const filepath = this.audioService.getLibraryFilePath(p, "-full");
     log.info("to read full music library: ", filepath);
 
     try {

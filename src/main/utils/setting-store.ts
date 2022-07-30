@@ -38,7 +38,7 @@ export default class SettingStore {
     } catch (err) {
       fs.writeFileSync(
         this.userSettingPath,
-        JSON.stringify(DEFAULT_SETTING, null, 2),
+        JSON.stringify({}, null, 2),
         { encoding: this.encoding }
       );
     }
