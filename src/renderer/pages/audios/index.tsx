@@ -5,10 +5,11 @@ import {
   selectIsPlaying,
   selectCurrent,
   selectQueue,
-  addToQueue
+  addToQueue, setQueue
 } from "@store/slices/player-status.slice";
 import { RiPlayListAddFill } from "react-icons/ri";
 import { MdOutlineDownloadDone } from "react-icons/md";
+import { TbPlaylistAdd } from "react-icons/tb";
 import { Track } from "@plugins/player";
 import { getAudioList, getSettingItem } from "../../api";
 import { useTranslation } from "react-i18next";
@@ -56,6 +57,11 @@ export default function PlayList() {
     }
   }
 
+  const handlePlayAll = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dispatch(setQueue(trackListFull));
+  }
+
   const renderTrackItem = (track: Track, idx: number) => {
     const isCurrent = current.src === track.src;
     return (
@@ -90,7 +96,11 @@ export default function PlayList() {
 
   return (
     <div className={"page page-audio-list electron-no-drag perfect-scrollbar"}>
-      {trackListFull.length ? (
+      <div className={"play-all"} onClick={handlePlayAll}>
+        <TbPlaylistAdd size={24} />
+        <span>Play All</span>
+      </div>
+      {trackListFull.length > 0 ? (
         trackListFull.map(renderTrackItem)
       ) : (
         <div className={"loading"}>
