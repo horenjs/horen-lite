@@ -29,6 +29,11 @@ export enum EVENTS {
   CLOSE_ALL_WINDOWS,
 }
 
+export enum RESP_CODE {
+  ERROR,
+  OK,
+}
+
 /* eslint-disable */
 const pack = require("../../package.json");
 const path = require("path");

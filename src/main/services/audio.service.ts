@@ -8,13 +8,20 @@ import {arrayBufferToBase64} from "../utils";
 import crypto from "crypto";
 import {
   ALBUM_COVER_PATH,
-  AUDIO_EXTS,
+  AUDIO_EXTS, EVENTS,
   MUSIC_LIBRARY_PATH
 } from "@constant";
 import * as fse from "fs-extra";
 import axios from "axios";
 import Logger from "../utils/logger";
 import {Track} from "@plugins/player";
+import {mainWindow} from "../index";
+
+export type LibraryFile = {
+  createAt: number;
+  updateAt: number;
+  lists: Track[];
+}
 
 const log = new Logger("service::audio");
 
@@ -25,6 +32,72 @@ export class AudioService {
   constructor() {
     // do nothing
     // don't delete this.
+  }
+
+  /**
+   * get audio list
+   * @param p audio path
+   */
+  public async getAudioList(p: string) {
+    /**
+     * full library
+     */
+    const fullLibrary = await this.parseLibraryFile(p, "full");
+    if (fullLibrary?.lists?.length > 0) return fullLibrary.lists;
+    /**
+     * short library
+     */
+    const shortLibrary = await this.parseLibraryFile(p, "short");
+    if (shortLibrary?.lists?.length > 0) return shortLibrary.lists;
+    /**
+     * read origin path
+     */
+    let lists;
+    try {
+      const fileLists = await this.readFileList(p);
+      if (fileLists?.length > 0) {
+        lists = this.filterAudioFile(fileLists); // filter the audio
+      }
+    } catch (err) {
+      throw new Error(err);
+    }
+
+    try {
+      await this.saveLibrary(p, lists);
+    } catch (err) {
+      log.error(err);
+    }
+
+    return lists;
+  }
+
+  /**
+   * save to library
+   * @param p audio path
+   * @param lists audio list
+   */
+  public async saveLibrary(p: string, lists: Track[]) {
+    const libraryPath = this.getLibraryFilePath(p, "-full");
+
+    try {
+      const stats = await fse.stat(libraryPath);
+      if (stats.isFile()) return;
+    } catch (err) {
+      log.error(err);
+    }
+
+    const metas = await this.readMetas(lists);
+    const data: LibraryFile = {
+      createAt: new Date().valueOf(),
+      updateAt: new Date().valueOf(),
+      lists: metas,
+    }
+    try {
+      await fse.writeJSON(libraryPath, data, {encoding: this.encoding, spaces: 2});
+    } catch (err) {
+      log.error(err);
+      throw new Error(err);
+    }
   }
 
   /**
@@ -44,7 +117,7 @@ export class AudioService {
       "duration",
       "picture",
       "lyric",
-    ]
+    ],
   ): Promise<AudioMeta> {
     let meta;
 
@@ -52,6 +125,7 @@ export class AudioService {
     try {
       meta = await mm.parseFile(filepath);
     } catch (err) {
+      log.error(err);
       meta = null;
     }
 
@@ -105,7 +179,10 @@ export class AudioService {
    * @param p library path
    * @param flag short or full
    */
-  public async parseLibraryFile(p: string, flag: "short" | "full") :Promise<Track[]> {
+  public async parseLibraryFile(
+    p: string,
+    flag: "short" | "full"
+  ): Promise<LibraryFile> {
     let libraryPath: string;
     switch (flag) {
     case "short":
@@ -116,9 +193,10 @@ export class AudioService {
       break;
     }
     try {
-      return await fse.readJSON(libraryPath, { encoding: this.encoding });
+      return await fse.readJSON(libraryPath, { encoding: this.encoding })
     } catch (err) {
-      log.error("can't parse library file.");
+      log.error(err);
+      return null;
     }
   }
 
@@ -159,7 +237,7 @@ export class AudioService {
     const extname = path.extname(src);
     const lrcPath = src.replace(extname, ".lrc");
     try {
-      return await fse.readFile(lrcPath, {encoding: this.encoding});
+      return await fse.readFile(lrcPath, { encoding: this.encoding });
     } catch (err) {
       log.warning("there is no local lrc file");
     }
@@ -202,5 +280,31 @@ export class AudioService {
     if (resp.data) {
       await fse.writeFile(coverPath, resp.data);
     }
+  }
+
+  private async readMetas(fileLists: Track[]) {
+    const metas = [];
+    const items = [
+      "title",
+      "artist",
+      "artists",
+      "album",
+      "genre",
+      "date",
+      "duration",
+      // "picture",
+      "lyric",
+    ];
+    for (let i = 0; i < fileLists.length; i++) {
+      mainWindow.webContents.send(
+        EVENTS.SAVE_AUDIO_LIST_REPLY_MSG.toString(),
+        i,
+        fileLists.length,
+        path.basename(fileLists[i].src)
+      );
+      const meta = await this.readMusicFileMeta(fileLists[i].src, items);
+      metas.push(meta);
+    }
+    return metas;
   }
 }

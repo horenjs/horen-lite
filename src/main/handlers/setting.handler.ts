@@ -1,5 +1,5 @@
-import {HandlerResponse, HandlerResponseCode, Resp} from "./index";
-import {EVENTS} from "@constant";
+import {HandlerResponse, Resp} from "./index";
+import {EVENTS, RESP_CODE} from "@constant";
 import Logger from "../utils/logger";
 import {type SettingFile, type SettingValue} from "../utils/setting-store";
 import {Handler, IpcInvoke} from "../decorators";
@@ -22,10 +22,10 @@ export class SettingHandler {
     log.info("to save the setting item: ", item);
     try {
       const data = this.settingService.saveItem(item, value);
-      return Resp(HandlerResponseCode.SUCCESS, data);
+      return Resp(RESP_CODE.OK, data);
     } catch (err) {
-      log.warning(err);
-      return Resp(HandlerResponseCode.ERROR, null, err);
+      log.error(err);
+      return Resp(RESP_CODE.ERROR, null, err);
     }
   }
 
@@ -37,10 +37,10 @@ export class SettingHandler {
     log.info("to get setting item: ", item);
     try {
       const data = this.settingService.getItem(item);
-      return Resp(HandlerResponseCode.SUCCESS, data);
+      return Resp(RESP_CODE.OK, data);
     } catch (err) {
-      log.warning(err);
-      return Resp(HandlerResponseCode.ERROR, null, err);
+      log.error(err);
+      return Resp(RESP_CODE.ERROR, null, err);
     }
   }
 
@@ -49,10 +49,10 @@ export class SettingHandler {
     log.info("to get all setting items");
     try {
       const data = this.settingService.getAllItems();
-      return Resp(HandlerResponseCode.SUCCESS, data);
+      return Resp(RESP_CODE.OK, data);
     } catch (err) {
-      log.warning(err);
-      return Resp(HandlerResponseCode.ERROR, null, err);
+      log.error(err);
+      return Resp(RESP_CODE.ERROR, null, err);
     }
   }
 }

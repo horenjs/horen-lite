@@ -2,7 +2,7 @@ import {HandlerResponse} from "./index";
 import path from "path";
 import {EVENTS, USER_DATA_PATH} from "@constant";
 import * as fse from "fs-extra";
-import {Favorites} from "./audio.handler";
+import {FavoriteFile} from "./audio.handler";
 import {Handler, IpcInvoke} from "../decorators";
 import Logger from "../utils/logger";
 import {AudioService} from "../services/audio.service";
@@ -16,7 +16,7 @@ export class FavoriteHandler {
   }
 
   @IpcInvoke(EVENTS.GET_FAVORITES)
-  public async handleGetFavorites(): Promise<HandlerResponse<Favorites>> {
+  public async handleGetFavorites(): Promise<HandlerResponse<FavoriteFile>> {
     const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
     try {
       log.debug("ensure the favorite dir: ", favoritesFilePath);
@@ -42,7 +42,7 @@ export class FavoriteHandler {
     src: string
   ): Promise<HandlerResponse<any>> {
     const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
-    let data: Favorites;
+    let data: FavoriteFile;
     try {
       log.debug("try to get the favorites from existed file: ", favoritesFilePath);
       data = await fse.readJSON(favoritesFilePath, { encoding: "utf-8" });
@@ -83,7 +83,7 @@ export class FavoriteHandler {
   ): Promise<HandlerResponse<any>> {
     log.warning("try to remove the favorite item: ", src);
     const favoritesFilePath = path.join(USER_DATA_PATH, "favorites.json");
-    let data: Favorites;
+    let data: FavoriteFile;
     try {
       data = await fse.readJSON(favoritesFilePath, { encoding: "utf-8" });
     } catch (err) {

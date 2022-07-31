@@ -30,6 +30,7 @@ export default function PlayList() {
     getSettingItem("musicLibraryPath").then((result) => {
       if (result.code === 1) {
         getAudioList(result.data).then((res) => {
+          console.log(res);
           if (res.code === 1) {
             logger("get the [full] music file list: ", res.data?.lists);
             setTrackListFull(res.data?.lists);
