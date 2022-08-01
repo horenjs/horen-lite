@@ -16,6 +16,7 @@ import axios from "axios";
 import Logger from "../utils/logger";
 import {Track} from "@plugins/player";
 import {mainWindow} from "../index";
+import {AudioModel} from "../db/models";
 
 export type LibraryFile = {
   createAt: number;
@@ -38,37 +39,9 @@ export class AudioService {
    * get audio list
    * @param p audio path
    */
-  public async getAudioList(p: string) {
-    /**
-     * full library
-     */
-    const fullLibrary = await this.parseLibraryFile(p, "full");
-    if (fullLibrary?.lists?.length > 0) return fullLibrary.lists;
-    /**
-     * short library
-     */
-    const shortLibrary = await this.parseLibraryFile(p, "short");
-    if (shortLibrary?.lists?.length > 0) return shortLibrary.lists;
-    /**
-     * read origin path
-     */
-    let lists;
-    try {
-      const fileLists = await this.readFileList(p);
-      if (fileLists?.length > 0) {
-        lists = this.filterAudioFile(fileLists); // filter the audio
-      }
-    } catch (err) {
-      throw new Error(err);
-    }
-
-    try {
-      await this.saveLibrary(p, lists);
-    } catch (err) {
-      log.error(err);
-    }
-
-    return lists;
+  public async getAudioList(p?: string) {
+    const results = await AudioModel.findAll();
+    return results.map(r => r.get());
   }
 
   /**
@@ -77,27 +50,8 @@ export class AudioService {
    * @param lists audio list
    */
   public async saveLibrary(p: string, lists: Track[]) {
-    const libraryPath = this.getLibraryFilePath(p, "-full");
-
-    try {
-      const stats = await fse.stat(libraryPath);
-      if (stats.isFile()) return;
-    } catch (err) {
-      log.error(err);
-    }
-
     const metas = await this.readMetas(lists);
-    const data: LibraryFile = {
-      createAt: new Date().valueOf(),
-      updateAt: new Date().valueOf(),
-      lists: metas,
-    }
-    try {
-      await fse.writeJSON(libraryPath, data, {encoding: this.encoding, spaces: 2});
-    } catch (err) {
-      log.error(err);
-      throw new Error(err);
-    }
+    await AudioModel.bulkCreate(metas);
   }
 
   /**
@@ -115,7 +69,7 @@ export class AudioService {
       "genre",
       "date",
       "duration",
-      "picture",
+      // "picture",
       "lyric",
     ],
   ): Promise<AudioMeta> {
@@ -173,33 +127,7 @@ export class AudioService {
     }
     return tmp;
   }
-
-  /**
-   * get audio list from library file.
-   * @param p library path
-   * @param flag short or full
-   */
-  public async parseLibraryFile(
-    p: string,
-    flag: "short" | "full"
-  ): Promise<LibraryFile> {
-    let libraryPath: string;
-    switch (flag) {
-    case "short":
-      libraryPath = this.getLibraryFilePath(p);
-      break;
-    case "full":
-      libraryPath = this.getLibraryFilePath(p, "-full");
-      break;
-    }
-    try {
-      return await fse.readJSON(libraryPath, { encoding: this.encoding })
-    } catch (err) {
-      log.error(err);
-      return null;
-    }
-  }
-
+  
   /**
    * read file list
    * @param p
