@@ -7,7 +7,7 @@
  * @Description  : 
  */
 const path = require('path');
-const { lessLoader, resourceLoader } = require('./rules');
+const { lessLoader, resourceLoader } = require('./loaders');
 const { htmlPlugin } = require('./plugins');
 
 const srcPath = path.join(__dirname, '../src/renderer');

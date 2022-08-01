@@ -9,7 +9,7 @@
 const path = require('path');
 const { merge } = require('webpack-merge');
 const baseConfig = require('./webpack.base');
-const { jsRules } = require('./rules');
+const { babelLoader } = require('./loaders');
 
 const srcPath = path.join(__dirname, '../src/renderer');
 
@@ -17,7 +17,7 @@ module.exports = merge(baseConfig, {
   mode: 'production',
   module: {
     rules: [
-      jsRules(srcPath),
+      babelLoader(srcPath),
     ]
   }
 })

@@ -7,7 +7,7 @@
  * @Description  : 
  */
 const path = require('path');
-const { babelTsLoader } = require("./rules");
+const { babelLoaderMainProcess } = require("./loaders");
 const nodeExternals = require('webpack-node-externals');
 
 const mainPath = path.join(__dirname, "../src/main");
@@ -31,11 +31,11 @@ module.exports = {
     alias: {
       "@constant": constantPath,
     },
-    extensions: [".ts", ".js"],
+    extensions: [".ts"],
   },
   module: {
     rules: [
-      babelTsLoader(mainPath, preloadPath, constantPath),
+      babelLoaderMainProcess(mainPath, preloadPath, constantPath),
     ]
   },
   externals: [nodeExternals()]

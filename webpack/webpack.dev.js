@@ -9,7 +9,7 @@
 const path = require('path');
 const baseConfig = require('./webpack.base');
 const { merge } = require('webpack-merge');
-const { jsRulesDev } = require('./rules');
+const { babelLoaderDev } = require('./loaders');
 const { reactRefreshPlugin } = require('./plugins');
 
 const { rendererPort } = require("../config");
@@ -20,7 +20,7 @@ module.exports = merge(baseConfig, {
   mode: 'development',
   module: {
     rules: [
-      jsRulesDev(srcPath),
+      babelLoaderDev(srcPath),
     ]
   },
   plugins: [

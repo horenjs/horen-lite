@@ -3,13 +3,13 @@
  * @Date         : 2022-05-09 20:52:56
  * @LastEditTime : 2022-06-08 21:59:44
  * @lastEditors  : Kevin Jobs
- * @FilePath     : \react-electron-typescript\webpack\rules.js
+ * @FilePath     : \react-electron-typescript\webpack\loaders.js
  * @Description  : 
  */
-function jsRulesDev(includePath) {
+function babelLoaderDev(...includePath) {
   return {
-    test: /\.(js|mjs|jsx|ts|tsx)$/,
-    include: includePath,
+    test: /\.(ts|tsx)$/,
+    include: [...includePath],
     exclude: /node_modules/,
     use: {
       loader: 'babel-loader?cacheDirectory',
@@ -28,10 +28,10 @@ function jsRulesDev(includePath) {
   }
 }
 
-function jsRules(includePath) {
+function babelLoader(...includePath) {
   return {
-    test: /\.(js|mjs|jsx|ts|tsx)$/,
-    include: includePath,
+    test: /\.(ts|tsx)$/,
+    include: [...includePath],
     use: {
       loader: 'babel-loader?cacheDirectory',
       options: {
@@ -48,7 +48,7 @@ function jsRules(includePath) {
   }
 }
 
-function babelTsLoader(...p) {
+function babelLoaderMainProcess(...p) {
   return {
     test: /\.ts$/,
     include: [...p],
@@ -90,9 +90,9 @@ function resourceLoader(p) {
 }
 
 module.exports = {
-  jsRulesDev,
-  jsRules,
-  babelTsLoader,
+  babelLoaderDev,
+  babelLoader,
+  babelLoaderMainProcess,
   lessLoader,
   resourceLoader,
 }
