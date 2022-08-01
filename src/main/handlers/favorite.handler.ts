@@ -1,6 +1,6 @@
 import {HandlerResponse, Resp} from "./index";
 import {EVENTS, RESP_CODE} from "@constant";
-import {FavoriteFile} from "./audio.handler";
+import {Favorite} from "./audio.handler";
 import {Handler, IpcInvoke} from "../decorators";
 import Logger from "../utils/logger";
 import {FavoriteService} from "../services/favorite.service";
@@ -14,7 +14,7 @@ export class FavoriteHandler {
   }
 
   @IpcInvoke(EVENTS.GET_FAVORITES)
-  public async handleGetFavorites(): Promise<HandlerResponse<FavoriteFile>> {
+  public async handleGetFavorites(): Promise<HandlerResponse<Favorite[]>> {
     try {
       const data = await this.favoriteService.getAllFavorites();
       return Resp(RESP_CODE.OK, data);
@@ -28,10 +28,10 @@ export class FavoriteHandler {
   public async handleAddFavorite(
     evt,
     src: string
-  ): Promise<HandlerResponse<FavoriteFile>> {
+  ): Promise<HandlerResponse<void>> {
     try {
-      const data = await this.favoriteService.addFavoriteItem(src);
-      return Resp(RESP_CODE.OK, data);
+      await this.favoriteService.addFavoriteItem(src);
+      return Resp(RESP_CODE.OK, null);
     } catch (err) {
       log.error(err);
       return Resp(RESP_CODE.ERROR, null, err);
@@ -42,10 +42,10 @@ export class FavoriteHandler {
   public async handleRemoveFavorite(
     evt,
     src: string
-  ): Promise<HandlerResponse<FavoriteFile>> {
+  ): Promise<HandlerResponse<void>> {
     try {
-      const data = await this.favoriteService.removeFavoriteItem(src);
-      return Resp(RESP_CODE.OK, data);
+      await this.favoriteService.removeFavoriteItem(src);
+      return Resp(RESP_CODE.OK, null);
     } catch (err) {
       log.error(err);
       return Resp(RESP_CODE.ERROR, null, err);

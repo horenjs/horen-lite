@@ -25,7 +25,7 @@ export default function PageFavorites() {
   React.useEffect(() => {
     getFavorites().then((res) => {
       if (res.code === 1) {
-        setFavorites(res.data.lists);
+        setFavorites(res.data);
       }
     });
   }, []);
@@ -95,7 +95,7 @@ export default function PageFavorites() {
   );
 }
 
-const favoritesIndexOf = (arr, a) => {
+export const favoritesIndexOf = (arr, a) => {
   for (let i = 0; i < arr.length; i++) {
     if (arr[i].src === a.src) {
       return i;

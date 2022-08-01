@@ -17,7 +17,7 @@ export type Track = Partial<{
   album: string;
   duration: number;
   date: DateType;
-  genre: string;
+  genre: string[];
   picture: PictureType;
   lyric: string;
 }>;

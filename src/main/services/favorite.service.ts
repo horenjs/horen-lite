@@ -1,8 +1,8 @@
 import { Injectable } from "../decorators";
 import path from "path";
 import {USER_DATA_PATH} from "@constant";
-import * as fse from "fs-extra";
-import {FavoriteFile} from "../handlers/audio.handler";
+import {FavoriteModel} from "../db/models";
+import {AudioService} from "./audio.service";
 
 @Injectable("FavoriteService")
 export class FavoriteService {
@@ -15,72 +15,23 @@ export class FavoriteService {
   }
 
   public async getAllFavorites() {
-    try {
-      return await fse.readJSON(this.favoriteFilePath, {
-        encoding: this.encoding
-      });
-    } catch (err) {
-      throw new Error("read favorite file failed.");
-    }
+    const result = await FavoriteModel.findAll();
+    return result.map(r => r.get());
   }
 
   public async addFavoriteItem(src: string) {
-    let data;
-
-    try {
-      data = await fse.readJSON(this.favoriteFilePath, { encoding: this.encoding });
-    } catch (err) {
-      // do nothing
-      data = null;
-    }
-
-    if (data) {
-      data = {
-        updateAt: new Date().valueOf(),
-        lists: [...data.lists, {src, addAt: new Date().valueOf()}]
+    const as = new AudioService();
+    const meta = await as.readMusicFileMeta(src);
+    for (const key in meta) {
+      const value = meta[key];
+      if (value instanceof Array) {
+        meta[key] = JSON.stringify(value);
       }
-    } else {
-      data = {
-        updateAt: new Date().valueOf(),
-        lists: [{src, addAt: new Date().valueOf()}],
-      };
     }
-
-    try {
-      await fse.writeJSON(this.favoriteFilePath, data, {
-        encoding: this.encoding,
-        spaces: 2,
-      });
-      return data;
-    } catch (err) {
-      throw new Error("cannot create new favorite file.");
-    }
+    await FavoriteModel.create({...meta});
   }
 
   public async removeFavoriteItem(src: string) {
-    let data: FavoriteFile;
-    try {
-      data = await fse.readJSON(this.favoriteFilePath, { encoding: this.encoding });
-    } catch (err) {
-      throw new Error("there is no favorite file.");
-    }
-
-    for (let i = 0; i < data.lists.length; i++) {
-      const item = data.lists[i];
-      if (item?.src === src) {
-        data.lists.splice(i, 1);
-      }
-    }
-
-    data.updateAt = new Date().valueOf();
-
-    try {
-      await fse.writeJSON(this.favoriteFilePath, data, {
-        encoding: this.encoding,
-        spaces: 2,
-      });
-    } catch (err) {
-      throw new Error("cannot write the new favorite file.");
-    }
+    await FavoriteModel.destroy({where:{src}});
   }
 }

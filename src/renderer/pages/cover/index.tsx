@@ -32,6 +32,7 @@ import "./style.less";
 import { PlayMode } from "@plugins/player";
 import debug from "@plugins/debug";
 import { saveSettingItem, getFavorites, addFavorite, removeFavorite } from "../../api";
+import {favoritesIndexOf} from "../favorites";
 
 const logger = debug("Page:Cover");
 
@@ -127,7 +128,6 @@ export default function PageCover() {
 
   const [items, setItems] = React.useState(handlerItems);
   const [w, setW] = React.useState(0);
-  const [favorites, setFavorites] = React.useState();
   const [isFavorite, setIsFavorite] = React.useState(false);
   const ref: any = React.useRef();
 
@@ -145,8 +145,7 @@ export default function PageCover() {
   React.useEffect(() => {
     getFavorites().then(res => {
       if (res.code === 1) {
-        setFavorites(res.data.lists);
-        setIsFavorite(favoritesIncludes(res.data.lists, current));
+        setIsFavorite(favoritesIndexOf(res.data, current) >= 0);
       }
     })
   }, [current?.src]);
@@ -206,15 +205,6 @@ export default function PageCover() {
       </div>
     </div>
   );
-}
-
-export function favoritesIncludes(arr: any[], favo: any) {
-  if (arr) {
-    for (const a of arr) {
-      if (a?.src === favo?.src) return true;
-    }
-  }
-  return false;
 }
 
 export function generateCover(pic: string) {
