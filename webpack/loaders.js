@@ -69,10 +69,10 @@ function babelLoaderMainProcess(...p) {
   }
 }
 
-function lessLoader(p) {
+function lessLoader(...p) {
   return {
     test: /\.less$/i,
-    include: p,
+    include: [...p],
     use: [
       "style-loader",
       "css-loader",
@@ -81,10 +81,10 @@ function lessLoader(p) {
   }
 }
 
-function resourceLoader(p) {
+function resourceLoader(...p) {
   return {
-    test: /\.png/i,
-    include: p,
+    test: /\.(png|jpg|jpeg|bmp|gif)/i,
+    include: [...p],
     type: "asset/resource",
   }
 }
