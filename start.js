@@ -1,11 +1,3 @@
-/*
- * @Author       : Kevin Jobs
- * @Date         : 2022-05-09 21:14:35
- * @LastEditTime : 2022-06-11 05:59:17
- * @lastEditors  : Kevin Jobs
- * @FilePath     : \react-electron-typescript\start.js
- * @Description  : 
- */
 const path = require('path');
 const proc = require('child_process');
 const webpack = require('webpack');

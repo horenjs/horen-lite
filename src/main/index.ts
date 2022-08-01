@@ -1,69 +1,23 @@
 import "reflect-metadata";
-import { app, BrowserWindow } from "electron";
-import path from "path";
+import {app, BrowserWindow} from "electron";
 import Logger from "./utils/logger";
-import {destroy, bootstrap} from "./bootstrap";
+import {createWindow} from "./create-window";
 
 const log = new Logger("main::init");
 
-const isDev = process.env["NODE_ENV"] === "development";
-
 export let mainWindow: BrowserWindow;
-
-async function createWindow() {
-  const w = new BrowserWindow({
-    width: 300,
-    height: 488,
-    frame: false,
-    resizable: false,
-    movable: true,
-    transparent: true,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: false,
-      contextIsolation: true, // make this true for security.
-      webSecurity: false,
-    },
-  });
-
-  log.info("to bootstrap all handlers...");
-  await bootstrap({
-    webContents: w.webContents,
-    mainWindow: w,
-    app: app,
-  });
-
-  if (isDev) {
-    log.info("env: development, load http://localhost:9000");
-    w.loadURL("http://localhost:9000/").then();
-    log.debug("open the dev tools...");
-    w.webContents.openDevTools();
-  }
-  // 生产环境应使用相对地址
-  // 打包后的根目录为 app/
-  else {
-    log.info("env: production, load the index.html");
-    w.loadFile("./dist/index.html").then();
-  }
-
-  w.on("closed", () => {
-    destroy();
-    w.destroy();
-  });
-
-  return w;
-}
 
 app.whenReady().then(async () => {
   // create main window
   log.debug("create the main window.");
-  mainWindow = await createWindow();
+  mainWindow = await createWindow(app);
 });
 
-// only in macOS
 app.on("activate", async () => {
+  // create window when you close all
+  // only in macOS
   if (BrowserWindow.getAllWindows().length === 0) {
-    await createWindow();
+    await createWindow(app);
   }
 });
 

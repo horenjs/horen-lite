@@ -1,5 +1,10 @@
 import * as fse from "fs-extra";
 
+export const MAIN_WINDOW_CONFIG = {
+  width: 300,
+  height: 488,
+}
+
 export enum EVENTS {
   /**
    * audio
@@ -38,11 +43,11 @@ export enum RESP_CODE {
 const pack = require("../../package.json");
 const path = require("path");
 
-const APP_DATA_PATH = path.join(process.env.APPDATA, pack.name);
-const LOGS_PATH = path.join(APP_DATA_PATH, "logs");
-const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");
-const ALBUM_COVER_PATH = path.join(USER_DATA_PATH, "AlbumCover");
-const MUSIC_LIBRARY_PATH = path.join(USER_DATA_PATH, "MusicLibrary");
+export const APP_DATA_PATH = path.join(process.env.APPDATA, pack.name);
+export const LOGS_PATH = path.join(APP_DATA_PATH, "logs");
+export const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");
+export const ALBUM_COVER_PATH = path.join(USER_DATA_PATH, "AlbumCover");
+export const MUSIC_LIBRARY_PATH = path.join(USER_DATA_PATH, "MusicLibrary");
 
 (async () => await fse.ensureDir(APP_DATA_PATH))();
 (async () => await fse.ensureDir(LOGS_PATH))();
@@ -50,7 +55,7 @@ const MUSIC_LIBRARY_PATH = path.join(USER_DATA_PATH, "MusicLibrary");
 (async () => await fse.ensureDir(ALBUM_COVER_PATH))();
 (async () => await fse.ensureDir(MUSIC_LIBRARY_PATH))();
 
-const DEFAULT_SETTING = {
+export const DEFAULT_SETTING = {
   "promptCN": "请勿修改默认设置",
   "promptEN": "Please don't modify the default setting",
   "musicLibraryPath": "",
@@ -62,7 +67,7 @@ const DEFAULT_SETTING = {
 /**
  * 可以解析的音频文件格式
  */
-const AUDIO_EXTS = [
+export const AUDIO_EXTS = [
   "aiff",
   "aac",
   "ape",
@@ -88,14 +93,3 @@ const AUDIO_EXTS = [
   "wv",
   "wma",
 ];
-
-// eslint-disable-next-line no-undef
-export {
-  DEFAULT_SETTING,
-  AUDIO_EXTS,
-  APP_DATA_PATH,
-  LOGS_PATH,
-  USER_DATA_PATH,
-  ALBUM_COVER_PATH,
-  MUSIC_LIBRARY_PATH,
-}
