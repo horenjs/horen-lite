@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "..";
 
 export const settingSlice = createSlice({
@@ -8,8 +8,8 @@ export const settingSlice = createSlice({
     autoPlay: false,
   },
   reducers: {
-    refreshMusicLibrary: (state, action?: PayloadAction<number>) => {
-      state.refreshMusicLibraryTimeStamp = action.payload || new Date().valueOf();
+    refreshMusicLibrary: (state) => {
+      state.refreshMusicLibraryTimeStamp = new Date().valueOf();
     },
   },
 });

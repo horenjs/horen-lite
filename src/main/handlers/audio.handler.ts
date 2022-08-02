@@ -76,6 +76,8 @@ export class AudioHandler {
       await this.audioService.rebuild(paths);
       return Resp(RESP_CODE.OK, null);
     } catch (err) {
+      console.trace(err);
+      log.error(err);
       return Resp(RESP_CODE.ERROR, null, err);
     }
   }

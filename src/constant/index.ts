@@ -57,7 +57,7 @@ export const ALBUM_COVER_PATH = path.join(USER_DATA_PATH, "AlbumCover");
 export const DEFAULT_SETTING = {
   "promptCN": "请勿修改默认设置",
   "promptEN": "Please don't modify the default setting",
-  "musicLibraryPath": "",
+  "libraries": [],
   "updateAt": new Date().valueOf(),
   "playMode": "random",
   "autoPlay": true,

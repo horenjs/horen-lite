@@ -11,7 +11,7 @@ import { RiPlayListAddFill } from "react-icons/ri";
 import { MdOutlineDownloadDone } from "react-icons/md";
 import { TbPlaylistAdd } from "react-icons/tb";
 import { Track } from "@plugins/player";
-import { getAudioList, getSettingItem } from "../../api";
+import { getAudioList } from "../../api";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
@@ -28,14 +28,11 @@ export default function PlayList() {
   const [trackListFull, setTrackListFull] = React.useState<Track[]>([]);
 
   React.useEffect(() => {
-    getSettingItem("musicLibraryPath").then((result) => {
-      if (result.code === 1) {
-        getAudioList(result.data).then((res) => {
-          if (res.code === 1) {
-            logger("get the [full] music file list: ", res.data?.lists);
-            setTrackListFull(res.data?.lists);
-          }
-        });
+    getAudioList().then((res) => {
+      if (res.code === 1) {
+        logger("get the audios success.");
+        logger(res.data.lists);
+        setTrackListFull(res.data.lists);
       }
     });
   }, []);

@@ -60,7 +60,6 @@ export class AudioService {
 
   public async rebuild(paths: string[]) {
     // avoid the memory leak, set the limit to 100
-    const limit = 100;
     let files: string[] = [];
 
     log.debug("read files from paths");
@@ -76,18 +75,14 @@ export class AudioService {
     const audios = AudioService.filterAudioFile(files);
 
     log.debug("save audio meta to db");
-    for (let i = 0; i < audios.length; i += limit) {
-      const metas = await this.readMetas(audios.slice(i, i + limit), totals, i);
-      await this.saveMetas(metas);
-    }
-  }
+    for (let i = 0; i < audios.length; i++) {
+      const metas = await this.readMetas(audios.slice(i, i+1), totals, i);
+      const src = metas[0].src;
 
-  /**
-   * save to library
-   * @param metas
-   */
-  public async saveMetas(metas: AudioMeta[]) {
-    await AudioModel.bulkCreate(metas);
+      const result = await AudioModel.findOne({where:{src}});
+      if (result) await AudioModel.update(metas[0], {where:{src}});
+      else await AudioModel.create(metas[0]);
+    }
   }
 
   /**
@@ -95,10 +90,12 @@ export class AudioService {
    * @param originFiles
    */
   private static filterAudioFile(originFiles: string[]) {
-    return originFiles.map((src) => {
+    const tmp = [];
+    for (const src of originFiles) {
       const extname = path.extname(src).replace(".", "");
-      if (AUDIO_EXTS.includes(extname)) return { src };
-    });
+      if (AUDIO_EXTS.includes(extname)) tmp.push({ src });
+    }
+    return tmp;
   }
 
   /**
@@ -136,11 +133,11 @@ export class AudioService {
       src,
       title: title ? title : path.basename(src, extname) || null,
       artist,
-      artists,
+      artists: JSON.stringify(artists),
       album,
-      genre,
+      genre: JSON.stringify(genre),
       date,
-      duration,
+      duration: duration === Infinity ? 0 : duration,
       picture: pic,
       lyric,
     };
@@ -223,9 +220,10 @@ export class AudioService {
     for (let i = 0; i < pureAudios.length; i++) {
       const src = pureAudios[i].src;
       const basename = path.basename(src);
-      log.debug("read meta: ", src, "index: ", current + i, "totals: ", totals);
+      log.debug(`read meta: ${src}, ${current + i} / ${totals}`);
 
       const msg = [current + i, totals, basename];
+
       mainWindow.webContents.send(
         EVENTS.REBUILD_AUDIO_CACHE_MSG.toString(),
         msg

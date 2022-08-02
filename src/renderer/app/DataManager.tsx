@@ -60,8 +60,10 @@ export default function DataManager() {
   // 通过生成新的时间戳来指示歌曲库的变动
   // 这是一种取巧的方式，利用了 useEffect 这个 hook 的特性
   React.useEffect(() => {
-    (async() => _refreshLibrary())();
-    logger("refresh library, timestamp: ", refreshMusicLibraryTimeStamp);
+    if (refreshMusicLibraryTimeStamp !== 0) {
+      logger("refresh library, timestamp: ", refreshMusicLibraryTimeStamp);
+      (async() => _refreshLibrary())();
+    }
   }, [refreshMusicLibraryTimeStamp]);
 
   // 下一首
@@ -121,9 +123,9 @@ export default function DataManager() {
   }, [player?.track?.src]);
 
   const _refreshLibrary = async () => {
-    const resp = await getSettingItem("musicLibraryPath");
+    const resp = await getSettingItem("libraries");
     if (resp.code === 1) {
-      const paths = [resp.data];
+      const paths = resp.data;
       const res = await rebuild(paths);
       logger("rebuild result: ", res);
     }

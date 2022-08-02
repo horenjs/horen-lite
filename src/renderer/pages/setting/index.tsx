@@ -35,6 +35,12 @@ function SettingItem(props: SettingItemProps) {
   )
 }
 
+interface SettingForm {
+  libraries: string[];
+  autoPlay: boolean;
+  language: string;
+}
+
 export default function SettingPage() {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
@@ -43,22 +49,29 @@ export default function SettingPage() {
   const [totals, setTotals] = React.useState(1);
   const [isSlider, setIsSlider] = React.useState(false);
 
-  const [form, setForm] = React.useState({
+  const [form, setForm] = React.useState<SettingForm>({
     libraries: [],
-    autoPlay: true,
-    language: "Chinese",
+    autoPlay: false,
+    language: "",
   });
 
   React.useEffect(() => {
     (async () => {
-      logger("try to get all setting.");
       const result = await getAllSettingItems();
       if (result.code === 1) {
-        logger("get all setting success: ", result.data);
-        const { musicLibraryPath, autoPlay, language } = result.data;
-        setForm({ musicLibraryPath, autoPlay, language });
+        logger("get all setting success");
+        const {
+          libraries = [],
+          autoPlay = false,
+          language = "Chinese",
+        } = result.data;
+        setForm({
+          libraries,
+          autoPlay,
+          language,
+        });
       } else {
-        window.alert(result.err);
+        logger(result.err);
       }
     })();
   }, []);
@@ -77,18 +90,17 @@ export default function SettingPage() {
     e.preventDefault();
     (async () => {
       const result = await openDir();
-      if (result.code === 1 && !form.libraries?.includes(result.data[0])) {
-        const newLibrary = result.data[0];
-        
+      const p = result.data[0];
+      if (result.code === 1 && !form.libraries?.includes(p)) {
         logger("add music library path: ", newLibrary);
 
         if (isSlider) {
           window.alert(t("Dont Change Music Library When Saving"));
         } else {
-          const libs = form.libraries?.concat(newLibrary);
+          const libs = form?.libraries?.push(p) || [];
+
           setForm({ ...form, libraries: libs});
-          
-          const res = await saveSettingItem("libraries", form.libraries);
+          const res = await saveSettingItem("libraries", libs);
           
           if (res.code === 1) {
             if (window.confirm(t("Refresh Music Library"))) {
@@ -109,6 +121,7 @@ export default function SettingPage() {
         label={t("Music Library Path")}
         content={
           <div
+            id={"change-libraries"}
             style={{
               fontSize: 12,
               color: "#2483ff",
@@ -117,7 +130,7 @@ export default function SettingPage() {
             }}
             onClick={handleChangeLibrary}
           >
-            {form.libraries?.length ? (
+            {form?.libraries?.length ? (
               form.libraries.map((lib) => {
                 return <div key={lib}>{lib}</div>;
               })
@@ -147,7 +160,7 @@ export default function SettingPage() {
         content={
           <input
             type={"checkbox"}
-            checked={form.autoPlay}
+            checked={form?.autoPlay}
             onChange={(e) => {
               // e.preventDefault();
               setForm({ ...form, autoPlay: e.target.checked });
@@ -162,7 +175,7 @@ export default function SettingPage() {
         content={
           <select
             id={"lang-change-select"}
-            value={form.language}
+            value={form?.language}
             onChange={(e) => {
               const value = e.target.value;
               setForm({ ...form, language: value });
