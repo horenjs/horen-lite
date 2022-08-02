@@ -69,10 +69,10 @@ export class AudioService {
       files = [...files, ...originFiles];
     }
 
-    const totals = files.length;
-
     log.debug("filter audio file");
     const audios = AudioService.filterAudioFile(files);
+
+    const totals = audios.length;
 
     log.debug("save audio meta to db");
     for (let i = 0; i < audios.length; i++) {

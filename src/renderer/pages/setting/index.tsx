@@ -12,7 +12,6 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import { refreshMusicLibrary } from "@store/slices/setting.slice";
 import debug from "@plugins/debug";
-import Slider from "@components/slider";
 
 const logger = debug("Page:Setting");
 
@@ -47,7 +46,7 @@ export default function SettingPage() {
   const [progressIdx, setProgressIdx] = React.useState(0);
   const [progressSrc, setProgressSrc] = React.useState("");
   const [totals, setTotals] = React.useState(1);
-  const [isSlider, setIsSlider] = React.useState(false);
+  const [isProgress, setIsProgress] = React.useState(false);
 
   const [form, setForm] = React.useState<SettingForm>({
     libraries: [],
@@ -77,37 +76,47 @@ export default function SettingPage() {
   }, []);
 
   React.useEffect(() => {
-    rebuildMsg().then((result: [number, number, string]) => {
-      logger("save progress: ", result);
-      setProgressIdx(result[0]);
-      setProgressSrc(result[2]);
-      setTotals(result[1]);
-      setIsSlider((result[1] - result[0]) > 3);
-    });
+    const timer = setInterval(() => {
+      rebuildMsg().then((result: [number, number, string]) => {
+        logger("save progress: ", result);
+        const [i, t, s] = result;
+        setProgressIdx(i);
+        setTotals(t);
+        setProgressSrc(s);
+        setIsProgress((t - i) > 10);
+      });
+    }, 100);
+    return () => clearInterval(timer);
   }, [progressIdx]);
 
   const handleChangeLibrary = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     (async () => {
       const result = await openDir();
-      const p = result.data[0];
-      if (result.code === 1 && !form.libraries?.includes(p)) {
-        logger("add music library path: ", newLibrary);
 
-        if (isSlider) {
-          window.alert(t("Dont Change Music Library When Saving"));
+      if (result.code === 1) {
+        const p = result.data[0];
+        if (form.libraries.includes(p)) {
+          logger("library: ", p, " exists");
+          // do nothing;
         } else {
-          const libs = form?.libraries?.push(p) || [];
+          logger("add music library path: ", p);
 
-          setForm({ ...form, libraries: libs});
-          const res = await saveSettingItem("libraries", libs);
-          
-          if (res.code === 1) {
-            if (window.confirm(t("Refresh Music Library"))) {
-              // set the lastIndex and lastSeek to 0 when refresh
-              saveSettingItem("lastIndex", 0).then();
-              saveSettingItem("lastSeek", 0).then();
-              dispatch(refreshMusicLibrary());
+          if (isProgress) {
+            window.alert(t("Dont Change Music Library When Saving"));
+          } else {
+            const libs = [...form.libraries, p];
+
+            setForm({ ...form, libraries: libs});
+            const res = await saveSettingItem("libraries", libs);
+
+            if (res.code === 1) {
+              if (window.confirm(t("Refresh Music Library"))) {
+                // set the lastIndex and lastSeek to 0 when refresh
+                saveSettingItem("lastIndex", 0).then();
+                saveSettingItem("lastSeek", 0).then();
+                dispatch(refreshMusicLibrary());
+              }
             }
           }
         }
@@ -149,7 +158,11 @@ export default function SettingPage() {
               e.preventDefault();
               if (window.confirm(t("Rebuild Audio Cache") + "?")) {
                 logger("rebuild the audio cache.");
-                dispatch(refreshMusicLibrary());
+                if (isProgress) {
+                  window.alert(t("Dont Change Music Library When Saving"));
+                } else {
+                  dispatch(refreshMusicLibrary());
+                }
               }
             }}
           />
@@ -192,16 +205,14 @@ export default function SettingPage() {
       <div
         className={"save-progress"}
         style={{
-          display: isSlider ? "block" : "none",
+          display: isProgress ? "block" : "none",
         }}
       >
         <span className={"save-prompt"}>
+          <span>【{ progressIdx + " / " + totals }】</span>
           <span>{t("Saving")}</span>
           <span>{progressSrc}</span>
         </span>
-        <div className={"save-slider"}>
-          <Slider percent={progressIdx / totals} />
-        </div>
       </div>
     </div>
   );
