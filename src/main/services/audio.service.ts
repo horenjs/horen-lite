@@ -29,13 +29,33 @@ export class AudioService {
     // don't delete this.
   }
 
-  public async getAudios(opts = {
-    limit: 99999,
-    offset: 0,
-  }) {
+  public async getAudios(
+    opts = {
+      limit: 99999,
+      offset: 0,
+    }
+  ) {
     const { limit, offset } = opts;
-    const results = await AudioModel.findAll({limit, offset});
-    return results.map(r => r.get());
+    const results = await AudioModel.findAll({ limit, offset });
+    return results.map((r) => r.get());
+  }
+
+  /**
+   * get queue from table Audios
+   * @param sources list of audio src
+   * @param opts limit: default is 99999, offset: default is 0
+   */
+  public async getQueue(
+    sources: string[],
+    opts = { limit: 99999, offset: 0 }
+  ) {
+    const { limit, offset } = opts;
+    const intactQueue = [];
+    for (const src of sources) {
+      const result = await AudioModel.findOne({where:{ src }});
+      intactQueue.push(result.get());
+    }
+    return intactQueue.slice(offset, limit);
   }
 
   public async rebuild(paths: string[]) {
@@ -57,7 +77,7 @@ export class AudioService {
 
     log.debug("save audio meta to db");
     for (let i = 0; i < audios.length; i += limit) {
-      const metas = await this.readMetas(audios.slice(i, i+limit), totals, i);
+      const metas = await this.readMetas(audios.slice(i, i + limit), totals, i);
       await this.saveMetas(metas);
     }
   }
@@ -75,10 +95,10 @@ export class AudioService {
    * @param originFiles
    */
   private static filterAudioFile(originFiles: string[]) {
-    return originFiles.map(src => {
+    return originFiles.map((src) => {
       const extname = path.extname(src).replace(".", "");
-      if (AUDIO_EXTS.includes(extname)) return {src};
-    })
+      if (AUDIO_EXTS.includes(extname)) return { src };
+    });
   }
 
   /**
@@ -96,7 +116,7 @@ export class AudioService {
     }
 
     const { title, artist, artists, album, genre, date, picture } =
-    meta?.common || {};
+      meta?.common || {};
     const { duration } = meta?.format || {};
 
     const extname = path.extname(src);
@@ -104,7 +124,12 @@ export class AudioService {
     const lyric = await this.getLyric(src, title, artist, album);
     let pic = "";
     if (picture) {
-      pic = await AudioService.getPicture(title, artist, album, picture[0]?.data);
+      pic = await AudioService.getPicture(
+        title,
+        artist,
+        album,
+        picture[0]?.data
+      );
     }
 
     return {
@@ -170,7 +195,10 @@ export class AudioService {
     return finalFilePath;
   }
 
-  private static async saveAlbumCover(urlOrBuf: string | Buffer, coverPath: string) {
+  private static async saveAlbumCover(
+    urlOrBuf: string | Buffer,
+    coverPath: string
+  ) {
     let data;
     if (typeof urlOrBuf === "string") {
       const resp = await axios.get(urlOrBuf, { responseType: "arraybuffer" });
@@ -186,15 +214,22 @@ export class AudioService {
     }
   }
 
-  private async readMetas(pureAudios: PureTrack[], totals: number, current: number) :Promise<AudioMeta[]> {
+  private async readMetas(
+    pureAudios: PureTrack[],
+    totals: number,
+    current: number
+  ): Promise<AudioMeta[]> {
     const metas = [];
     for (let i = 0; i < pureAudios.length; i++) {
       const src = pureAudios[i].src;
       const basename = path.basename(src);
       log.debug("read meta: ", src, "index: ", current + i, "totals: ", totals);
 
-      const msg = [current + i, totals, basename ]
-      mainWindow.webContents.send(EVENTS.REBUILD_AUDIO_CACHE_MSG.toString(), msg);
+      const msg = [current + i, totals, basename];
+      mainWindow.webContents.send(
+        EVENTS.REBUILD_AUDIO_CACHE_MSG.toString(),
+        msg
+      );
 
       const meta = await this.readMeta(src);
       metas.push(meta);

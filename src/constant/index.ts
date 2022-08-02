@@ -13,6 +13,7 @@ export enum EVENTS {
   GET_AUDIO_LIST,
   REBUILD_AUDIO_CACHE,
   REBUILD_AUDIO_CACHE_MSG,
+  GET_INTACT_QUEUE,
   /**
    * setting
    */
@@ -47,13 +48,11 @@ export const APP_DATA_PATH = path.join(process.env.APPDATA, pack.name);
 export const LOGS_PATH = path.join(APP_DATA_PATH, "logs");
 export const USER_DATA_PATH = path.join(APP_DATA_PATH, "UserData");
 export const ALBUM_COVER_PATH = path.join(USER_DATA_PATH, "AlbumCover");
-export const MUSIC_LIBRARY_PATH = path.join(USER_DATA_PATH, "MusicLibrary");
 
 (async () => await fse.ensureDir(APP_DATA_PATH))();
 (async () => await fse.ensureDir(LOGS_PATH))();
 (async () => await fse.ensureDir(USER_DATA_PATH))();
 (async () => await fse.ensureDir(ALBUM_COVER_PATH))();
-(async () => await fse.ensureDir(MUSIC_LIBRARY_PATH))();
 
 export const DEFAULT_SETTING = {
   "promptCN": "请勿修改默认设置",

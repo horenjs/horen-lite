@@ -3,7 +3,7 @@ import "@i18n";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@store/index";
 import React from "react";
-import {getSettingItem, getAudioMeta} from "../api";
+import {getSettingItem, getIntactQueue} from "../api";
 import {
   setIsPlaying,
   setPlayMode, setQueue,
@@ -47,17 +47,14 @@ export default function InitApp() {
     const lastSeek = (await getSettingItem("lastSeek")).data;
 
     if (res.code === 1) {
-      logger("get the setting-> queue success: ", res.data);
-      const queue = res.data;
-      if (queue?.length > 0) {
-        const newQueue = [];
-        for (const q of queue) {
-          const resp = await getAudioMeta(q?.src);
-          if (resp.code === 1) newQueue.push(resp.data);
-        }
-        if (newQueue.length > 0) {
-          dispatch(setQueue(newQueue));
-          player.track = newQueue[lastIdx];
+      logger("get the pure queue success");
+      const sources = res.data;
+      if (sources?.length) {
+        const resp = await getIntactQueue(sources);
+        if (resp.code === 1) {
+          const intactQueue = resp.data;
+          dispatch(setQueue(intactQueue));
+          player.track = intactQueue[lastIdx];
           player.seek = lastSeek;
         }
       }

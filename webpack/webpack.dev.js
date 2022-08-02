@@ -18,6 +18,7 @@ const srcPath = path.join(__dirname, '../src/renderer');
 
 module.exports = merge(baseConfig, {
   mode: 'development',
+  devtool: "inline-source-map",
   module: {
     rules: [
       babelLoaderDev(srcPath),

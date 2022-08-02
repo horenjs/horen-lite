@@ -19,7 +19,7 @@ export default function TitleBar() {
   const seek = useSelector(selectSeek);
   const titleKey = useSelector(selectTitleKey);
   const current = useSelector(selectCurrent);
-  const trackList = useSelector(selectQueue);
+  const queue = useSelector(selectQueue);
 
   const indexOf = (items: Track[], item: Track) => {
     for (let i = 0; i < items.length; i++) {
@@ -38,13 +38,11 @@ export default function TitleBar() {
       <div className={"close bar-item electron-no-drag"} onClick={e => {
         e.preventDefault();
         (async () => {
-          saveSettingItem("lastSeek", seek).then();
-
-          const lastIdx = indexOf(trackList, current);
-          logger("track list: ", trackList);
-          logger("track: ", current);
-          logger("save the last index to setting:", lastIdx);
-          saveSettingItem("lastIndex", lastIdx).then();
+          const lastIdx = indexOf(queue, current);
+          // save setting before quit
+          await saveSettingItem("lastIndex", lastIdx);
+          await saveSettingItem("queue", queue?.map(q => q.src));
+          await saveSettingItem("lastSeek", seek);
 
           if (window.confirm(t("Confirm Exit"))) {
             logger("try to exit.");

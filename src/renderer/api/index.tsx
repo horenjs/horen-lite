@@ -16,6 +16,10 @@ export async function rebuild(paths: string[]) {
   return await window.ipc.rebuild(paths);
 }
 
+export async function getIntactQueue(sources: string[], opts?) {
+  return await window.ipc.getIntactQueue(sources, opts);
+}
+
 export async function rebuildMsg() {
   return await window.ipc.rebuildMsg();
 }

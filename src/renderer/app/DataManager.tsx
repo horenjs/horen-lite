@@ -9,19 +9,16 @@ import {
   selectCurrent,
   setSeek,
   setCurrent,
-  setAudioList,
   addToQueue,
   selectQueue
 } from "@store/slices/player-status.slice";
 import React from "react";
 import {
-  getAudioList,
   getAudioMeta,
   getSettingItem,
   rebuild,
   setProgress,
   setTitle,
-  saveSettingItem,
 } from "../api";
 import Player from "@plugins/player";
 import debug from "@plugins/debug";
@@ -104,7 +101,6 @@ export default function DataManager() {
 
   React.useEffect(() => {
     player.trackList = queue;
-    saveSettingItem("queue", queue.map(q => ({src: q.src}))).then();
   }, [queue?.length]);
 
   React.useEffect(() => {
@@ -129,7 +125,7 @@ export default function DataManager() {
     if (resp.code === 1) {
       const paths = [resp.data];
       const res = await rebuild(paths);
-      console.log(res);
+      logger("rebuild result: ", res);
     }
   };
 

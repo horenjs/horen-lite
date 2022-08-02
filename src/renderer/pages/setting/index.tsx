@@ -44,7 +44,7 @@ export default function SettingPage() {
   const [isSlider, setIsSlider] = React.useState(false);
 
   const [form, setForm] = React.useState({
-    musicLibraryPath: "",
+    libraries: [],
     autoPlay: true,
     language: "Chinese",
   });
@@ -77,14 +77,19 @@ export default function SettingPage() {
     e.preventDefault();
     (async () => {
       const result = await openDir();
-      if (result.code === 1 && result.data[0] !== form.musicLibraryPath) {
-        logger("new music library path: ", result.data[0]);
+      if (result.code === 1 && !form.libraries?.includes(result.data[0])) {
+        const newLibrary = result.data[0];
+        
+        logger("add music library path: ", newLibrary);
 
         if (isSlider) {
           window.alert(t("Dont Change Music Library When Saving"));
         } else {
-          setForm({ ...form, musicLibraryPath: result.data[0] });
-          const res = await saveSettingItem("musicLibraryPath", result.data[0]);
+          const libs = form.libraries?.concat(newLibrary);
+          setForm({ ...form, libraries: libs});
+          
+          const res = await saveSettingItem("libraries", form.libraries);
+          
           if (res.code === 1) {
             if (window.confirm(t("Refresh Music Library"))) {
               // set the lastIndex and lastSeek to 0 when refresh
@@ -112,7 +117,11 @@ export default function SettingPage() {
             }}
             onClick={handleChangeLibrary}
           >
-            {form.musicLibraryPath || (
+            {form.libraries?.length ? (
+              form.libraries.map((lib) => {
+                return <div key={lib}>{lib}</div>;
+              })
+            ) : (
               <span>{t("Change Music Library Path")}</span>
             )}
           </div>
@@ -123,7 +132,7 @@ export default function SettingPage() {
         content={
           <RiRefreshLine
             fill={"#b7b7b7"}
-            onClick={e => {
+            onClick={(e) => {
               e.preventDefault();
               if (window.confirm(t("Rebuild Audio Cache") + "?")) {
                 logger("rebuild the audio cache.");
@@ -142,7 +151,8 @@ export default function SettingPage() {
             onChange={(e) => {
               // e.preventDefault();
               setForm({ ...form, autoPlay: e.target.checked });
-              (async () => await saveSettingItem("autoPlay", e.target.checked))();
+              (async () =>
+                await saveSettingItem("autoPlay", e.target.checked))();
             }}
           />
         }
@@ -153,9 +163,9 @@ export default function SettingPage() {
           <select
             id={"lang-change-select"}
             value={form.language}
-            onChange={e => {
+            onChange={(e) => {
               const value = e.target.value;
-              setForm({...form, language: value});
+              setForm({ ...form, language: value });
               i18n.changeLanguage(value).then();
               saveSettingItem("language", value).then();
             }}

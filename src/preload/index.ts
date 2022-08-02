@@ -20,6 +20,15 @@ const IPC_API = {
     return await ipcRenderer.invoke(EVENTS.REMOVE_FAVORITE.toString(), src);
   },
 
+  /**
+   * get the intact queue
+   * @param sources
+   * @param opts limit: default 99999, offset: default 0
+   */
+  getIntactQueue: async (sources: string[], opts?) => {
+    return await ipcRenderer.invoke(EVENTS.GET_INTACT_QUEUE.toString(), sources, opts);
+  },
+
   rebuildMsg: async () => {
     return new Promise((res, rej) => {
       try {

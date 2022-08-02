@@ -2,8 +2,7 @@ import {HandlerResponse, Resp} from "./index";
 import Logger from "../utils/logger";
 import {EVENTS, RESP_CODE} from "@constant";
 import {Handler, IpcInvoke} from "../decorators";
-import {Track} from "@plugins/player";
-import {AudioService} from "../services/audio.service";
+import {AudioService, PureTrack} from "../services/audio.service";
 
 const log = new Logger("handler::audio");
 
@@ -77,6 +76,18 @@ export class AudioHandler {
       await this.audioService.rebuild(paths);
       return Resp(RESP_CODE.OK, null);
     } catch (err) {
+      return Resp(RESP_CODE.ERROR, null, err);
+    }
+  }
+
+  @IpcInvoke(EVENTS.GET_INTACT_QUEUE)
+  public async getIntactQueue(evt, pureQueue: PureTrack[], opts?) {
+    try {
+      log.info("get intact queue");
+      const data = await this.audioService.getQueue(pureQueue, opts);
+      return Resp(RESP_CODE.OK, data);
+    } catch (err) {
+      log.error(err);
       return Resp(RESP_CODE.ERROR, null, err);
     }
   }
