@@ -24,8 +24,8 @@ export async function getAudioList(p: string) {
   return await window.ipc.getAudioList(p);
 }
 
-export async function getAudioMeta(p: string, items?: string[]) {
-  return await window.ipc.getAudioMeta(p, items);
+export async function getAudioMeta(p: string) {
+  return await window.ipc.getAudioMeta(p);
 }
 
 export async function closeAllWindows() {

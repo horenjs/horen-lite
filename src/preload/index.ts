@@ -40,8 +40,8 @@ const IPC_API = {
     return await ipcRenderer.invoke(EVENTS.REBUILD_AUDIO_CACHE.toString(), paths);
   },
 
-  getAudioMeta: async (p, items) => {
-    return await ipcRenderer.invoke(EVENTS.GET_AUDIO_META.toString(), p, items);
+  getAudioMeta: async (p: string) => {
+    return await ipcRenderer.invoke(EVENTS.GET_AUDIO_META.toString(), p);
   },
 
   closeAllWindows: async () => {

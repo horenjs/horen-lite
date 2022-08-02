@@ -5,7 +5,6 @@ import {AppDispatch} from "@store/index";
 import React from "react";
 import {getSettingItem, getAudioMeta} from "../api";
 import {
-  setCurrent,
   setIsPlaying,
   setPlayMode, setQueue,
 } from "@store/slices/player-status.slice";
@@ -43,8 +42,8 @@ export default function InitApp() {
 
   const _syncQueue = async () => {
     const res = await getSettingItem("queue");
-    const lastIdx = (await getSettingItem("lastIndex")).data;
 
+    const lastIdx = (await getSettingItem("lastIndex")).data;
     const lastSeek = (await getSettingItem("lastSeek")).data;
 
     if (res.code === 1) {
@@ -53,8 +52,7 @@ export default function InitApp() {
       if (queue?.length > 0) {
         const newQueue = [];
         for (const q of queue) {
-          const resp = await getAudioMeta(q?.src, ["title", "src"]);
-          console.log(resp);
+          const resp = await getAudioMeta(q?.src);
           if (resp.code === 1) newQueue.push(resp.data);
         }
         if (newQueue.length > 0) {
