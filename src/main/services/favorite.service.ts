@@ -21,7 +21,7 @@ export class FavoriteService {
 
   public async addFavoriteItem(src: string) {
     const as = new AudioService();
-    const meta = await as.readMusicFileMeta(src);
+    const meta = await as.readMeta(src);
     for (const key in meta) {
       const value = meta[key];
       if (value instanceof Array) {

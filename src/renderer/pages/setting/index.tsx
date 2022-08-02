@@ -4,8 +4,9 @@ import {
   saveSettingItem,
   getAllSettingItems,
   openDir,
-  saveAudioListReplyMsg,
+  rebuildMsg,
 } from "../../api";
+import { RiRefreshLine } from "react-icons/ri";
 import "./style.less";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
@@ -44,7 +45,7 @@ export default function SettingPage() {
   }, []);
 
   React.useEffect(() => {
-    saveAudioListReplyMsg().then((result: [number, number, string]) => {
+    rebuildMsg().then((result: [number, number, string]) => {
       logger("save progress: ", result);
       setProgressIdx(result[0]);
       setProgressSrc(result[2]);
@@ -98,6 +99,20 @@ export default function SettingPage() {
               <span>{t("Change Music Library Path")}</span>
             )}
           </div>
+        </div>
+      </div>
+      <div className={"setting-item electron-no-drag"}>
+        <div className={"item-label"}>
+          <span>{t("Rebuild Audio Cache")}</span>
+        </div>
+        <div className={"item-content"}>
+          <RiRefreshLine onClick={e => {
+            e.preventDefault();
+            if (window.confirm(t("Rebuild Audio Cache") + "?")) {
+              logger("rebuild the audio cache.");
+              dispatch(refreshMusicLibrary());
+            }
+          }} />
         </div>
       </div>
       <div className={"setting-item electron-no-drag"}>

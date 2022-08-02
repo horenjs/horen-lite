@@ -1,4 +1,3 @@
-import {Track} from "@plugins/player";
 import { type SettingValue } from "../../main/utils/setting-store";
 
 export async function addFavorite(src: string) {
@@ -13,16 +12,16 @@ export async function removeFavorite(src: string) {
   return await window.ipc.removeFavorite(src);
 }
 
-export async function saveAudioListReplyMsg() {
-  return await window.ipc.saveAudioListReplyMsg();
+export async function rebuild(paths: string[]) {
+  return await window.ipc.rebuild(paths);
+}
+
+export async function rebuildMsg() {
+  return await window.ipc.rebuildMsg();
 }
 
 export async function getAudioList(p: string) {
   return await window.ipc.getAudioList(p);
-}
-
-export async function saveAudioList(p: string, lists: Track[]) {
-  return await window.ipc.saveAudioList(p, lists);
 }
 
 export async function getAudioMeta(p: string, items?: string[]) {

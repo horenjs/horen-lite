@@ -17,7 +17,8 @@ import React from "react";
 import {
   getAudioList,
   getAudioMeta,
-  getSettingItem, saveAudioList,
+  getSettingItem,
+  rebuild,
   setProgress,
   setTitle,
   saveSettingItem,
@@ -62,7 +63,7 @@ export default function DataManager() {
   // 通过生成新的时间戳来指示歌曲库的变动
   // 这是一种取巧的方式，利用了 useEffect 这个 hook 的特性
   React.useEffect(() => {
-    _refreshLibrary().then();
+    (async() => _refreshLibrary())();
     logger("refresh library, timestamp: ", refreshMusicLibraryTimeStamp);
   }, [refreshMusicLibraryTimeStamp]);
 
@@ -124,16 +125,11 @@ export default function DataManager() {
   }, [player?.track?.src]);
 
   const _refreshLibrary = async () => {
-    const musicLibraryPath = (await getSettingItem("musicLibraryPath")).data;
-    const musicFileList = (await getAudioList(musicLibraryPath)).data?.lists;
-
-    if (musicFileList?.length > 0) {
-      logger("audio list: ", musicFileList);
-      dispatch(setAudioList(musicFileList));
-
-      logger("send signal to the main process to save list.")
-      const saveResult = await saveAudioList(musicLibraryPath, musicFileList);
-      logger("save status: ", saveResult);
+    const resp = await getSettingItem("musicLibraryPath");
+    if (resp.code === 1) {
+      const paths = [resp.data];
+      const res = await rebuild(paths);
+      console.log(res);
     }
   };
 

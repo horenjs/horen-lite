@@ -11,8 +11,8 @@ export enum EVENTS {
    */
   GET_AUDIO_META = 111,
   GET_AUDIO_LIST,
-  SAVE_AUDIO_LIST,
-  SAVE_AUDIO_LIST_REPLY_MSG,
+  REBUILD_AUDIO_CACHE,
+  REBUILD_AUDIO_CACHE_MSG,
   /**
    * setting
    */

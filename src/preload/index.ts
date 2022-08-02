@@ -20,11 +20,11 @@ const IPC_API = {
     return await ipcRenderer.invoke(EVENTS.REMOVE_FAVORITE.toString(), src);
   },
 
-  saveAudioListReplyMsg: async () => {
+  rebuildMsg: async () => {
     return new Promise((res, rej) => {
       try {
-        ipcRenderer.on(EVENTS.SAVE_AUDIO_LIST_REPLY_MSG.toString(), (evt, idx, totals, src) => {
-          res([idx, totals, src]);
+        ipcRenderer.on(EVENTS.REBUILD_AUDIO_CACHE_MSG.toString(), (evt, msg) => {
+          res(msg);
         })
       } catch (err) {
         rej(err);
@@ -36,8 +36,8 @@ const IPC_API = {
     return await ipcRenderer.invoke(EVENTS.GET_AUDIO_LIST.toString(), p);
   },
 
-  saveAudioList: async (p, lists) => {
-    return await ipcRenderer.invoke(EVENTS.SAVE_AUDIO_LIST.toString(), p, lists);
+  rebuild: async (paths: string[]) => {
+    return await ipcRenderer.invoke(EVENTS.REBUILD_AUDIO_CACHE.toString(), paths);
   },
 
   getAudioMeta: async (p, items) => {

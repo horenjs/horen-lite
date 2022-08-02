@@ -4,12 +4,10 @@ import {AudioMeta} from "../handlers/audio.handler";
 import * as mm from "music-metadata";
 import path from "path";
 import {Netease} from "../apis";
-import {arrayBufferToBase64} from "../utils";
 import crypto from "crypto";
 import {
   ALBUM_COVER_PATH,
   AUDIO_EXTS, EVENTS,
-  MUSIC_LIBRARY_PATH
 } from "@constant";
 import * as fse from "fs-extra";
 import axios from "axios";
@@ -18,11 +16,7 @@ import {Track} from "@plugins/player";
 import {mainWindow} from "../index";
 import {AudioModel} from "../db/models";
 
-export type LibraryFile = {
-  createAt: number;
-  updateAt: number;
-  lists: Track[];
-}
+export type PureTrack = Pick<Track, "src">;
 
 const log = new Logger("service::audio");
 
@@ -35,121 +29,96 @@ export class AudioService {
     // don't delete this.
   }
 
-  /**
-   * get audio list
-   * @param p audio path
-   */
-  public async getAudioList(p?: string) {
-    const results = await AudioModel.findAll();
+  public async getAudios(opts = {
+    limit: 99999,
+    offset: 0,
+  }) {
+    const { limit, offset } = opts;
+    const results = await AudioModel.findAll({limit, offset});
     return results.map(r => r.get());
+  }
+
+  public async rebuild(paths: string[]) {
+    // avoid the memory leak, set the limit to 100
+    const limit = 100;
+    let files: string[] = [];
+
+    log.debug("read files from paths");
+    for (const p of paths) {
+      const tmp = [];
+      const originFiles = await walksAsync(path.resolve(p), tmp);
+      files = [...files, ...originFiles];
+    }
+
+    const totals = files.length;
+
+    log.debug("filter audio file");
+    const audios = AudioService.filterAudioFile(files);
+
+    log.debug("save audio meta to db");
+    for (let i = 0; i < audios.length; i += limit) {
+      const metas = await this.readMetas(audios.slice(i, i+limit), totals, i);
+      await this.saveMetas(metas);
+    }
   }
 
   /**
    * save to library
-   * @param p audio path
-   * @param lists audio list
+   * @param metas
    */
-  public async saveLibrary(p: string, lists: Track[]) {
-    const metas = await this.readMetas(lists);
+  public async saveMetas(metas: AudioMeta[]) {
     await AudioModel.bulkCreate(metas);
   }
 
   /**
-   * read audio meta
-   * @param filepath audio file path
-   * @param items meta item to be included
+   * filter the audio from origin files
+   * @param originFiles
    */
-  public async readMusicFileMeta(
-    filepath: string,
-    items = [
-      "title",
-      "artist",
-      "artists",
-      "album",
-      "genre",
-      "date",
-      "duration",
-      // "picture",
-      "lyric",
-    ],
-  ): Promise<AudioMeta> {
+  private static filterAudioFile(originFiles: string[]) {
+    return originFiles.map(src => {
+      const extname = path.extname(src).replace(".", "");
+      if (AUDIO_EXTS.includes(extname)) return {src};
+    })
+  }
+
+  /**
+   * read audio meta
+   * @param src
+   */
+  public async readMeta(src: string): Promise<AudioMeta> {
     let meta;
 
-    log.info("to get the audio meta: ", filepath);
     try {
-      meta = await mm.parseFile(filepath);
+      meta = await mm.parseFile(src);
     } catch (err) {
       log.error(err);
       meta = null;
     }
 
     const { title, artist, artists, album, genre, date, picture } =
-      meta?.common || {};
+    meta?.common || {};
     const { duration } = meta?.format || {};
 
-    const extname = path.extname(filepath);
-    const finalTitle = title || path.basename(filepath, extname);
+    const extname = path.extname(src);
 
-    let lyric = "";
-    if (items.includes("lyric")) {
-      lyric = await this.getLyric(filepath, title, artist, album);
-    }
-
-    let finalPic: string;
-    if (items.includes("picture")) {
-      log.debug("include picture, try to get it.");
-      finalPic = await AudioService.getPicture(picture, title, artist, album);
+    const lyric = await this.getLyric(src, title, artist, album);
+    let pic = "";
+    if (picture) {
+      pic = await AudioService.getPicture(title, artist, album, picture[0]?.data);
     }
 
     return {
-      src: filepath,
-      title: items.includes("title") ? finalTitle : null,
-      artist: items.includes("artist") ? artist : null,
-      artists: items.includes("artists") ? artists : null,
-      album: items.includes("album") ? album : null,
-      genre: items.includes("genre") ? genre : null,
-      date: items.includes("date") ? date : null,
-      duration: items.includes("duration") ? duration : null,
-      picture: items.includes("lyric") ? finalPic : null,
-      lyric: items.includes("lyric") ? lyric : null,
+      src,
+      title: title ? title : path.basename(src, extname) || null,
+      artist,
+      artists,
+      album,
+      genre,
+      date,
+      duration,
+      picture: pic,
+      lyric,
     };
-  }
-
-  /**
-   * filter the audio from origin files
-   * @param originFileList origin file list
-   */
-  public filterAudioFile(originFileList: string[]) {
-    const tmp = [];
-    for (const m of originFileList) {
-      const extname = path.extname(m).replace(".", "");
-      if (AUDIO_EXTS.includes(extname)) tmp.push({ src: m });
-    }
-    return tmp;
-  }
-  
-  /**
-   * read file list
-   * @param p
-   */
-  public async readFileList(p: string) {
-    const tmp = [];
-    try {
-      return await walksAsync(path.resolve(p), tmp);
-    } catch (err) {
-      log.error("can't walks the path: ", p);
-    }
-  }
-
-  /**
-   * generate library file path from library path.
-   * @param p library path
-   * @param flag short or full
-   */
-  public getLibraryFilePath(p: string, flag = "") {
-    const hash = crypto.createHash("md5");
-    hash.update(p);
-    return path.join(MUSIC_LIBRARY_PATH, `${hash.digest("hex")}${flag}.json`);
   }
 
   /**
@@ -180,57 +149,54 @@ export class AudioService {
     }
   }
 
-  private static async getPicture(builtInPicture: any, title, artist, album) {
-    if (builtInPicture) {
-      const data = builtInPicture[0]?.data;
-      return arrayBufferToBase64(data);
+  private static async getPicture(title, artist, album, picBuffer?) {
+    const hash = crypto.createHash("md5");
+    hash.update(artist + album);
+
+    const coverFileName = `${hash.digest("hex")}.png`;
+    const coverFilePath = path.join(ALBUM_COVER_PATH, coverFileName);
+    const finalFilePath = "file:///" + coverFilePath.replace(/\\/g, "/");
+
+    if (fse.existsSync(coverFilePath)) return finalFilePath;
+
+    if (picBuffer) {
+      await AudioService.saveAlbumCover(picBuffer, coverFilePath);
+      return finalFilePath;
+    }
+
+    const neteaseApi = new Netease(title, artist, album);
+    const picUrl = await neteaseApi.getAlbumPic();
+    await AudioService.saveAlbumCover(picUrl, coverFilePath);
+    return finalFilePath;
+  }
+
+  private static async saveAlbumCover(urlOrBuf: string | Buffer, coverPath: string) {
+    let data;
+    if (typeof urlOrBuf === "string") {
+      const resp = await axios.get(urlOrBuf, { responseType: "arraybuffer" });
+      data = resp?.data;
     } else {
-      const hash = crypto.createHash("md5");
-      hash.update(artist + album);
-      const albumPath = path.join(
-        ALBUM_COVER_PATH,
-        `${hash.digest("hex")}.png`
-      );
+      data = urlOrBuf;
+    }
 
-      if (fse.existsSync(albumPath)) {
-        return "file:///" + albumPath.replace(/\\/g, "/");
-      } else {
-        const neteaseApi = new Netease(title, artist, album);
-        const picUrl = await neteaseApi.getAlbumPic();
-        await AudioService.saveAlbumCover(picUrl, albumPath);
-        return picUrl;
-      }
+    try {
+      if (data) await fse.writeFile(coverPath, data);
+    } catch (err) {
+      log.error(err);
     }
   }
 
-  private static async saveAlbumCover(url: string, coverPath: string) {
-    const resp = await axios.get(url, { responseType: "arraybuffer" });
-    if (resp.data) {
-      await fse.writeFile(coverPath, resp.data);
-    }
-  }
-
-  private async readMetas(fileLists: Track[]) {
+  private async readMetas(pureAudios: PureTrack[], totals: number, current: number) :Promise<AudioMeta[]> {
     const metas = [];
-    const items = [
-      "title",
-      "artist",
-      "artists",
-      "album",
-      "genre",
-      "date",
-      "duration",
-      // "picture",
-      "lyric",
-    ];
-    for (let i = 0; i < fileLists.length; i++) {
-      mainWindow.webContents.send(
-        EVENTS.SAVE_AUDIO_LIST_REPLY_MSG.toString(),
-        i,
-        fileLists.length,
-        path.basename(fileLists[i].src)
-      );
-      const meta = await this.readMusicFileMeta(fileLists[i].src, items);
+    for (let i = 0; i < pureAudios.length; i++) {
+      const src = pureAudios[i].src;
+      const basename = path.basename(src);
+      log.debug("read meta: ", src, "index: ", current + i, "totals: ", totals);
+
+      const msg = [current + i, totals, basename ]
+      mainWindow.webContents.send(EVENTS.REBUILD_AUDIO_CACHE_MSG.toString(), msg);
+
+      const meta = await this.readMeta(src);
       metas.push(meta);
     }
     return metas;

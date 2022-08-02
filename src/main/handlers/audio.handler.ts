@@ -37,16 +37,14 @@ export class AudioHandler {
    * get audio metadata by file path.
    * @param evt Ipc Invoke Event.
    * @param src audio file path.
-   * @param items item to be included.
    */
   @IpcInvoke(EVENTS.GET_AUDIO_META)
   public async handleGetAudioMeta(
     evt,
     src: string,
-    items?: string[]
   ): Promise<HandlerResponse<AudioMeta>> {
     try {
-      const meta = await this.audioService.readMusicFileMeta(src, items);
+      const meta = await this.audioService.readMeta(src);
       return Resp(RESP_CODE.OK, meta);
     } catch (err) {
       log.error(err);
@@ -56,13 +54,11 @@ export class AudioHandler {
 
   /**
    * get audio list
-   * @param evt Ipc Invoke Event.
-   * @param p audio library path.
    */
   @IpcInvoke(EVENTS.GET_AUDIO_LIST)
-  public async handleGetAudioList(evt, p: string) {
+  public async handleGetAudioList() {
     try {
-      const lists = await this.audioService.getAudioList(p);
+      const lists = await this.audioService.getAudios();
       return Resp(RESP_CODE.OK, {lists});
     } catch (err) {
       return Resp(RESP_CODE.ERROR, null, err);
@@ -72,13 +68,13 @@ export class AudioHandler {
   /**
    * save audio list to file.
    * @param evt Ipc Invoke Event.
-   * @param p audio library path.
-   * @param lists audio list to be saving.
+   * @param paths
    */
-  @IpcInvoke(EVENTS.SAVE_AUDIO_LIST)
-  public async handleSaveAudioList(evt, p: string, lists: Track[]) {
+  @IpcInvoke(EVENTS.REBUILD_AUDIO_CACHE)
+  public async rebuild(evt, paths: string[]) {
     try {
-      await this.audioService.saveLibrary(p, lists);
+      log.info("rebuild audio cache.");
+      await this.audioService.rebuild(paths);
       return Resp(RESP_CODE.OK, null);
     } catch (err) {
       return Resp(RESP_CODE.ERROR, null, err);
