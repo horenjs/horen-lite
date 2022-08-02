@@ -55,9 +55,9 @@ export class AudioHandler {
    * get audio list
    */
   @IpcInvoke(EVENTS.GET_AUDIO_LIST)
-  public async handleGetAudioList() {
+  public async handleGetAudioList(evt, libraries: string[], opts) {
     try {
-      const lists = await this.audioService.getAudios();
+      const lists = await this.audioService.getAudios(libraries, opts);
       return Resp(RESP_CODE.OK, {lists});
     } catch (err) {
       return Resp(RESP_CODE.ERROR, null, err);

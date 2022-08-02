@@ -24,8 +24,8 @@ export async function rebuildMsg() {
   return await window.ipc.rebuildMsg();
 }
 
-export async function getAudioList(p: string) {
-  return await window.ipc.getAudioList(p);
+export async function getAudioList(libraries: string[], opts?) {
+  return await window.ipc.getAudioList(libraries, opts);
 }
 
 export async function getAudioMeta(p: string) {

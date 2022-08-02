@@ -2,6 +2,7 @@ import { DataTypes } from "sequelize";
 import db from "./index";
 
 const audioField = {
+  dir: { type: DataTypes.STRING, allowNull: false },
   src: { type: DataTypes.STRING, allowNull: true, primaryKey: true, },
   title: { type: DataTypes.STRING, allowNull: false, defaultValue: "" },
   artist: { type: DataTypes.STRING, allowNull: true },

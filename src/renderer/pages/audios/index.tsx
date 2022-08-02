@@ -11,7 +11,7 @@ import { RiPlayListAddFill } from "react-icons/ri";
 import { MdOutlineDownloadDone } from "react-icons/md";
 import { TbPlaylistAdd } from "react-icons/tb";
 import { Track } from "@plugins/player";
-import { getAudioList } from "../../api";
+import { getAudioList, getSettingItem } from "../../api";
 import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
@@ -28,13 +28,18 @@ export default function PlayList() {
   const [trackListFull, setTrackListFull] = React.useState<Track[]>([]);
 
   React.useEffect(() => {
-    getAudioList().then((res) => {
-      if (res.code === 1) {
-        logger("get the audios success.");
-        logger(res.data.lists);
-        setTrackListFull(res.data.lists);
+    getSettingItem("libraries").then(resp => {
+      if (resp.code === 1) {
+        const libraries = resp.data;
+        getAudioList(libraries).then((res) => {
+          if (res.code === 1) {
+            logger("get the audios success.");
+            logger(res.data.lists);
+            setTrackListFull(res.data.lists);
+          }
+        });
       }
-    });
+    })
   }, []);
 
   const handleDoubleClick = (

@@ -41,8 +41,8 @@ const IPC_API = {
     })
   },
 
-  getAudioList: async (p) => {
-    return await ipcRenderer.invoke(EVENTS.GET_AUDIO_LIST.toString(), p);
+  getAudioList: async (libraries: string[], opts?) => {
+    return await ipcRenderer.invoke(EVENTS.GET_AUDIO_LIST.toString(), libraries, opts);
   },
 
   rebuild: async (paths: string[]) => {

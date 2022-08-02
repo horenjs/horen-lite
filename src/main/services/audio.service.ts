@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import { Injectable } from "../decorators";
 import {walksAsync} from "../utils/fs-promises";
 import {AudioMeta} from "../handlers/audio.handler";
@@ -30,14 +31,31 @@ export class AudioService {
   }
 
   public async getAudios(
+    libraries: string[],
     opts = {
       limit: 99999,
       offset: 0,
     }
   ) {
     const { limit, offset } = opts;
-    const results = await AudioModel.findAll({ limit, offset });
-    return results.map((r) => r.get());
+    let tmp = [];
+
+    log.info("libraries: ", libraries);
+
+    for (const lib of libraries) {
+      const results = await AudioModel.findAll({
+        where: { dir: { [Op.startsWith]: lib } },
+      });
+
+      if (results) {
+        const list = results.map((r) => {
+          console.log(r.toJSON());
+          return r.get();
+        });
+        tmp = [...tmp, ...list];
+      }
+    }
+    return tmp.slice(offset, limit);
   }
 
   /**
@@ -117,6 +135,7 @@ export class AudioService {
     const { duration } = meta?.format || {};
 
     const extname = path.extname(src);
+    const dirname = path.dirname(src);
 
     const lyric = await this.getLyric(src, title, artist, album);
     let pic = "";
@@ -130,6 +149,7 @@ export class AudioService {
     }
 
     return {
+      dir: dirname,
       src,
       title: title ? title : path.basename(src, extname) || null,
       artist,
