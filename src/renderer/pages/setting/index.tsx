@@ -16,6 +16,25 @@ import Slider from "@components/slider";
 
 const logger = debug("Page:Setting");
 
+interface SettingItemProps {
+  label: string;
+  content: React.ReactNode;
+}
+
+function SettingItem(props: SettingItemProps) {
+  const { label, content } = props;
+  return (
+    <div className={"setting-item electron-no-drag"}>
+      <div className={"item-label"}>
+        <span>{label}</span>
+      </div>
+      <div className={"item-content"}>
+        {content}
+      </div>
+    </div>
+  )
+}
+
 export default function SettingPage() {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
@@ -81,11 +100,9 @@ export default function SettingPage() {
 
   return (
     <div className={"page page-setting"}>
-      <div className={"setting-item electron-no-drag"}>
-        <div className={"item-label"}>
-          <span>{t("Music Library Path")}</span>
-        </div>
-        <div className={"item-content"}>
+      <SettingItem
+        label={t("Music Library Path")}
+        content={
           <div
             style={{
               fontSize: 12,
@@ -99,27 +116,26 @@ export default function SettingPage() {
               <span>{t("Change Music Library Path")}</span>
             )}
           </div>
-        </div>
-      </div>
-      <div className={"setting-item electron-no-drag"}>
-        <div className={"item-label"}>
-          <span>{t("Rebuild Audio Cache")}</span>
-        </div>
-        <div className={"item-content"}>
-          <RiRefreshLine onClick={e => {
-            e.preventDefault();
-            if (window.confirm(t("Rebuild Audio Cache") + "?")) {
-              logger("rebuild the audio cache.");
-              dispatch(refreshMusicLibrary());
-            }
-          }} />
-        </div>
-      </div>
-      <div className={"setting-item electron-no-drag"}>
-        <div className={"item-label"}>
-          <span>{t("Auto Play")}</span>
-        </div>
-        <div className={"item-content"}>
+        }
+      />
+      <SettingItem
+        label={t("Rebuild Audio Cache")}
+        content={
+          <RiRefreshLine
+            fill={"#b7b7b7"}
+            onClick={e => {
+              e.preventDefault();
+              if (window.confirm(t("Rebuild Audio Cache") + "?")) {
+                logger("rebuild the audio cache.");
+                dispatch(refreshMusicLibrary());
+              }
+            }}
+          />
+        }
+      />
+      <SettingItem
+        label={t("Auto Play")}
+        content={
           <input
             type={"checkbox"}
             checked={form.autoPlay}
@@ -129,11 +145,11 @@ export default function SettingPage() {
               (async () => await saveSettingItem("autoPlay", e.target.checked))();
             }}
           />
-        </div>
-      </div>
-      <div className={"setting-item electron-no-drag"}>
-        <div className={"item-label"}>{t("Choose Language")}</div>
-        <div className={"item-content"}>
+        }
+      />
+      <SettingItem
+        label={t("Choose Language")}
+        content={
           <select
             id={"lang-change-select"}
             value={form.language}
@@ -147,8 +163,9 @@ export default function SettingPage() {
             <option value={"cn"}>中文</option>
             <option value={"en"}>English</option>
           </select>
-        </div>
-      </div>
+        }
+      />
+      {/* progress of the saving status */}
       <div
         className={"save-progress"}
         style={{
