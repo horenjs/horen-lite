@@ -49,7 +49,6 @@ export class AudioService {
 
       if (results) {
         const list = results.map((r) => {
-          console.log(r.toJSON());
           return r.get();
         });
         tmp = [...tmp, ...list];
@@ -137,21 +136,19 @@ export class AudioService {
     const extname = path.extname(src);
     const dirname = path.dirname(src);
 
-    const lyric = await this.getLyric(src, title, artist, album);
-    let pic = "";
-    if (picture) {
-      pic = await AudioService.getPicture(
-        title,
-        artist,
-        album,
-        picture[0]?.data
-      );
-    }
+    const tit = title || path.basename(src, extname);
+    const lyric = await this.getLyric(src, tit, artist, album);
+    const pic = await AudioService.getPicture(
+      tit,
+      artist,
+      album,
+      picture ? picture[0]?.data : null,
+    );
 
     return {
       dir: dirname,
       src,
-      title: title ? title : path.basename(src, extname) || null,
+      title: tit,
       artist,
       artists: JSON.stringify(artists),
       album,
@@ -193,35 +190,51 @@ export class AudioService {
 
   private static async getPicture(title, artist, album, picBuffer?) {
     const hash = crypto.createHash("md5");
-    hash.update(artist + album);
+    hash.update(String(artist) + String(album));
+    const filename = hash.digest("hex");
+    log.debug("get picture: ", artist, " ", album);
+    log.debug("cover name: ", filename);
 
-    const coverFileName = `${hash.digest("hex")}.png`;
+    const coverFileName = `${filename}.png`;
     const coverFilePath = path.join(ALBUM_COVER_PATH, coverFileName);
     const finalFilePath = "file:///" + coverFilePath.replace(/\\/g, "/");
 
-    if (fse.existsSync(coverFilePath)) return finalFilePath;
+    if (fse.existsSync(coverFilePath)) {
+      log.debug("cover exists: ", coverFilePath);
+      return finalFilePath;
+    }
 
-    if (picBuffer) {
+    if (picBuffer instanceof Buffer) {
+      log.debug("save from built-in cover: ", coverFilePath);
       await AudioService.saveAlbumCover(picBuffer, coverFilePath);
       return finalFilePath;
     }
 
-    const neteaseApi = new Netease(title, artist, album);
-    const picUrl = await neteaseApi.getAlbumPic();
-    await AudioService.saveAlbumCover(picUrl, coverFilePath);
-    return finalFilePath;
+    try {
+      const neteaseApi = new Netease(title, artist, album);
+      const picUrl = await neteaseApi.getAlbumPic();
+      if (picUrl) {
+        await AudioService.saveAlbumCover(picUrl, coverFilePath);
+        log.debug("save from internet: ", picUrl);
+        return finalFilePath;
+      } else {
+        log.warning("no cover");
+        return null;
+      }
+    } catch (err) {
+      log.error(err);
+      return null;
+    }
   }
 
   private static async saveAlbumCover(
     urlOrBuf: string | Buffer,
     coverPath: string
   ) {
-    let data;
+    let data = urlOrBuf;
     if (typeof urlOrBuf === "string") {
       const resp = await axios.get(urlOrBuf, { responseType: "arraybuffer" });
       data = resp?.data;
-    } else {
-      data = urlOrBuf;
     }
 
     try {
