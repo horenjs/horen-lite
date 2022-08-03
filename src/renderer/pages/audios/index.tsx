@@ -9,7 +9,9 @@ import {
 } from "@store/slices/player-status.slice";
 import { RiPlayListAddFill } from "react-icons/ri";
 import { MdOutlineDownloadDone } from "react-icons/md";
-import { TbPlaylistAdd } from "react-icons/tb";
+import { BiAlbum } from "react-icons/bi";
+import { TbPlaylistAdd, TbUserCircle } from "react-icons/tb";
+import { IoListCircleOutline } from "react-icons/io5";
 import { Track } from "@plugins/player";
 import { getAudios, getSettingItem } from "../../api";
 import { useTranslation } from "react-i18next";
@@ -27,8 +29,6 @@ export default function PlayList() {
   const current = useSelector(selectCurrent);
   const queue = useSelector(selectQueue);
   const audios = useSelector(selectAudioList);
-
-  const [isReady, setIsReady] = React.useState(false);
 
   const ref = React.useRef<any>();
 
@@ -120,10 +120,6 @@ export default function PlayList() {
       onScroll={handleScroll}
       ref={ref}
     >
-      <div className={"play-all"} onClick={handlePlayAll}>
-        <TbPlaylistAdd size={24} />
-        <span>Play All</span>
-      </div>
       {audios.length > 0 ? (
         audios.map(renderTrackItem)
       ) : (
@@ -131,6 +127,22 @@ export default function PlayList() {
           <Loading type={"square"} />
         </div>
       )}
+      <div className={"bottom-operate"}>
+        <div className={"operate-item play-all"} onClick={handlePlayAll}>
+          <TbPlaylistAdd size={24} />
+          <span>Play All</span>
+        </div>
+        <div className={"operate-item spacer"}></div>
+        <div className={"operate-item"}>
+          <IoListCircleOutline size={20} />
+        </div>
+        <div className={"operate-item"}>
+          <TbUserCircle size={20} />
+        </div>
+        <div className={"operate-item"}>
+          <BiAlbum size={20} />
+        </div>
+      </div>
     </div>
   );
 }
