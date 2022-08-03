@@ -1,6 +1,6 @@
 import React from "react";
 import "./style.less";
-import { getFavorites, removeFavorite } from "../../api";
+import { getFavorites, removeFavoriteItem } from "../../api";
 import { Favorite } from "../../../main/handlers/audio.handler";
 import {RiHeart3Fill, RiPlayListAddFill} from "react-icons/ri";
 import Loading from "@components/loading";
@@ -47,7 +47,7 @@ export default function PageFavorites() {
             e.preventDefault();
             const i = favoritesIndexOf(favorites, favorite);
             const tmp = [...favorites];
-            removeFavorite(src).then();
+            removeFavoriteItem(src).then();
             tmp.splice(i, 1);
             setFavorites(tmp);
           }}

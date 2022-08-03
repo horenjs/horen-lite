@@ -31,7 +31,7 @@ import DefaultCover from "@static/default-cover";
 import "./style.less";
 import { PlayMode } from "@plugins/player";
 import debug from "@plugins/debug";
-import { saveSettingItem, getFavorites, addFavorite, removeFavorite } from "../../api";
+import { saveSettingItem, getFavorites, addFavoriteItem, removeFavoriteItem } from "../../api";
 import {favoritesIndexOf} from "../favorites";
 
 const logger = debug("Page:Cover");
@@ -181,10 +181,10 @@ export default function PageCover() {
         <span className={"add-to-favorite"} onClick={e => {
           e.preventDefault();
           if (!isFavorite) {
-            addFavorite(current?.src).then();
+            addFavoriteItem(current?.src).then();
             setIsFavorite(true);
           } else {
-            removeFavorite(current?.src).then(res => {
+            removeFavoriteItem(current?.src).then(res => {
               console.log(res);
             });
             setIsFavorite(false);
