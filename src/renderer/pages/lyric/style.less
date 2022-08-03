@@ -1,9 +1,10 @@
 .page-lyric {
-  color: #b5b5b5;
+  color: #929292;
   text-align: center;
+  transition: all 0.5s cubic-bezier(.69,.14,.14,.92);
   .lyric-panel {
     position: relative;
-    transition: all .3s cubic-bezier(.69,.14,.14,.92);
+    transition: all 0.5s cubic-bezier(.69,.14,.14,.92);
     .spacer {
       height: 148px;
     }
@@ -13,7 +14,13 @@
     margin: 8px 0;
     font-size: 13px;
     line-height: 20px;
-    transition: all .3s cubic-bezier(.69,.14,.14,.92);
+    transition: all .5s cubic-bezier(.69,.14,.14,.92);
+  }
+  .lyric-item.hit {
+    font-size: 15px;
+    font-weight: bold;
+    color: #71b15f;
+    margin: 16px 0;
   }
 }
 

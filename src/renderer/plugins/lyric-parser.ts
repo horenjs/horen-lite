@@ -14,7 +14,7 @@ interface LyricParser {
   scripts: LyricScript[];
 }
 
-interface LyricScript {
+export interface LyricScript {
   start: number;
   text: string;
   end: number;
