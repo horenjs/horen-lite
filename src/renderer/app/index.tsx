@@ -8,6 +8,7 @@ import Header from "./Header";
 import TitleBar from "./TitleBar";
 
 export default function App() {
+  const MemoHeader = React.memo(Header);
   return (
     <>
       <Initialization />
@@ -15,7 +16,7 @@ export default function App() {
       <div className="app">
         <Mask />
         <TitleBar />
-        <Header />
+        <MemoHeader />
         <Main />
       </div>
     </>

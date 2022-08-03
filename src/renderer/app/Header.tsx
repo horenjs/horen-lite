@@ -19,8 +19,9 @@ export default function Header() {
   const location = useLocation();
   const isPlaying = useSelector(selectIsPlaying);
 
-  const isCurrentRoute = (p: string) => {
-    return p === location.pathname;
+  const match = (p: string) => {
+    const isMatch = p === location.pathname;
+    return isMatch ? "#71b15f" : "#f1f1f1";
   };
 
   const footerItems = [
@@ -30,7 +31,7 @@ export default function Header() {
       icon: (
         <MdFormatListBulleted
           size={25}
-          color={isCurrentRoute("/audios") && "#71b15f"}
+          color={match("/audios")}
         />
       ),
       onClick: function (key: string | number) {
@@ -45,7 +46,7 @@ export default function Header() {
       icon: (
         <BsMusicNoteList
           size={22}
-          color={isCurrentRoute("/queue") && "#71b15f"}
+          color={match("/queue")}
         />
       ),
       onClick: function (key: string | number) {
@@ -61,7 +62,7 @@ export default function Header() {
         <Loading
           type={"dance"}
           stop={!isPlaying}
-          color={isCurrentRoute("/playing") ? "#71b15f" : "#f6f6f6"}
+          color={match("/playing")}
         />
       ),
       onClick: function (key: string | number) {
@@ -76,7 +77,7 @@ export default function Header() {
       icon: (
         <MdOutlineTextFields
           size={24}
-          color={isCurrentRoute("/lyric") && "#71b15f"}
+          color={match("/lyric")}
         />
       ),
       onClick(key: string | number) {
@@ -91,7 +92,7 @@ export default function Header() {
       icon: (
         <MdOutlineFavoriteBorder
           size={26}
-          color={isCurrentRoute("/favorites") && "#71b15f"}
+          color={match("/favorites")}
         />
       ),
       onClick(key: string | number) {
@@ -106,7 +107,7 @@ export default function Header() {
       icon: (
         <RiSettingsLine
           size={24}
-          color={isCurrentRoute("/setting") && "#71b15f"}
+          color={match("/setting")}
         />
       ),
       onClick(key: string | number) {
