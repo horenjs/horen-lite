@@ -5,7 +5,7 @@ import {
   selectIsPlaying,
   selectCurrent,
   selectQueue,
-  addToQueue, setQueue
+  addToQueue, setQueue, setAudioList, selectAudioList
 } from "@store/slices/player-status.slice";
 import { RiPlayListAddFill } from "react-icons/ri";
 import { MdOutlineDownloadDone } from "react-icons/md";
@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
 import { player } from "../../app/DataManager";
+import {debounce, getLocalItem, setLocalItem} from "../../utils";
 
 const logger = debug("Page:Audios");
 
@@ -25,22 +26,11 @@ export default function PlayList() {
   const isPlaying = useSelector(selectIsPlaying);
   const current = useSelector(selectCurrent);
   const queue = useSelector(selectQueue);
-  const [trackListFull, setTrackListFull] = React.useState<Track[]>([]);
+  const audios = useSelector(selectAudioList);
 
-  React.useEffect(() => {
-    getSettingItem("libraries").then(resp => {
-      if (resp.code === 1) {
-        const libraries = resp.data;
-        getAudios(libraries).then((res) => {
-          if (res.code === 1) {
-            logger("get the audios success.");
-            logger(res.data.lists);
-            setTrackListFull(res.data.lists);
-          }
-        });
-      }
-    })
-  }, []);
+  const [isReady, setIsReady] = React.useState(false);
+
+  const ref = React.useRef<any>();
 
   const handleDoubleClick = (
     e: React.MouseEvent<HTMLDivElement>,
@@ -60,8 +50,37 @@ export default function PlayList() {
 
   const handlePlayAll = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
-    dispatch(setQueue(trackListFull));
+    dispatch(setQueue(audios));
   }
+
+  const _setLocalToTop = () => {
+    const toTop = Number(getLocalItem("page-audios-to-top"));
+    if (ref?.current) ref.current.scrollTo({top: toTop});
+  }
+
+  const handleScroll = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const target = e.target as any;
+    const toTop = target.scrollTop;
+    debounce(setLocalItem)("page-audios-to-top", toTop);
+  }
+
+  React.useEffect(() => {
+    getSettingItem("libraries").then(resp => {
+      if (resp.code === 1) {
+        const libraries = resp.data;
+        getAudios(libraries).then((res) => {
+          if (res.code === 1) {
+            logger("get the audios success.");
+            logger(res.data.lists);
+            dispatch(setAudioList(res.data.lists));
+          }
+        });
+      }
+    });
+
+    _setLocalToTop();
+  }, []);
 
   const renderTrackItem = (track: Track, idx: number) => {
     const isCurrent = current.src === track.src;
@@ -96,13 +115,17 @@ export default function PlayList() {
   };
 
   return (
-    <div className={"page page-audio-list electron-no-drag perfect-scrollbar"}>
+    <div
+      className={"page page-audio-list electron-no-drag perfect-scrollbar"}
+      onScroll={handleScroll}
+      ref={ref}
+    >
       <div className={"play-all"} onClick={handlePlayAll}>
         <TbPlaylistAdd size={24} />
         <span>Play All</span>
       </div>
-      {trackListFull.length > 0 ? (
-        trackListFull.map(renderTrackItem)
+      {audios.length > 0 ? (
+        audios.map(renderTrackItem)
       ) : (
         <div className={"loading"}>
           <Loading type={"square"} />

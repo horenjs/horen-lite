@@ -13,6 +13,7 @@ import debug from "@plugins/debug";
 import Loading from "@components/loading";
 import {player} from "../../app/DataManager";
 import {queueIndexOf} from "@pages/audios";
+import { debounce, setLocalItem, getLocalItem } from "../../utils";
 
 const logger = debug("Page:PlayList");
 
@@ -22,6 +23,8 @@ export default function PlayQueue() {
   const isPlaying = useSelector(selectIsPlaying);
   const current = useSelector(selectCurrent);
   const queue = useSelector(selectQueue);
+
+  const ref = React.useRef<any>();
 
   const handleDoubleClick = (
     e: React.MouseEvent<HTMLDivElement>,
@@ -48,9 +51,29 @@ export default function PlayQueue() {
     dispatch(setQueue([t, ...q.slice(0)]))
   }
 
+  const handleScroll = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const target = e.target as any;
+    const toTop = target.scrollTop;
+    debounce(setLocalItem)("page-queue-to-top", toTop);
+  }
+
+  const _setLocalToTop = () => {
+    const toTop = Number(getLocalItem("page-queue-to-top"));
+    if (ref?.current) ref?.current?.scrollTo({top: toTop});
+  }
+
+  React.useEffect(() => {
+    _setLocalToTop();
+  }, []);
+
   return (
-    <div className={"page page-playlist electron-no-drag perfect-scrollbar"}>
-      {queue.length ?
+    <div
+      className={"page page-playlist electron-no-drag perfect-scrollbar"}
+      onScroll={handleScroll}
+      ref={ref}
+    >
+      {queue?.length ?
         queue.map((tt: Track, idx) => {
           const isCurrent = current.src === tt.src;
           return (
