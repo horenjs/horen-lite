@@ -19,6 +19,7 @@ import debug from "@plugins/debug";
 import Loading from "@components/loading";
 import { player } from "../../app/DataManager";
 import {debounce, getLocalItem, setLocalItem} from "../../utils";
+import VirtualList from "@components/virtual-list";
 
 const logger = debug("Page:Audios");
 
@@ -82,7 +83,7 @@ export default function PlayList() {
     _setLocalToTop();
   }, []);
 
-  const renderTrackItem = (track: Track, idx: number) => {
+  const renderTrackItem = (track: Track, idx: number, start: number) => {
     const isCurrent = current.src === track.src;
     return (
       <div
@@ -95,7 +96,7 @@ export default function PlayList() {
           {isCurrent ? (
             <Loading scale={0.8} stop={!isPlaying} color={"#71b15f"} />
           ) : (
-            <span>{idx + 1}</span>
+            <span>{start + idx + 1}</span>
           )}
         </div>
         <div className={"info"} style={{ color: isCurrent && "#71b15f" }}>
@@ -120,13 +121,26 @@ export default function PlayList() {
       onScroll={handleScroll}
       ref={ref}
     >
-      {audios.length > 0 ? (
-        audios.map(renderTrackItem)
-      ) : (
-        <div className={"loading"}>
-          <Loading type={"square"} />
-        </div>
-      )}
+      <div className={"audio-list"}>
+        {audios.length > 0 ? (
+          <VirtualList
+            defaultStart={Number(getLocalItem("page-audios-start")) || 0}
+            defaultTop={Number(getLocalItem("page-audios-top")) || 0}
+            data={audios}
+            height={410}
+            itemHeight={28}
+            render={renderTrackItem}
+            onScroll={(e, start, tt) => {
+              setLocalItem("page-audios-start", start);
+              setLocalItem("page-audios-top", tt);
+            }}
+          />
+        ) : (
+          <div className={"loading"}>
+            <Loading type={"square"} />
+          </div>
+        )}
+      </div>
       <div className={"bottom-operate"}>
         <div className={"operate-item play-all"} onClick={handlePlayAll}>
           <TbPlaylistAdd size={24} />
