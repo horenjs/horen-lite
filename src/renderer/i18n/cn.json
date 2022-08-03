@@ -11,5 +11,6 @@
   "Saving": "正在保存：",
   "Dont Change Music Library When Saving": "正在刷新音乐库，无法选择新的音乐库",
   "Choose Language": "选择语言",
-  "Rebuild Audio Cache": "重建音频缓存"
+  "Rebuild Audio Cache": "重建音频缓存",
+  "setting.add-new-lib": "添加曲库"
 }

@@ -10,7 +10,8 @@ import {
   setSeek,
   setCurrent,
   addToQueue,
-  selectQueue
+  selectQueue,
+  setAudioList
 } from "@store/slices/player-status.slice";
 import React from "react";
 import {
@@ -19,6 +20,7 @@ import {
   rebuild,
   setProgress,
   setTitle,
+  getAudios
 } from "../api";
 import Player from "@plugins/player";
 import debug from "@plugins/debug";
@@ -62,7 +64,11 @@ export default function DataManager() {
   React.useEffect(() => {
     if (refreshMusicLibraryTimeStamp !== 0) {
       logger("refresh library, timestamp: ", refreshMusicLibraryTimeStamp);
-      (async() => _refreshLibrary())();
+      (async() => {
+        const paths = await _refreshLibrary();
+        const resp = await getAudios(paths);
+        if (resp.code === 1) dispatch(setAudioList(resp.data.lists));
+      })();
     }
   }, [refreshMusicLibraryTimeStamp]);
 
@@ -128,6 +134,7 @@ export default function DataManager() {
       const paths = resp.data;
       const res = await rebuild(paths);
       logger("rebuild result: ", res);
+      return resp.data;
     }
   };
 

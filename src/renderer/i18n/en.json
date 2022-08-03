@@ -11,5 +11,6 @@
   "Saving": "Saving: ",
   "Dont Change Music Library When Saving": "Saving, Don't Change Music Library.",
   "Choose Language": "Choose Language",
-  "Rebuild Audio Cache": "Rebuild Audio Cache"
+  "Rebuild Audio Cache": "Rebuild Audio Cache",
+  "setting.add-new-lib": "Add New Libraries"
 }

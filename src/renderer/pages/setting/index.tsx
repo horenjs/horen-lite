@@ -7,6 +7,7 @@ import {
   rebuildMsg,
 } from "../../api";
 import { RiRefreshLine } from "react-icons/ri";
+import { MdOutlineDeleteOutline, MdAddCircleOutline } from "react-icons/md";
 import "./style.less";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
@@ -124,28 +125,44 @@ export default function SettingPage() {
     })();
   };
 
+  const handleDeleteLib = (e: React.MouseEvent<HTMLDivElement>, lib: string) => {
+    e.preventDefault();
+    const libs = form.libraries;
+    const idx = libs.indexOf(lib);
+    if (idx >= 0) libs.splice(idx, 1);
+    setForm({...form, libraries: libs});
+    saveSettingItem("libraries", libs).then();
+    if (window.confirm(t("Refresh Music Library"))) {
+      saveSettingItem("lastIndex", 0).then();
+      saveSettingItem("lastSeek", 0).then();
+      dispatch(refreshMusicLibrary());
+    }
+  }
+
   return (
     <div className={"page page-setting"}>
       <SettingItem
         label={t("Music Library Path")}
         content={
-          <div
-            id={"change-libraries"}
-            style={{
-              fontSize: 12,
-              color: "#2483ff",
-              cursor: "pointer",
-              textDecoration: "underline",
-            }}
-            onClick={handleChangeLibrary}
-          >
+          <div id={"change-libraries"}>
             {form?.libraries?.length ? (
               form.libraries.map((lib) => {
-                return <div key={lib}>{lib}</div>;
+                return (
+                  <div key={lib} className={"path-name"}>
+                    <div className={"path"}>{lib}</div>
+                    <div className={"delete"} onClick={e => handleDeleteLib(e, lib)}>
+                      <MdOutlineDeleteOutline size={16} color={"#da3b3b"} />
+                    </div>
+                  </div>
+                )
               })
             ) : (
               <span>{t("Change Music Library Path")}</span>
             )}
+            <div className={"add"} onClick={handleChangeLibrary}>
+              <MdAddCircleOutline color={"#a9d89f"} size={18} className={"icon"} />
+              <span className={"text"}>{t("setting.add-new-lib")}</span>
+            </div>
           </div>
         }
       />
