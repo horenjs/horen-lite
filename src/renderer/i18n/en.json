@@ -7,7 +7,7 @@
   "Change Music Library Path": "Change Music Library Path",
   "Refresh Music Library": "Detecting you change the Music Library Path, refresh it?",
   "Confirm Exit": "The App will exit, confirm it?",
-  "No Lyric": "There is no lyric for this song.",
+  "lyric.no-lyric": "There is no lyric for this song.",
   "Saving": "Saving: ",
   "Dont Change Music Library When Saving": "Saving, Don't Change Music Library.",
   "Choose Language": "Choose Language",

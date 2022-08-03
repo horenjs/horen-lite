@@ -13,12 +13,22 @@ export default function PageLyric() {
   const [lyrics, setLyrics] = React.useState<LyricScript[]>();
   const [isScrolling, setIsScrolling] = React.useState(false);
 
+  // page-lyric reference
+  /* eslint-disable */
   const ref = React.useRef<any>();
 
+  /**
+   * does seek hit the lyric item
+   * @param sk seek
+   * @param st start time
+   * @param en end time
+   */
   const isHit = (sk: number, st: number, en: number) => {
     return sk > st && sk < en;
   };
 
+  // when scroll the lyric panel
+  // disable the scroll auto.
   const handleScroll = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.preventDefault();
@@ -27,6 +37,7 @@ export default function PageLyric() {
     [isScrolling]
   );
 
+  // parse the lyric from current track
   React.useEffect(() => {
     const lyric = current?.lyric;
     if (lyric) {
@@ -35,10 +46,12 @@ export default function PageLyric() {
     }
   }, [current?.src]);
 
+  // recovery the scroll status when seek is changing
   React.useEffect(() => {
     setIsScrolling(false);
   }, [seek]);
-  
+
+  // render the lyric panel item
   const renderLyricItem = React.useCallback((lyric, idx: number) => {
     const hit = isHit(seek, lyric.start, lyric.end);
     const cls = hit ? "lyric-item hit" : "lyric-item";
@@ -48,7 +61,7 @@ export default function PageLyric() {
     if (hit && !isScrolling) {
       setTimeout(() => {
         ref?.current?.scrollTo({top: toTop, behavior: "smooth"});
-      }, 250);
+      }, 250); // set timeout 250ms for smooth
     }
 
     return (
@@ -56,7 +69,7 @@ export default function PageLyric() {
         <span>{lyric.text}</span>
       </div>
     );
-  }, [seek]);
+  }, [seek]); // only render item when seek is changing
 
   return (
     <div
@@ -68,8 +81,9 @@ export default function PageLyric() {
         <div className={"spacer"}></div>
         {lyrics
           ? lyrics.map(renderLyricItem)
-          : <div className={"no-lyric"}>{t("No" + " Lyric")}</div>
+          : <div className={"no-lyric"}>{t("lyric.no-lyric")}</div>
         }
+        <div className={"spacer"}></div>
       </div>
     </div>
   );

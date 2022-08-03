@@ -6,7 +6,7 @@
     position: relative;
     transition: all 0.5s cubic-bezier(.69,.14,.14,.92);
     .spacer {
-      height: 88px;
+      height: 144px;
     }
   }
 
@@ -14,13 +14,19 @@
     margin: 8px 0;
     font-size: 13px;
     line-height: 20px;
+    height: 20px;
     transition: all .5s cubic-bezier(.69,.14,.14,.92);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .lyric-item.hit {
     font-size: 15px;
     font-weight: bold;
     color: #71b15f;
     margin: 16px 0;
+    overflow: visible;
+    white-space: normal;
   }
 }
 
