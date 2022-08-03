@@ -8,7 +8,8 @@
     "start": "chcp 65001 && cross-env NODE_ENV=development node start.js",
     "build": "cross-env NODE_ENV=production node start.js",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "rebuild": "electron-rebuild -f -w sqlite3"
   },
   "keywords": [
     "react",
@@ -45,6 +46,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",
     "electron": "^16.0.2",
+    "electron-rebuild": "^3.2.9",
     "eslint": "^8.17.0",
     "eslint-plugin-react": "^7.30.0",
     "html-webpack-plugin": "^5.5.0",
@@ -52,7 +54,6 @@
     "less-loader": "^11.0.0",
     "prettier": "2.6.2",
     "react-refresh": "^0.13.0",
-    "reflect-metadata": "^0.1.13",
     "style-loader": "^3.3.1",
     "typescript": "^4.6.4",
     "webpack": "^5.72.0",
@@ -75,6 +76,7 @@
     "react-icons": "^4.4.0",
     "react-redux": "^8.0.2",
     "react-router-dom": "^6.3.0",
+    "reflect-metadata": "^0.1.13",
     "sequelize": "^6.21.3",
     "sqlite3": "^5.0.11"
   },
