@@ -1,25 +1,32 @@
-import { Op } from "sequelize";
-import { Injectable } from "../decorators";
+import {Op} from "sequelize";
+import {Injectable} from "../decorators";
 import {walksAsync} from "../utils/fs-promises";
-import {AudioMeta} from "../handlers/audio.handler";
 import * as mm from "music-metadata";
 import path from "path";
 import {Netease} from "../apis";
 import crypto from "crypto";
-import {
-  ALBUM_COVER_PATH,
-  AUDIO_EXTS, EVENTS,
-} from "@constant";
+import {ALBUM_COVER_PATH, AUDIO_EXTS, EVENTS,} from "@constant";
 import * as fse from "fs-extra";
 import axios from "axios";
 import Logger from "../utils/logger";
-import {Track} from "@plugins/player";
 import {mainWindow} from "../index";
 import {AudioModel} from "../db/models";
 
-export type PureTrack = Pick<Track, "src">;
-
 const log = new Logger("service::audio");
+
+export type AudioMeta = Partial<{
+  dir: string;
+  src: string;
+  title: string;
+  artist: string;
+  artists: string | string[];
+  album: string;
+  genre: string | string[];
+  date: string;
+  duration: number;
+  picture: string;
+  lyric: string;
+}>;
 
 @Injectable("AudioService")
 export class AudioService {
@@ -106,11 +113,11 @@ export class AudioService {
    * filter the audio from origin files
    * @param originFiles
    */
-  private static filterAudioFile(originFiles: string[]) {
+  private static filterAudioFile(originFiles: string[]) :string[] {
     const tmp = [];
     for (const src of originFiles) {
       const extname = path.extname(src).replace(".", "");
-      if (AUDIO_EXTS.includes(extname)) tmp.push({ src });
+      if (AUDIO_EXTS.includes(extname)) tmp.push(src);
     }
     return tmp;
   }
@@ -245,13 +252,13 @@ export class AudioService {
   }
 
   private async readMetas(
-    pureAudios: PureTrack[],
+    files: string[],
     totals: number,
     current: number
   ): Promise<AudioMeta[]> {
     const metas = [];
-    for (let i = 0; i < pureAudios.length; i++) {
-      const src = pureAudios[i].src;
+    for (let i = 0; i < files.length; i++) {
+      const src = files[i];
       const basename = path.basename(src);
       log.debug(`read meta: ${src}, ${current + i} / ${totals}`);
 

@@ -2,29 +2,9 @@ import {HandlerResponse, Resp} from "./index";
 import Logger from "../utils/logger";
 import {EVENTS, RESP_CODE} from "@constant";
 import {Handler, IpcInvoke} from "../decorators";
-import {AudioService, PureTrack} from "../services/audio.service";
+import {AudioMeta, AudioService} from "../services/audio.service";
 
 const log = new Logger("handler::audio");
-
-export type AudioMeta = Partial<{
-  src: string;
-  title: string;
-  artist: string;
-  artists: string | string[];
-  album: string;
-  genre: string | string[];
-  date: string;
-  duration: number;
-  picture: string;
-  lyric: string;
-}>;
-
-export type Favorite = AudioMeta & { addAt: string | number };
-
-export type FavoriteFile = {
-  updateAt: string | number;
-  lists: Favorite[];
-};
 
 @Handler()
 export class AudioHandler {
@@ -67,13 +47,13 @@ export class AudioHandler {
   /**
    * save audio list to file.
    * @param evt Ipc Invoke Event.
-   * @param paths
+   * @param libraries libraries paths
    */
   @IpcInvoke(EVENTS.REBUILD_AUDIO_CACHE)
-  public async rebuild(evt, paths: string[]) {
+  public async rebuild(evt, libraries: string[]) {
     try {
       log.info("rebuild audio cache.");
-      await this.audioService.rebuild(paths);
+      await this.audioService.rebuild(libraries);
       return Resp(RESP_CODE.OK, null);
     } catch (err) {
       console.trace(err);
@@ -83,10 +63,10 @@ export class AudioHandler {
   }
 
   @IpcInvoke(EVENTS.GET_INTACT_QUEUE)
-  public async getIntactQueue(evt, pureQueue: PureTrack[], opts?) {
+  public async getIntactQueue(evt, libraries:string[], opts?) {
     try {
       log.info("get intact queue");
-      const data = await this.audioService.getQueue(pureQueue, opts);
+      const data = await this.audioService.getQueue(libraries, opts);
       return Resp(RESP_CODE.OK, data);
     } catch (err) {
       log.error(err);

@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
 import { PlayMode, Track } from "@plugins/player";
-import {act} from "react-dom/test-utils";
 
 export const playerStatusSlice = createSlice({
   name: "player-status",

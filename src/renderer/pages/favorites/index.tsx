@@ -1,7 +1,6 @@
 import React from "react";
 import "./style.less";
 import { getFavorites, removeFavoriteItem } from "../../api";
-import { Favorite } from "../../../main/handlers/audio.handler";
 import {RiHeart3Fill, RiPlayListAddFill} from "react-icons/ri";
 import Loading from "@components/loading";
 import {useDispatch, useSelector} from "react-redux";
@@ -14,6 +13,7 @@ import {player} from "../../app/DataManager";
 import {MdOutlineDownloadDone} from "react-icons/md";
 import {queueIndexOf} from "../audios";
 import {Track} from "@plugins/player";
+import {Favorite} from "../../../main/services/favorite.service";
 
 export default function PageFavorites() {
   const dispatch = useDispatch();

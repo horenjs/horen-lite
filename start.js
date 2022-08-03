@@ -1,3 +1,5 @@
+// noinspection JSCommentMatchesSignature
+
 const path = require('path');
 const proc = require('child_process');
 const webpack = require('webpack');

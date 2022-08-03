@@ -1,9 +1,8 @@
 import {HandlerResponse, Resp} from "./index";
 import {EVENTS, RESP_CODE} from "@constant";
-import {Favorite} from "./audio.handler";
 import {Handler, IpcInvoke} from "../decorators";
 import Logger from "../utils/logger";
-import {FavoriteService} from "../services/favorite.service";
+import {Favorite, FavoriteService} from "../services/favorite.service";
 
 const log = new Logger("handler::favorite");
 

@@ -1,8 +1,10 @@
-import { Injectable } from "../decorators";
+import {Injectable} from "../decorators";
 import path from "path";
 import {USER_DATA_PATH} from "@constant";
 import {FavoriteModel} from "../db/models";
-import {AudioService} from "./audio.service";
+import {AudioMeta, AudioService} from "./audio.service";
+
+export type Favorite = AudioMeta & { addAt: string | number };
 
 @Injectable("FavoriteService")
 export class FavoriteService {

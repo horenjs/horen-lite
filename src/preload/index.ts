@@ -1,9 +1,10 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { EVENTS } from "@constant";
 import { HandlerResponse } from "../main/handlers";
-import { AudioMeta, Favorite } from "../main/handlers/audio.handler";
 import { Track } from "@plugins/player";
 import { SettingValue } from "../main/utils/setting-store";
+import {Favorite} from "../main/services/favorite.service";
+import {AudioMeta} from "../main/services/audio.service";
 
 const IpcInvoke = async (
   event: EVENTS,
