@@ -17,7 +17,7 @@ async function IpcOn(event: EVENTS): Promise<any> {
   return new Promise((res, rej) => {
     try {
       ipcRenderer.on(event.toString(), (evt, ...args) => {
-        res(args);
+        res([...args]);
       });
     } catch (err) {
       rej(err);

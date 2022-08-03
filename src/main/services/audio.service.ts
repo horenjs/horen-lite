@@ -266,7 +266,7 @@ export class AudioService {
 
       mainWindow.webContents.send(
         EVENTS.REBUILD_AUDIO_CACHE_MSG.toString(),
-        msg
+        ...msg
       );
 
       const meta = await this.readMeta(src);

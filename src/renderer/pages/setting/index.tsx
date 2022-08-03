@@ -47,7 +47,8 @@ export default function SettingPage() {
   const [progressIdx, setProgressIdx] = React.useState(0);
   const [progressSrc, setProgressSrc] = React.useState("");
   const [totals, setTotals] = React.useState(1);
-  const [isProgress, setIsProgress] = React.useState(false);
+
+  const isFinished = (totals - progressIdx) < 20;
 
   const [form, setForm] = React.useState<SettingForm>({
     libraries: [],
@@ -78,17 +79,21 @@ export default function SettingPage() {
 
   React.useEffect(() => {
     const timer = setInterval(() => {
-      rebuildMsg().then((result: [number, number, string]) => {
-        logger("save progress: ", result);
-        const [i, t, s] = result;
-        setProgressIdx(i);
-        setTotals(t);
-        setProgressSrc(s);
-        setIsProgress((t - i) > 10);
+      rebuildMsg().then((result) => {
+        console.log(result);
+        setProgressIdx(result[0]);
+        setTotals(result[1]);
+        setProgressSrc(result[2]);
       });
     }, 100);
     return () => clearInterval(timer);
   }, [progressIdx]);
+
+  const refresh = () => {
+    saveSettingItem("lastIndex", 0).then();
+    saveSettingItem("lastSeek", 0).then();
+    dispatch(refreshMusicLibrary());
+  }
 
   const handleChangeLibrary = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -103,7 +108,7 @@ export default function SettingPage() {
         } else {
           logger("add music library path: ", p);
 
-          if (isProgress) {
+          if (!isFinished) {
             window.alert(t("Dont Change Music Library When Saving"));
           } else {
             const libs = [...form.libraries, p];
@@ -113,10 +118,7 @@ export default function SettingPage() {
 
             if (res.code === 1) {
               if (window.confirm(t("Refresh Music Library"))) {
-                // set the lastIndex and lastSeek to 0 when refresh
-                saveSettingItem("lastIndex", 0).then();
-                saveSettingItem("lastSeek", 0).then();
-                dispatch(refreshMusicLibrary());
+                refresh();
               }
             }
           }
@@ -133,9 +135,7 @@ export default function SettingPage() {
     setForm({...form, libraries: libs});
     saveSettingItem("libraries", libs).then();
     if (window.confirm(t("Refresh Music Library"))) {
-      saveSettingItem("lastIndex", 0).then();
-      saveSettingItem("lastSeek", 0).then();
-      dispatch(refreshMusicLibrary());
+      refresh();
     }
   }
 
@@ -175,10 +175,10 @@ export default function SettingPage() {
               e.preventDefault();
               if (window.confirm(t("Rebuild Audio Cache") + "?")) {
                 logger("rebuild the audio cache.");
-                if (isProgress) {
+                if (!isFinished) {
                   window.alert(t("Dont Change Music Library When Saving"));
                 } else {
-                  dispatch(refreshMusicLibrary());
+                  refresh();
                 }
               }
             }}
@@ -222,14 +222,14 @@ export default function SettingPage() {
       <div
         className={"save-progress"}
         style={{
-          display: isProgress ? "block" : "none",
+          display: !isFinished ? "block" : "none",
         }}
       >
-        <span className={"save-prompt"}>
-          <span>【{ progressIdx + " / " + totals }】</span>
+        <div className={"save-prompt"}>
+          <span>【{ `${progressIdx} / ${totals}` }】</span>
           <span>{t("Saving")}</span>
           <span>{progressSrc}</span>
-        </span>
+        </div>
       </div>
     </div>
   );
