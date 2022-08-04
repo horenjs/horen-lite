@@ -33,6 +33,7 @@ export enum EVENTS {
   SET_TITLE,
   SET_PROGRESS,
   CLOSE_ALL_WINDOWS,
+  MINIMIZE
 }
 
 export enum RESP_CODE {

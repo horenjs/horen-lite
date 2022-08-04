@@ -17,6 +17,11 @@ export class WindowHandler {
     mainWindow.close();
   }
 
+  @IpcInvoke(EVENTS.MINIMIZE)
+  public async handleMinimize() {
+    mainWindow.minimize();
+  }
+
   @IpcInvoke(EVENTS.SET_TITLE)
   public async handleSetTitle(evt, title: string) {
     mainWindow.setTitle(title);

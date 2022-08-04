@@ -16,4 +16,6 @@ export const {
   getAllSettingItems,
   getSettingItem,
   saveSettingItem,
+  //
+  minimizeMainWindow,
 } = window.ipc;

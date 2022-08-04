@@ -1,8 +1,8 @@
-import { contextBridge, ipcRenderer } from "electron";
-import { EVENTS } from "@constant";
-import { HandlerResponse } from "../main/handlers";
-import { Track } from "@plugins/player";
-import { SettingValue } from "../main/utils/setting-store";
+import {contextBridge, ipcRenderer} from "electron";
+import {EVENTS} from "@constant";
+import {HandlerResponse} from "../main/handlers";
+import {Track} from "@plugins/player";
+import {SettingValue} from "../main/utils/setting-store";
 import {Favorite} from "../main/services/favorite.service";
 import {AudioMeta} from "../main/services/audio.service";
 
@@ -118,6 +118,7 @@ interface IpcApi {
    * get all setting item
    */
   getAllSettingItems(): Promise<HandlerResponse<SettingValue[]>>;
+  minimizeMainWindow(): Promise<HandlerResponse<void>>;
 }
 
 const IPC_API: IpcApi = {
@@ -177,6 +178,9 @@ const IPC_API: IpcApi = {
   setTitle: async (title: string): Promise<HandlerResponse<void>> => {
     return await IpcInvoke(EVENTS.SET_TITLE, title);
   },
+  async minimizeMainWindow(): Promise<HandlerResponse<void>> {
+    return await IpcInvoke(EVENTS.MINIMIZE);
+  }
 };
 
 contextBridge.exposeInMainWorld("ipc", IPC_API);

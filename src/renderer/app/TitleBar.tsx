@@ -1,6 +1,7 @@
 import React from "react";
 import { RiCloseFill } from "react-icons/ri";
-import { closeAllWindows, saveSettingItem } from "../api";
+import { VscChromeMinimize } from "react-icons/vsc";
+import {closeAllWindows, minimizeMainWindow, saveSettingItem} from "../api";
 import { useSelector } from "react-redux";
 import {
   selectSeek,
@@ -34,6 +35,12 @@ export default function TitleBar() {
     <div className={"title-bar"}>
       <div className={"title"}>
         <span>{titleKey}</span>
+      </div>
+      <div className={"mini bar-item electron-no-drag"} onClick={e => {
+        e.preventDefault();
+        minimizeMainWindow().then();
+      }}>
+        <VscChromeMinimize size={20} />
       </div>
       <div className={"close bar-item electron-no-drag"} onClick={e => {
         e.preventDefault();
