@@ -19,11 +19,19 @@
     border-radius: 4px;
     cursor: pointer;
     transition: all .1s ease-in-out;
-    &.spacer {
+    &.play-all {
       flex-grow: 1;
+      display: flex;
+      justify-content: center;
+    }
+    .match {
+      color: #71b15f;
     }
     &:hover {
       background-color: #55ba4e;
+      svg {
+        color: #f6f6f6;
+      }
     }
   }
 }

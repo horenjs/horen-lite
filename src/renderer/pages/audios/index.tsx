@@ -1,6 +1,6 @@
 import "./style.less";
 import React from "react";
-import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
+import { Route, Routes, useNavigate, Navigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   setQueue,
@@ -16,13 +16,21 @@ import { getAudios, getSettingItem } from "../../api";
 import debug from "@plugins/debug";
 import Favorite from "./favorites";
 import Lists from "./lists";
+import {getLocalItem, setLocalItem} from "../../utils";
 
 const logger = debug("Page:Audios");
 
 export default function PlayList() {
   const dispatch = useDispatch();
+  const location = useLocation();
   const navi = useNavigate();
   const audios = useSelector(selectAudioList);
+
+  const match = (p: string) => {
+    const pattern = new RegExp(p)
+    const isMatch = pattern.test(location.pathname);
+    return isMatch && "match";
+  };
 
   const handlePlayAll = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -49,11 +57,18 @@ export default function PlayList() {
     });
   }, []);
 
+  React.useEffect(() => {
+    const pathname = location.pathname;
+    const parts = pathname.split("/");
+    const name = parts.slice(-1)[0];
+    setLocalItem("page-audios-pathname", name);
+  }, [location.pathname]);
+
   return (
     <div className={"page page-audios electron-no-drag no-scrollbar"}>
       <div className={"page-content"}>
         <Routes>
-          <Route index element={<Navigate to={"lists"} />} />
+          <Route index element={<Navigate to={getLocalItem("page-audios-pathname")} />} />
           <Route path={"lists"} element={<Lists />} />
           <Route path={"favorite"} element={<Favorite />} />
         </Routes>
@@ -63,30 +78,29 @@ export default function PlayList() {
           <TbPlaylistAdd size={24} />
           <span>Play All</span>
         </div>
-        <div className={"operate-item spacer"}></div>
         <div
           className={"operate-item"}
           onClick={(e) => handleClick(e, "lists")}
         >
-          <IoListCircleOutline size={20} />
+          <IoListCircleOutline size={20} className={match("lists")} />
         </div>
         <div
           className={"operate-item"}
           onClick={(e) => handleClick(e, "artist")}
         >
-          <TbUserCircle size={20} />
+          <TbUserCircle size={20} className={match("artist")} />
         </div>
         <div
           className={"operate-item"}
           onClick={(e) => handleClick(e, "album")}
         >
-          <BiAlbum size={20} />
+          <BiAlbum size={20} className={match("album")} />
         </div>
         <div
           className={"operate-item"}
           onClick={(e) => handleClick(e, "favorite")}
         >
-          <MdOutlineFavoriteBorder size={20} />
+          <MdOutlineFavoriteBorder size={20} className={match("favorite")} />
         </div>
       </div>
     </div>
