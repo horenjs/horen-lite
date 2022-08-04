@@ -18,7 +18,6 @@ import { useTranslation } from "react-i18next";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
 import { player } from "../../app/DataManager";
-import {debounce, getLocalItem, setLocalItem} from "../../utils";
 import VirtualList from "@components/virtual-list";
 
 const logger = debug("Page:Audios");
@@ -30,11 +29,6 @@ export default function PlayList() {
   const current = useSelector(selectCurrent);
   const queue = useSelector(selectQueue);
   const audios = useSelector(selectAudioList);
-
-  const ref = React.useRef<any>();
-
-  const [defaultTop, setT] = React.useState(0);
-  const [defaultStart, setS] = React.useState(0);
 
   const handleDoubleClick = (
     e: React.MouseEvent<HTMLDivElement>,
@@ -57,18 +51,6 @@ export default function PlayList() {
     dispatch(setQueue(audios));
   }
 
-  const _setLocalToTop = () => {
-    const toTop = Number(getLocalItem("page-audios-to-top"));
-    if (ref?.current) ref.current.scrollTo({top: toTop});
-  }
-
-  const handleScroll = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const target = e.target as any;
-    const toTop = target.scrollTop;
-    debounce(setLocalItem)("page-audios-to-top", toTop);
-  }
-
   React.useEffect(() => {
     getSettingItem("libraries").then(resp => {
       if (resp.code === 1) {
@@ -82,11 +64,6 @@ export default function PlayList() {
         });
       }
     });
-
-    _setLocalToTop();
-
-    setS(Number(getLocalItem("page-audios-start")));
-    setT(Number(getLocalItem("page-audios-top")));
   }, []);
 
   const renderTrackItem = (track: Track, idx: number, start: number) => {
@@ -124,22 +101,14 @@ export default function PlayList() {
   return (
     <div
       className={"page page-audio-list electron-no-drag perfect-scrollbar"}
-      onScroll={handleScroll}
-      ref={ref}
     >
       <div className={"audio-list"}>
         {audios.length > 0 ? (
           <VirtualList
-            defaultStart={defaultStart}
-            defaultTop={defaultTop}
             data={audios}
             height={410}
             itemHeight={32}
             render={renderTrackItem}
-            onScroll={(e, start, tt) => {
-              setLocalItem("page-audios-start", start);
-              setLocalItem("page-audios-top", tt);
-            }}
           />
         ) : (
           <div className={"loading"}>
