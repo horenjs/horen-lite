@@ -1,6 +1,6 @@
 import React from "react";
 import "./style.less";
-import { getFavorites, removeFavoriteItem } from "../../api";
+import { getFavorites, removeFavoriteItem } from "../../../api";
 import {RiHeart3Fill, RiPlayListAddFill} from "react-icons/ri";
 import Loading from "@components/loading";
 import {useDispatch, useSelector} from "react-redux";
@@ -9,11 +9,11 @@ import {
   selectCurrent,
   selectIsPlaying, selectQueue,
 } from "@store/slices/player-status.slice";
-import {player} from "../../app/DataManager";
+import {player} from "../../../app/DataManager";
 import {MdOutlineDownloadDone} from "react-icons/md";
-import {queueIndexOf} from "../audios";
+import {queueIndexOf} from "../index";
 import {Track} from "@plugins/player";
-import {Favorite} from "../../../main/services/favorite.service";
+import {Favorite} from "../../../../main/services/favorite.service";
 
 export default function PageFavorites() {
   const dispatch = useDispatch();
@@ -87,7 +87,7 @@ export default function PageFavorites() {
   }
 
   return (
-    <div className={"page page-favorites electron-no-drag perfect-scrollbar"}>
+    <div className={"audios-favorite electron-no-drag perfect-scrollbar"}>
       <div className={"favorites-content"}>
         {favorites && favorites.map(renderFavoriteItem)}
       </div>

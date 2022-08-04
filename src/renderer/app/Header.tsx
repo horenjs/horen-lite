@@ -1,6 +1,6 @@
 import Footer from "@components/footer";
 import React from "react";
-import { MdOutlineFavoriteBorder, MdOutlineTextFields } from "react-icons/md";
+import { MdOutlineTextFields } from "react-icons/md";
 import { BsMusicNoteList } from "react-icons/bs";
 import { MdFormatListBulleted } from "react-icons/md";
 import Loading from "@components/loading";
@@ -20,7 +20,8 @@ export default function Header() {
   const isPlaying = useSelector(selectIsPlaying);
 
   const match = (p: string) => {
-    const isMatch = p === location.pathname;
+    const pattern = new RegExp(p)
+    const isMatch = pattern.test(location.pathname);
     return isMatch ? "#71b15f" : "#f1f1f1";
   };
 
@@ -84,21 +85,6 @@ export default function Header() {
         logger("click: ", key);
         navi("/lyric");
         dispatch(setTitleKey("lyric"));
-      },
-    },
-    {
-      key: "favorites",
-      title: "Favorites",
-      icon: (
-        <MdOutlineFavoriteBorder
-          size={26}
-          color={match("/favorites")}
-        />
-      ),
-      onClick(key: string | number) {
-        logger("click: ", key);
-        navi("favorites");
-        dispatch(setTitleKey("favorites"));
       },
     },
     {

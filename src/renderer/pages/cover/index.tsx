@@ -32,7 +32,7 @@ import "./style.less";
 import { PlayMode } from "@plugins/player";
 import debug from "@plugins/debug";
 import { saveSettingItem, getFavorites, addFavoriteItem, removeFavoriteItem } from "../../api";
-import {favoritesIndexOf} from "../favorites";
+import {favoritesIndexOf} from "../audios/favorites";
 
 const logger = debug("Page:Cover");
 
