@@ -9,6 +9,12 @@
     cursor: pointer;
     color: #bebebe;
     user-select: none;
+    height: 20px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .8rem;
     &:hover {
       color: #f6f6f6 !important;
       .remove,.insert-to-top {
@@ -17,11 +23,15 @@
     }
     .index {
       padding: 0 8px 0 0;
-      width: 40px;
+      width: 32px;
+      min-width: 32px;
       text-align: center;
     }
     .info {
       flex-grow: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .insert-to-top {
       display: flex;

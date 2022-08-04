@@ -81,7 +81,7 @@ export default function AudioList() {
         <VirtualList
           data={audios}
           height={410}
-          itemHeight={32}
+          itemHeight={28}
           render={renderTrackItem}
         />
       ) : (

@@ -11,6 +11,7 @@ import { IoMdClose } from "react-icons/io";
 import { MdOutlineVerticalAlignTop } from "react-icons/md";
 import debug from "@plugins/debug";
 import Loading from "@components/loading";
+import VirtualList from "@components/virtual-list";
 import {player} from "../../app/DataManager";
 import {queueIndexOf} from "@pages/audios";
 
@@ -48,44 +49,47 @@ export default function PlayQueue() {
     dispatch(setQueue([t, ...q.slice(0)]))
   }
 
+  const renderItem = (tt: Track, idx: number, start: number) => {
+    const isCurrent = current.src === tt.src;
+    return (
+      <div
+        className={"playlist-item"}
+        key={tt.src || idx}
+        data-src={tt.src || idx}
+        onDoubleClick={(e) => handleDoubleClick(e, tt.src)}
+      >
+        <div className={"index"}>
+          {isCurrent ? (
+            <Loading scale={0.8} stop={!isPlaying} color={"#71b15f"} />
+          ) : (
+            start + idx + 1
+          )}
+        </div>
+        <div className={"info"} style={{ color: isCurrent && "#71b15f" }}>
+          <span>{tt.title || t("No Title")}</span>
+        </div>
+        {idx > 0 && (
+          <div
+            className={"insert-to-top"}
+            onClick={(e) => handleInsert(e, tt)}
+          >
+            <MdOutlineVerticalAlignTop size={18} />
+          </div>
+        )}
+        <div className={"remove"} onClick={(e) => handleRemove(e, tt)}>
+          <IoMdClose fill={"#df3636"} size={18} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={"page page-playlist electron-no-drag perfect-scrollbar"}
+      className={"page page-playlist electron-no-drag no-scrollbar"}
     >
-      {queue?.length ?
-        queue.map((tt: Track, idx) => {
-          const isCurrent = current.src === tt.src;
-          return (
-            <div
-              className={"playlist-item"}
-              key={tt.src || idx}
-              data-src={tt.src || idx}
-              onDoubleClick={(e) => handleDoubleClick(e, tt.src)}
-            >
-              <div className={"index"}>
-                {isCurrent ? (
-                  <Loading scale={0.8} stop={!isPlaying} color={"#71b15f"} />
-                ) : (
-                  idx + 1
-                )}
-              </div>
-              <div className={"info"} style={{ color: isCurrent && "#71b15f" }}>
-                <span>{tt.title || t("No Title")}</span>
-              </div>
-              {idx > 0 && (
-                <div
-                  className={"insert-to-top"}
-                  onClick={(e) => handleInsert(e, tt)}
-                >
-                  <MdOutlineVerticalAlignTop size={18} />
-                </div>
-              )}
-              <div className={"remove"} onClick={(e) => handleRemove(e, tt)}>
-                <IoMdClose fill={"#df3636"} size={18} />
-              </div>
-            </div>
-          );
-        }) : <div className={"loading"}><Loading type={"square"}/></div>
+      {queue?.length
+        ? <VirtualList itemHeight={28} height={410} data={queue} render={renderItem}/>
+        : <div className={"loading"}><Loading type={"square"}/></div>
       }
     </div>
   );
