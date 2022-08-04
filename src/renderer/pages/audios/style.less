@@ -11,7 +11,7 @@
   .operate-item {
     width: fit-content;
     height: 32px;
-    padding: 0 8px 1px 4px;
+    padding: 0 4px 1px 4px;
     display: flex;
     align-items: center;
     color: #efefef;
@@ -37,12 +37,17 @@
     height: 100%;
   }
   .audio-list-item {
+    width: 100%;
+    height: 24px;
     padding: 4px 0;
     display: flex;
     align-items: center;
     cursor: pointer;
     color: #bebebe;
     user-select: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     &:hover {
       color: #f6f6f6 !important;
       .more-actions {

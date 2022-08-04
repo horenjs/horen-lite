@@ -98,6 +98,8 @@ export class AudioService {
 
     const totals = audios.length;
 
+    await AudioModel.destroy({truncate: true});
+
     log.debug("save audio meta to db");
     for (let i = 0; i < audios.length; i++) {
       const metas = await this.readMetas(audios.slice(i, i+1), totals, i);

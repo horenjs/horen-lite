@@ -33,6 +33,9 @@ export default function PlayList() {
 
   const ref = React.useRef<any>();
 
+  const [defaultTop, setT] = React.useState(0);
+  const [defaultStart, setS] = React.useState(0);
+
   const handleDoubleClick = (
     e: React.MouseEvent<HTMLDivElement>,
     src: string
@@ -81,6 +84,9 @@ export default function PlayList() {
     });
 
     _setLocalToTop();
+
+    setS(Number(getLocalItem("page-audios-start")));
+    setT(Number(getLocalItem("page-audios-top")));
   }, []);
 
   const renderTrackItem = (track: Track, idx: number, start: number) => {
@@ -124,11 +130,11 @@ export default function PlayList() {
       <div className={"audio-list"}>
         {audios.length > 0 ? (
           <VirtualList
-            defaultStart={Number(getLocalItem("page-audios-start")) || 0}
-            defaultTop={Number(getLocalItem("page-audios-top")) || 0}
+            defaultStart={defaultStart}
+            defaultTop={defaultTop}
             data={audios}
             height={410}
-            itemHeight={28}
+            itemHeight={32}
             render={renderTrackItem}
             onScroll={(e, start, tt) => {
               setLocalItem("page-audios-start", start);
