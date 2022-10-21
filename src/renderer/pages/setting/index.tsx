@@ -220,14 +220,14 @@ export default function SettingPage() {
       />
       {/* progress of the saving status */}
       <div
-        className={"save-progress"}
+        className={"loading-progress"}
         style={{
           display: !isFinished ? "block" : "none",
         }}
       >
-        <div className={"save-prompt"}>
-          <span>【{ `${progressIdx} / ${totals}` }】</span>
-          <span>{t("Saving")}</span>
+        <div className={"loading-prompt"}>
+          <span>[ { (progressIdx / totals * 100).toFixed(0) }% ] </span>
+          <span>{t("library.loading")}</span>
           <span>{progressSrc}</span>
         </div>
       </div>
