@@ -179,8 +179,10 @@ export default function PageCover() {
         />
       </div>
       <div className={"title electron-no-drag"}>
-        <span>{current?.title || t("No Title")}</span>
-        <span className={"add-to-favorite"} onClick={e => {
+        <div className={"title-text"} title={current?.title}>
+          <div>{current?.title || t("No Title")}</div>
+        </div>
+        <div className={"add-to-favorite"} onClick={e => {
           e.preventDefault();
           if (!isFavorite) {
             addFavoriteItem(current?.src).then();
@@ -193,7 +195,7 @@ export default function PageCover() {
           }
         }}>
           {isFavorite ? <RiHeart3Fill fill={"#e32c2c"} /> : <RiHeart3Line />}
-        </span>
+        </div>
       </div>
       <div className={"artist"}>
         <span>{current?.artist || current?.artists || t("No Artist")}</span>
