@@ -21,6 +21,7 @@ import {
   setNext,
   setPlayMode,
   setIsPlaying,
+  setSeek,
   selectIsPlaying,
   selectCurrent,
   selectSeek,
@@ -33,6 +34,7 @@ import { PlayMode } from "@plugins/player";
 import debug from "@plugins/debug";
 import { saveSettingItem, getFavorites, addFavoriteItem, removeFavoriteItem } from "../../api";
 import {favoritesIndexOf} from "../audios/favorites";
+import { player } from "../../app/DataManager";
 
 const logger = debug("Page:Cover");
 
@@ -200,8 +202,8 @@ export default function PageCover() {
       <div className={"handlers electron-no-drag"}>
         <Handler items={items} />
       </div>
-      <div className={"progress"}>
-        <Slider percent={percent} />
+      <div className={"progress electron-no-drag"}>
+        <Slider percent={percent} onSeek={p => player.seek=p*current?.duration}/>
       </div>
     </div>
   );
